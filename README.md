@@ -16,5 +16,5 @@ This is an example of how you may give instructions on setting up your project l
 
 Prerequisites:
 1.This is an example of how to list things you need to use the software and how to install them.
-2.npm install express mysql2
+2.npm install express mysql2 or I have attached the package.json file from there you can directly install the dependency packages.
 3.Use postman to hit the API to get the details for each and Every URL & Database detail specified in the code. Feel free to use it.
