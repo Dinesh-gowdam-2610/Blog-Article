@@ -20,9 +20,7 @@ async function getBlobDetails(page = 1) {
 }
 async function addBlobArticles(title, body) {
   try {
-    let titleStringLength = "'" + title + "'".length;
-    let bodyStringLength = "'" + body + "'".length;
-    if (title && titleStringLength > 50 && body && bodyStringLength > 50) {
+    if (title.length > 50 && body.length > 50) {
       const rows = await db(
         `INSERT INTO blogArticles (title,body) VALUES ("${title}","${body}")`
       );
