@@ -12,6 +12,12 @@
 # ║    *    → every month                                                      ║
 # ║    1-5  → Monday(1) through Friday(5) only — skips Sat(6) and Sun(0/7)    ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
+# ║  ACTION VERSIONS (Node.js 24 compatible — updated May 2025):               ║
+# ║    actions/checkout@v4.2.2   → uses Node.js 24 internally                 ║
+# ║    actions/setup-node@v4.4.0 → uses Node.js 24 internally                 ║
+# ║  GitHub is forcing Node.js 24 for all actions from June 2nd 2026.         ║
+# ║  These versions are already compatible — no breaking changes expected.    ║
+# ╠══════════════════════════════════════════════════════════════════════════════╣
 # ║  SECRET PROTECTION:                                                        ║
 # ║  • API keys stored ONLY in GitHub Encrypted Secrets — never in code        ║
 # ║  • Injected as env vars at runtime — never as CLI args                     ║
@@ -38,6 +44,11 @@ on:
   # Adds the "Run workflow" button in the GitHub Actions tab for manual testing
   workflow_dispatch:
 
+# Opt into Node.js 24 now — avoids the deprecation warning on every run.
+# GitHub forces this from June 2nd 2026 anyway. Doing it now is cleaner.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 # Minimum permissions — read the repo, nothing else
 permissions:
   contents: read
@@ -56,14 +67,16 @@ jobs:
 
     steps:
       # ── 1. Checkout ────────────────────────────────────────────────────────
+      # actions/checkout@v4.2.2 — Node.js 24 compatible (updated May 2025)
       - name: ⬇️ Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
         with:
           ref: ${{ github.sha }}
 
       # ── 2. Node.js ─────────────────────────────────────────────────────────
+      # actions/setup-node@v4.4.0 — Node.js 24 compatible (updated May 2025)
       - name: 🟢 Setup Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.4.0
         with:
           node-version: "22"
           # No npm install — script uses only Node built-ins + fetch API
@@ -120,6 +133,7 @@ jobs:
             echo "| ✅ Status | ${{ job.status }} |"
             echo "| 🖥️ Runner | ubuntu-latest |"
             echo "| 📆 Schedule | Mon–Fri only (no weekends) |"
+            echo "| ⚙️ Actions runtime | Node.js 24 (FORCE_JAVASCRIPT_ACTIONS_TO_NODE24) |"
             echo ""
             echo "> 🔒 No API keys or secrets appear in this summary or any log above."
           } >> "$GITHUB_STEP_SUMMARY"
