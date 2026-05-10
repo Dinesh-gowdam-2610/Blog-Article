@@ -606,30 +606,68 @@ function buildEcosystemPulse(today) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GROQ WRAPPER
+// GROQ WRAPPER — with automatic rate-limit retry + exponential backoff
+//
+// Groq free tier: 12,000 TPM (tokens per minute). If the scout call and
+// writer call land in the same 60-second window and together exceed 12,000
+// tokens, Groq returns HTTP 429 with a "retry_after" hint in the response.
+// This wrapper reads that hint and waits exactly as long as Groq says,
+// then retries — up to 5 times before giving up.
 // ─────────────────────────────────────────────────────────────────────────────
-async function groq(messages, { model = "llama-3.3-70b-versatile", max_tokens = 1024, json = false } = {}) {
-  const res = await fetch(GROQ_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type":  "application/json",
-      "Authorization": `Bearer ${CONFIG.groqApiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens,
-      messages,
-      ...(json ? { response_format: { type: "json_object" } } : {}),
-    }),
-  });
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Groq API error ${res.status}: ${err}`);
+async function groq(messages, { model = "llama-3.3-70b-versatile", max_tokens = 1024, json = false } = {}) {
+  const MAX_RETRIES = 5;
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    const res = await fetch(GROQ_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type":  "application/json",
+        "Authorization": `Bearer ${CONFIG.groqApiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens,
+        messages,
+        ...(json ? { response_format: { type: "json_object" } } : {}),
+      }),
+    });
+
+    // ── Success ──────────────────────────────────────────────────────────────
+    if (res.ok) {
+      const data = await res.json();
+      return data.choices?.[0]?.message?.content ?? "";
+    }
+
+    // ── Rate limit (429) — read wait time from Groq's error body ─────────────
+    if (res.status === 429) {
+      const errBody = await res.json().catch(() => ({}));
+      const msg     = errBody?.error?.message ?? "";
+
+      // Groq tells you exactly how many seconds to wait: "try again in 2.92s"
+      const secondsMatch = msg.match(/try again in ([\d.]+)s/i);
+      const waitSeconds  = secondsMatch
+        ? Math.ceil(parseFloat(secondsMatch[1])) + 2   // add 2s buffer
+        : Math.min(15 * attempt, 90);                   // fallback: 15s, 30s, 45s...
+
+      console.log(`⏳  Rate limit hit (attempt ${attempt}/${MAX_RETRIES})`);
+      console.log(`   Groq says: "${msg.slice(0, 120)}"`);
+      console.log(`   Waiting ${waitSeconds}s before retry...
+`);
+
+      await sleep(waitSeconds * 1000);
+      continue;
+    }
+
+    // ── Any other error — fail immediately ────────────────────────────────────
+    const errText = await res.text();
+    throw new Error(`Groq API error ${res.status}: ${errText}`);
   }
 
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content ?? "";
+  throw new Error(`Groq API failed after ${MAX_RETRIES} attempts — rate limit persists. Try again later.`);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -728,7 +766,16 @@ Return ONLY a raw JSON object (no markdown, no explanation):
   "gotchaToReveal": "one real gotcha or counterintuitive behavior the post will expose",
   "tags": ["tag1", "tag2", "tag3", "tag4"],
   "estimatedControversy": "low | medium | high"
-}`;
+}
+
+STRICT TAG RULES — Dev.to will reject the post with a 422 error if violated:
+- Max 4 tags
+- Each tag: lowercase letters and numbers ONLY
+- No spaces — merge words into one (e.g. "cost optimization" → "costoptimization", "api gateway" → "apigateway")
+- No hyphens, underscores, dots, or any special characters
+- Max 20 characters per tag
+- Good examples: "nodejs", "aws", "typescript", "lambda", "dynamodb", "serverless", "devops", "javascript", "cloudwatch", "s3"
+- Bad examples: "cost optimization", "api-gateway", "node.js", "AWS SDK", "best-practices"`;
 
   const raw = await groq(
     [{ role: "user", content: prompt }],
@@ -882,6 +929,29 @@ function stripTitle(md) {
   return md.replace(/^#\s+.+\n?/, "").trim();
 }
 
+// ── Tag sanitizer ─────────────────────────────────────────────────────────────
+// Dev.to tag rules (enforced server-side, returns 422 if violated):
+//   • Lowercase only
+//   • No spaces — use nothing (just merge words)
+//   • No special characters — alphanumeric only
+//   • Max 4 tags per article
+//   • Each tag max 20 characters
+// ─────────────────────────────────────────────────────────────────────────────
+function sanitizeTags(tags) {
+  const safe = tags
+    .map(tag =>
+      tag
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "")   // strip spaces, hyphens, unicode, symbols
+        .slice(0, 20)                  // max 20 chars per tag
+    )
+    .filter(tag => tag.length > 0)    // drop anything that became empty
+    .slice(0, 4);                     // dev.to hard limit: max 4 tags
+
+  console.log(`🏷️   Tags sanitized: ${safe.join(", ")}`);
+  return safe;
+}
+
 // ── Dev.to auth check ──────────────────────────────────────────────────────────
 async function getDevtoUser() {
   console.log("🔑  Verifying Dev.to credentials...");
@@ -945,7 +1015,7 @@ async function main() {
     await getDevtoUser();
 
     // Phase 4 — Publish
-    const article = await postToDevto(title, body, topic.tags);
+    const article = await postToDevto(title, body, sanitizeTags(topic.tags));
     const url = article.url ?? "https://dev.to";
 
     console.log("\n╔═══════════════════════════════════════════════════╗");
