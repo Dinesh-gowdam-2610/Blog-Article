@@ -779,7 +779,7 @@ STRICT TAG RULES — Dev.to will reject the post with a 422 error if violated:
 
   const raw = await groq(
     [{ role: "user", content: prompt }],
-    { max_tokens: 800, json: true }
+    { max_tokens: 700, json: true }   // scout only needs a small JSON blob
   );
 
   let topic;
@@ -878,7 +878,7 @@ FORMAT: Clean Markdown only. No HTML. No YAML frontmatter. No intro like "Sure, 
       { role: "system", content: system },
       { role: "user",   content: user   },
     ],
-    { max_tokens: 8192 }
+    { max_tokens: 7500 }   // 7500 + ~600 scout = ~8100 total, safely under 12,000 TPM
   );
 
   if (!markdown || markdown.length < 800) {
@@ -1001,6 +1001,13 @@ async function main() {
   try {
     // Phase 1 — Scout a fresh, spicy, AWS-services-grounded topic
     const topic = await scoutTodaysTopic();
+
+    // Phase 2 — Wait 65s so Groq TPM window fully resets between scout and writer.
+    // Scout used ~600-800 tokens. Writer needs ~7500. Together > 12,000 TPM limit
+    // if fired back-to-back. 65s guarantees a clean window — costs one extra minute.
+    console.log("⏸️   Waiting 65s for Groq TPM window to reset before writer call...");
+    await sleep(65_000);
+    console.log("✅  TPM window reset. Starting writer call.\n");
 
     // Phase 2 — Write the full post
     const markdown = await writeBlogPost(topic);
