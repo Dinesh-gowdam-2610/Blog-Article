@@ -563,7 +563,7 @@ const AWS_SERVICES_CATALOG = {
       "Scheduler universal targets: invoke DynamoDB directly without Lambda in the middle",
     ],
   },
-;
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // NODE.JS + TYPESCRIPT + JAVASCRIPT CATALOG
