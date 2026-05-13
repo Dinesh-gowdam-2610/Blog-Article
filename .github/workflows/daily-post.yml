@@ -1,10 +1,10 @@
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  .github/workflows/daily-post.yml                                          ║
-# ║  Publishes one AI-generated blog post every weekday at 10:00 AM IST        ║
+# ║  Publishes one AI-generated blog post every weekday at 06:00 AM IST        ║
 # ║  Skips Saturday and Sunday automatically (cron: Mon–Fri only)              ║
 # ║  Calls: scripts/devCommunityBlogPost.js                                    ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
-# ║  10:00 AM IST  =  04:30 UTC  (IST is UTC +5:30)                           ║
+# ║  06:00 AM IST  =  00:30 UTC  (IST is UTC +5:30)                           ║
 # ║  Cron field breakdown:  30 4 * * 1-5                                       ║
 # ║    30   → minute 30                                                        ║
 # ║    4    → hour 04 (UTC)                                                    ║
@@ -29,17 +29,17 @@
 # ║    DEVTO_API_KEY  → https://dev.to/settings/extensions                     ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
-name: 📅 Weekday Blog Post (10 AM IST)
+name: 📅 Weekday Blog Post (6 AM IST)
 
 on:
   schedule:
     #        ┌─ minute (30)
-    #        │  ┌─ hour in UTC (04:30 UTC = 10:00 AM IST)
+    #        │  ┌─ hour in UTC (00:30 UTC = 06:00 AM IST)
     #        │  │  ┌─ day of month (every)
     #        │  │  │  ┌─ month (every)
     #        │  │  │  │  ┌─ day of week: 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
     #        │  │  │  │  │
-    - cron: "30 4 * * 1-5"    # Mon–Fri · 04:30 UTC · 10:00 AM IST
+    - cron: "30 0 * * 1-5"    # Mon–Fri · 00:30 UTC · 06:00 AM IST (off-peak — less GitHub runner delay)
 
   # Adds the "Run workflow" button in the GitHub Actions tab for manual testing
   workflow_dispatch:
@@ -49,9 +49,9 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-# Minimum permissions — read the repo, nothing else
+# contents: write needed to commit post-history.json history back to repo
 permissions:
-  contents: read
+  contents: write
 
 # One run at a time — if somehow two triggers fire, cancel the older one
 concurrency:
@@ -63,7 +63,7 @@ jobs:
     name: Generate & Publish Weekday Post
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
 
     steps:
       # ── 1. Checkout ────────────────────────────────────────────────────────
@@ -119,7 +119,21 @@ jobs:
           NODE_ENV:      production
         run: node scripts/devCommunityBlogPost.js
 
-      # ── 5. Job summary (zero secrets referenced here) ──────────────────────
+      # ── 5. Commit history file back to repo ──────────────────────────────────
+      # post-history.json is updated by the script after each successful post.
+      # Committing it back means the NEXT run knows what was already published.
+      # If nothing changed (e.g. dry run or error), git commit is a no-op.
+      - name: 💾 Commit post-history.json
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add logs/post-history.json
+          # Only commit if the file actually changed
+          git diff --staged --quiet || git commit -m "chore: update post-history.json [skip ci]"
+          git push
+
+      # ── 6. Job summary (zero secrets referenced here) ──────────────────────
       - name: 📋 Job summary
         if: always()
         run: |
@@ -129,7 +143,7 @@ jobs:
             echo "| Field | Value |"
             echo "|-------|-------|"
             echo "| 📅 Date (UTC) | $(date -u '+%Y-%m-%d %H:%M UTC') |"
-            echo "| 🕙 Local time | 10:00 AM IST |"
+            echo "| 🕙 Local time | 06:00 AM IST |"
             echo "| ✅ Status | ${{ job.status }} |"
             echo "| 🖥️ Runner | ubuntu-latest |"
             echo "| 📆 Schedule | Mon–Fri only (no weekends) |"
