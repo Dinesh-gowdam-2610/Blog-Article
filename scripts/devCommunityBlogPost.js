@@ -563,40 +563,399 @@ const AWS_SERVICES_CATALOG = {
       "Scheduler universal targets: invoke DynamoDB directly without Lambda in the middle",
     ],
   },
+;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NODE.JS + TYPESCRIPT + JAVASCRIPT CATALOG
+// Mirrors the AWS catalog structure so the scout treats runtime topics with
+// equal depth. Topics here combine naturally with AWS services:
+//   "Node.js 22 require(esm) + Lambda layers"
+//   "TypeScript satisfies + AWS SDK v3 commands"
+//   "Bun vs Node.js on Lambda custom runtime"
+// ─────────────────────────────────────────────────────────────────────────────
+const RUNTIME_CATALOG = {
+
+  // ── Node.js Runtime ────────────────────────────────────────────────────────
+  NodeJS22: {
+    category: "runtime",
+    signals: [
+      "Node.js 22 is LTS — require(esm) finally stable, no more dual package hazard",
+      "--experimental-strip-types ships: run TypeScript directly without ts-node or tsx",
+      "Native fetch, WebStreams, and navigator.userAgent all stable in Node 22",
+      "Node.js permission model (--allow-fs-read, --allow-net) getting security adoption",
+      "V8 Maglev compiler in Node 22 giving real-world 20-30% perf gains",
+      "node:sqlite built-in module shipped in Node 22.5 — no more better-sqlite3",
+      "diagnostics_channel for zero-overhead observability criminally underused",
+      "Node.js now has a built-in .env file loader (--env-file flag)",
+      "require(esm) in Lambda Node.js 22 runtime: what breaks and what doesn't",
+    ],
+    gotchas: [
+      "--experimental-strip-types strips types but does NOT typecheck — teams assume it does",
+      "require(esm) is synchronous — top-level await in ESM modules still breaks it",
+      "Node.js permission model denies child_process by default — Lambda exec() patterns fail",
+      "node:sqlite WAL mode not enabled by default — teams miss 3x write perf",
+      "--env-file doesn't override existing process.env — confuses local vs CI setups",
+      "V8 Maglev benefits are workload-specific — CPU-bound gains, I/O-bound negligible",
+    ],
+    spicyAngles: [
+      "Node.js 22 --experimental-strip-types: we deleted ts-node from 12 services last week",
+      "require(esm) in Node 22 on Lambda: the 3 edge cases nobody documents",
+      "node:sqlite vs better-sqlite3 vs libsql: the embedded DB choice in 2025",
+      "Node.js permission model on Lambda: sandboxing your own serverless functions",
+      "We benchmarked V8 Maglev on our Lambda functions — the results were disappointing",
+      "Node.js --env-file: finally no more dotenv, but there's a catch",
+    ],
+  },
+
+  NodeJSPerformance: {
+    category: "runtime",
+    signals: [
+      "Undici 7 replacing got/axios as the HTTP client of choice in Node.js services",
+      "node:http2 direct usage replacing HTTP/1.1 in internal microservices",
+      "Worker threads finally practical for CPU-bound Lambda workloads",
+      "Node.js AsyncLocalStorage for request context propagation without param drilling",
+      "BYOC (Bring Your Own Cache) pattern with node:v8 serialization for Lambda warmed state",
+      "Streams pipeline() API replacing manual pipe() chains — backpressure handled correctly",
+    ],
+    gotchas: [
+      "Undici's fetch throws on non-2xx — unlike browser fetch which doesn't",
+      "Worker threads share no state — no globals, no require cache, no module singletons",
+      "AsyncLocalStorage context lost across setImmediate() boundaries in some versions",
+      "Node.js streams in object mode have different backpressure semantics than byte mode",
+      "AbortController + fetch timeout — cleanup must be explicit or you leak the timer",
+    ],
+    spicyAngles: [
+      "We replaced axios with Undici across 20 services — 40% lower p99 latency",
+      "Worker threads on Lambda: finally a use case that makes sense",
+      "AsyncLocalStorage: the Node.js feature that replaced our entire tracing middleware",
+      "Node.js Streams in 2025: when to use them and when to stop pretending",
+    ],
+  },
+
+  NodeJSTesting: {
+    category: "testing",
+    signals: [
+      "node:test built-in runner killing Jest in new Node.js 22 projects",
+      "node:test now supports --watch mode, code coverage, and snapshot testing",
+      "Vitest eating Jest's lunch in TypeScript projects — faster, ESM-native",
+      "testcontainers-node for real DynamoDB/S3/SQS integration tests without mocks",
+      "AWS SDK Client Mock (@aws-sdk/client-mock) for unit testing Lambda handlers",
+      "Playwright replacing Puppeteer for E2E testing of Node.js web apps",
+    ],
+    gotchas: [
+      "node:test coverage excludes node_modules but includes generated files — false metrics",
+      "Vitest mocks are reset per test file not per test — shared state bugs are subtle",
+      "testcontainers cold pull on first CI run adds 2-3 minutes — teams blame the test",
+      "AWS SDK Client Mock doesn't validate request shapes — you can mock the wrong thing",
+      "Jest fake timers and AWS SDK v3 retry delays interact in non-obvious ways",
+    ],
+    spicyAngles: [
+      "We deleted Jest and migrated 400 tests to node:test in one day — here's the script",
+      "testcontainers vs LocalStack vs mocks: the Lambda integration test decision tree",
+      "Vitest vs node:test in 2025: the honest comparison nobody writes",
+      "AWS SDK Client Mock: the right way to unit test Lambda handlers (and the wrong way)",
+    ],
+  },
+
+  // ── TypeScript ─────────────────────────────────────────────────────────────
+  TypeScript55: {
+    category: "typescript",
+    signals: [
+      "TypeScript 5.5 inferred type predicates — filter(Boolean) finally returns correct types",
+      "TypeScript 5.5 isolatedDeclarations for faster parallel type checking in monorepos",
+      "TypeScript 5.4 NoInfer<T> utility type fixing generic inference bugs",
+      "const type parameters making readonly inference automatic",
+      "satisfies operator replacing 'as const' + type annotation patterns",
+      "TypeScript project references + incremental builds cutting CI check times 60%",
+      "TypeScript 5.7 path rewriting for Node.js ESM imports (.js → .ts resolution)",
+    ],
+    gotchas: [
+      "isolatedDeclarations forces explicit return types everywhere — big migration effort",
+      "satisfies doesn't narrow the type at runtime — teams expect it to",
+      "NoInfer<T> breaks existing generic patterns that relied on contextual inference",
+      "TypeScript ESM + Node.js: importing .js extension for .ts files trips every team once",
+      "const type parameters make tuples immutable in ways that break spread operators",
+      "strictNullChecks + AWS SDK v3 response types have optional fields that aren't really optional",
+    ],
+    spicyAngles: [
+      "TypeScript inferred type predicates in 5.5: filter(Boolean) finally works correctly",
+      "satisfies vs as const vs type annotation: the 2025 decision guide",
+      "isolatedDeclarations broke our monorepo — here's what we changed",
+      "TypeScript + AWS SDK v3: the strict mode gotchas nobody puts in the migration guide",
+      "NoInfer<T> in TypeScript 5.4: the utility type that fixed our generic Lambda handlers",
+    ],
+  },
+
+  TypeScriptPatterns: {
+    category: "typescript",
+    signals: [
+      "Zod v4 released — 2x faster, smaller bundle, new error formatting API",
+      "Zod v4 breaking changes: .merge() removed, .extend() behavior changed",
+      "Effect-ts gaining serious adoption as typed error handling + dependency injection",
+      "ts-morph for code generation — replacing manual AST manipulation in CLI tools",
+      "Branded types pattern replacing runtime validation in internal service boundaries",
+      "TypeScript template literal types for type-safe event names and DynamoDB keys",
+      "Discriminated unions replacing class hierarchies in Lambda event handlers",
+    ],
+    gotchas: [
+      "Zod v4 .parse() error format changed — all custom error handlers need updating",
+      "Effect-ts has a steep learning curve — teams adopt it then can't hire for it",
+      "Branded types disappear at runtime — you still need validation at boundaries",
+      "Template literal types slow down TypeScript language server on large codebases",
+      "Discriminated unions with 20+ variants hit TypeScript checker performance limits",
+    ],
+    spicyAngles: [
+      "Zod v4 migration broke our API layer — here's every change that hit us",
+      "Branded types in TypeScript: DynamoDB PK/SK safety without runtime cost",
+      "Effect-ts vs try/catch in Lambda handlers: 6 months of production experience",
+      "Template literal types for type-safe EventBridge event names: genius or overkill?",
+      "We replaced all our Zod schemas with TypeScript discriminated unions — here's why",
+    ],
+  },
+
+  TypeScriptBuild: {
+    category: "typescript",
+    signals: [
+      "esbuild + tsc --noEmit replacing ts-node in Lambda build pipelines",
+      "swc replacing tsc for transpilation — 20x faster, no type checking",
+      "tsx replacing ts-node for scripts and Lambda local dev",
+      "Bun as a TypeScript runtime — no config, instant startup",
+      "tsup simplifying library bundling for shared Lambda layers",
+      "Turborepo + TypeScript project references for monorepo incremental builds",
+      "TypeScript declaration maps for monorepo go-to-definition across packages",
+    ],
+    gotchas: [
+      "swc doesn't check types — CI must run tsc --noEmit separately or types rot",
+      "esbuild tree-shakes AWS SDK v3 incorrectly without explicit externals config",
+      "tsx uses Node's loader API which is still experimental in some Node 22 versions",
+      "tsup bundles node_modules by default — Lambda packages bloat without external config",
+      "Turborepo cache keys don't include .env files — cached builds use wrong env",
+    ],
+    spicyAngles: [
+      "esbuild + AWS SDK v3: the externals config that prevents 50MB Lambda bundles",
+      "We replaced ts-node with Node.js --experimental-strip-types — zero config",
+      "swc is fast but it won't save you from type errors in production",
+      "tsup for Lambda layers: the config that actually works",
+      "Turborepo in a Lambda monorepo: what we got right and what we'd do differently",
+    ],
+  },
+
+  // ── JavaScript Patterns ────────────────────────────────────────────────────
+  JavaScriptPatterns: {
+    category: "javascript",
+    signals: [
+      "ES2025 Iterator helpers (map, filter, take) now in Node.js 22 without polyfills",
+      "Promise.withResolvers() replacing verbose new Promise() boilerplate",
+      "structuredClone() replacing JSON.parse(JSON.stringify()) deep clone antipattern",
+      "Array.fromAsync() for collecting async iterables — replaces manual loops",
+      "Object.groupBy() and Map.groupBy() replacing lodash groupBy in Node 22",
+      "Error.cause chaining replacing custom error classes in Lambda handlers",
+      "using keyword (explicit resource management) for auto-cleanup of DB connections",
+    ],
+    gotchas: [
+      "Iterator helpers are lazy — consuming twice gives empty second iteration",
+      "structuredClone() doesn't clone functions, Promises, or class instances",
+      "Promise.withResolvers() resolver functions are unbound — easy to lose context",
+      "Array.fromAsync() collects everything in memory — not suitable for large streams",
+      "using keyword requires TypeScript 5.2+ and specific tsconfig lib settings",
+      "Object.groupBy() returns null-prototype object — JSON.stringify behaves differently",
+    ],
+    spicyAngles: [
+      "ES2025 Iterator helpers on Lambda: we deleted 3 utility files last sprint",
+      "structuredClone() vs JSON roundtrip: the benchmark that settled our code review debate",
+      "using keyword for DynamoDB DocumentClient: auto-cleanup that actually works",
+      "Promise.withResolvers() replaced our EventEmitter pattern — cleaner async queues",
+      "Object.groupBy() is in Node 22 and nobody in our team knew — refactor story",
+    ],
+  },
+
+  // ── Package Ecosystem ──────────────────────────────────────────────────────
+  PackageEcosystem: {
+    category: "ecosystem",
+    signals: [
+      "pnpm workspaces replacing npm/yarn in Lambda monorepos for disk efficiency",
+      "Bun install as drop-in npm replacement — 25x faster installs in CI",
+      "npm provenance statements for supply chain security in published packages",
+      "Node.js corepack making package manager version pinning automatic",
+      "Volta replacing nvm for Node.js version management in team environments",
+      "Renovate Bot automating AWS SDK v3 patch updates across microservices",
+    ],
+    gotchas: [
+      "pnpm symlinked node_modules break Lambda bundlers that expect flat structure",
+      "Bun install creates bun.lockb — git diffs are unreadable binary format",
+      "npm provenance requires GitHub Actions — local publish breaks the chain",
+      "corepack is experimental in Node 22 — teams enable it and forget, causing CI breaks",
+      "Renovate auto-merge on AWS SDK v3 minor versions has caused silent breaking changes",
+    ],
+    spicyAngles: [
+      "pnpm in Lambda: faster CI but your bundler needs this one config change",
+      "Bun install in GitHub Actions cut our install time from 45s to 2s — the setup",
+      "Renovate Bot for AWS SDK v3 updates: auto-merge strategy that hasn't broken us yet",
+      "npm provenance: supply chain security that takes 10 minutes to set up",
+    ],
+  },
+
+  // ── Runtime Alternatives ───────────────────────────────────────────────────
+  BunOnLambda: {
+    category: "runtime",
+    signals: [
+      "Bun 1.x Lambda custom runtime benchmarks: 3x faster cold starts than Node.js 22",
+      "Bun native S3 API client — no @aws-sdk needed for basic operations",
+      "Bun.serve() replacing Express/Fastify for Lambda HTTP handlers",
+      "Bun shell (Bun.$) replacing child_process exec in build scripts",
+      "Bun SQLite driver 10x faster than better-sqlite3 in benchmarks",
+      "AWS Lambda Web Adapter + Bun for running any HTTP framework serverlessly",
+    ],
+    gotchas: [
+      "Bun custom Lambda runtime adds 3-5MB to deployment package vs native Node.js",
+      "Bun doesn't support all Node.js APIs — net.Socket and some crypto APIs missing",
+      "Bun native S3 client has different error types than @aws-sdk — catch blocks break",
+      "Bun Lambda layers not available — must bundle Bun binary into every function",
+      "Bun test runner output format differs from Jest — CI reporters need updating",
+    ],
+    spicyAngles: [
+      "Bun on Lambda is 3x faster — but is it production ready? We ran it for 60 days",
+      "Bun native S3 vs @aws-sdk/client-s3: real benchmark + API comparison",
+      "We replaced Node.js 22 with Bun on Lambda — here's what broke and what didn't",
+      "Bun.serve() + Lambda Web Adapter: drop Express completely",
+    ],
+  },
+
+  // ── Frameworks & APIs ──────────────────────────────────────────────────────
+  NodeJSFrameworks: {
+    category: "framework",
+    signals: [
+      "Fastify 5 released — full TypeScript rewrite, faster schema validation",
+      "Hono.js gaining traction on Lambda — tiny, fast, Edge-first design",
+      "tRPC v11 with React Query 5 integration changing how teams design Lambda APIs",
+      "Elysia.js (Bun-first framework) benchmarks competing with Rust frameworks",
+      "Express 5 finally stable after 10 years — async error handling built in",
+      "Nitro (from Nuxt team) as a universal server for Lambda + edge deployments",
+    ],
+    gotchas: [
+      "Fastify 5 plugin types changed — third-party plugins not yet updated",
+      "Hono on Lambda: response streaming requires Lambda function URLs, not API Gateway",
+      "tRPC v11 client bundle size increased — needs explicit tree-shaking config",
+      "Express 5 async error handling only works if you don't use next(err) pattern",
+      "Elysia.js is Bun-only — Node.js compatibility mode loses all performance gains",
+    ],
+    spicyAngles: [
+      "Express 5 is finally here — is it worth migrating from Fastify?",
+      "Hono on Lambda: the framework that made us question API Gateway",
+      "tRPC v11 in a Lambda monorepo: the setup that actually works end-to-end",
+      "Fastify 5 migration: what broke in our Lambda handlers and how we fixed it",
+      "We benchmarked 6 Node.js frameworks on Lambda cold starts — the results",
+    ],
+  },
+
 };
+
+// Combined rotation pool: AWS services + runtime topics interleaved
+// This ensures posts alternate between AWS-deep and Node/TS-deep topics naturally
+const ALL_TOPICS = [
+  ...Object.entries(AWS_SERVICES_CATALOG).map(([name, data]) => ({
+    name,
+    type: "aws",
+    ...data,
+  })),
+  ...Object.entries(RUNTIME_CATALOG).map(([name, data]) => ({
+    name,
+    type: "runtime",
+    ...data,
+  })),
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Build the scout's ecosystem pulse dynamically from the catalog above.
 // Each run picks a weighted-random sample of services to feature so the
 // scout sees variety and cross-service angles, not the same 5 services daily.
 // ─────────────────────────────────────────────────────────────────────────────
-function buildEcosystemPulse(today) {
-  const allServices = Object.entries(AWS_SERVICES_CATALOG);
+// ── Published titles history ──────────────────────────────────────────────────
+// Reads and writes logs/post-history.json to track what was already posted.
+// This file is committed back to the repo after each successful publish so the
+// next run knows exactly what topics to avoid.
+// ─────────────────────────────────────────────────────────────────────────────
+const HISTORY_FILE = "logs/post-history.json";
 
-  // Seed the shuffle with today's date so the same day always gets the same mix
-  // but different days get different mixes — deterministic but varied.
-  const dateSeed = parseInt(today.replace(/-/g, ""), 10);
-  const shuffled = [...allServices].sort((a, b) => {
-    const ha = Math.sin(dateSeed * a[0].charCodeAt(0)) * 10000;
-    const hb = Math.sin(dateSeed * b[0].charCodeAt(0)) * 10000;
-    return (ha - Math.floor(ha)) - (hb - Math.floor(hb));
-  });
+async function readHistory() {
+  try {
+    const fs = await import("fs");
+    if (!fs.existsSync(HISTORY_FILE)) return [];
+    const raw = fs.readFileSync(HISTORY_FILE, "utf8");
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
 
-  // Feature 6 services prominently + list the rest as background signals
-  const featured   = shuffled.slice(0, 6);
-  const background = shuffled.slice(6).map(([name]) => name);
+async function writeHistory(entry) {
+  try {
+    const fs = await import("fs");
+    if (!fs.existsSync("logs")) fs.mkdirSync("logs", { recursive: true });
+    const history = await readHistory();
+    history.push(entry);
+    // Keep last 90 entries (3 months of weekdays)
+    const trimmed = history.slice(-90);
+    fs.writeFileSync(HISTORY_FILE, JSON.stringify(trimmed, null, 2));
+    console.log(`📝  History updated — ${trimmed.length} entries logged`);
+  } catch (e) {
+    console.warn("⚠️  Could not write history file:", e.message);
+  }
+}
 
-  let pulse = `AWS Services Ecosystem Pulse — ${today}\n\n`;
-  pulse += `FEATURED SERVICES (high-signal, ripe for posts today):\n`;
+function buildEcosystemPulse(today, history = []) {
+  // ALL_TOPICS = 24 AWS + 10 runtime/TS/JS = 34 total rotation slots
+  const total      = ALL_TOPICS.length;
 
-  for (const [name, data] of featured) {
-    pulse += `\n【 ${name} 】  SDK: ${data.sdk}\n`;
+  // ── Round-robin rotation by day-of-year across all 34 topics ─────────────
+  // AWS and runtime topics are interleaved — alternates naturally each day.
+  const d          = new Date(today);
+  const start      = new Date(d.getFullYear(), 0, 0);
+  const dayOfYear  = Math.floor((d - start) / 86_400_000);
+  const primaryIdx  = dayOfYear % total;
+  const primaryTopic = ALL_TOPICS[primaryIdx];
+  const primaryName  = primaryTopic.name;
+  const primaryType  = primaryTopic.type;
+
+  // Featured = primary + next 5 in the rotation (wraps around)
+  const featured   = Array.from({ length: 6 }, (_, i) => ALL_TOPICS[(primaryIdx + i) % total]);
+  const background = ALL_TOPICS
+    .filter((_, i) => i < primaryIdx || i >= primaryIdx + 6)
+    .map(t => t.name);
+
+  // ── Fix 2: Inject recent title history into pulse ────────────────────────
+  // The scout reads this and is explicitly told not to repeat these topics.
+  let historyBlock = "";
+  if (history.length > 0) {
+    const recent = history.slice(-30); // last 30 posts
+    historyBlock = `
+ALREADY PUBLISHED — DO NOT repeat these titles, angles, or primary services:
+`;
+    recent.forEach(h => {
+      historyBlock += `  ✗ [${h.date}] (${h.service}) "${h.title}"
+`;
+    });
+    historyBlock += `
+Your topic MUST be meaningfully different from all of the above.
+`;
+  }
+
+  let pulse = `AWS + Node.js + TypeScript Ecosystem Pulse — ${today}\n`;
+  pulse += `Today's primary topic: ${primaryName} [${primaryType}] (day ${dayOfYear} → slot ${primaryIdx} of ${total})\n\n`;
+  pulse += historyBlock;
+  pulse += `\nFEATURED TOPICS (high-signal, ripe for posts today):\n`;
+
+  for (const topic of featured) {
+    const typeLabel = topic.type === "aws"
+      ? `AWS  SDK: ${topic.sdk ?? ""}`
+      : `${topic.category?.toUpperCase() ?? "RUNTIME"}`;
+    pulse += `\n【 ${topic.name} 】  [${typeLabel}]\n`;
     pulse += `  Hot signals:\n`;
-    data.signals.forEach(s => { pulse += `    • ${s}\n`; });
+    topic.signals.forEach(s => { pulse += `    • ${s}\n`; });
     pulse += `  Real gotchas:\n`;
-    data.gotchas.slice(0, 3).forEach(g => { pulse += `    ⚠ ${g}\n`; });
+    (topic.gotchas ?? []).slice(0, 3).forEach(g => { pulse += `    ⚠ ${g}\n`; });
     pulse += `  Spicy angle ideas:\n`;
-    data.spicyAngles.forEach(a => { pulse += `    🔥 ${a}\n`; });
+    (topic.spicyAngles ?? []).forEach(a => { pulse += `    🔥 ${a}\n`; });
   }
 
   pulse += `\nBACKGROUND SERVICES (available for cross-service angles): `;
@@ -677,8 +1036,14 @@ async function groq(messages, { model = "llama-3.3-70b-versatile", max_tokens = 
 async function scoutTodaysTopic() {
   console.log("🔍  Scouting today's topic from AWS services catalog...\n");
 
-  const today = new Date().toISOString().split("T")[0];
-  const pulse  = buildEcosystemPulse(today);
+  const today   = new Date().toISOString().split("T")[0];
+  const history = await readHistory();
+  if (history.length > 0) {
+    console.log(`📚  Loaded ${history.length} past posts from history — will avoid repeating them`);
+    history.slice(-5).forEach(h => console.log(`   ✗ ${h.date}: "${h.title}"`));
+    console.log();
+  }
+  const pulse = buildEcosystemPulse(today, history);
 
   const modeInstructions = `Generate ONE focused technical post — spicy, specific, trending angle.`;
 
@@ -724,26 +1089,57 @@ Based on the signals above and the mode instructions, create the blog topic. Req
 
 1. TIMELY — feels triggered by something real happening THIS week in the ecosystem
 2. SPICY — has a contrarian, surprising, or dramatic angle. Developer drama is fine.
-3. SPECIFIC — references real SDK packages, real service names, real error messages
-4. CROSS-SERVICE — ideally involves 2 AWS services interacting (the interesting bugs live there)
+3. SPECIFIC — references real package names, real error messages, real config values
+4. CROSS-CUTTING — best topics combine 2 of these: AWS service + Node.js feature + TypeScript pattern
+   Examples: "TypeScript satisfies + AWS SDK v3", "Node.js 22 ESM + Lambda layers",
+             "Zod v4 migration + API Gateway request validation", "Bun on Lambda vs Node.js 22",
+             "node:test replacing Jest in Lambda unit tests", "Effect-ts error handling in handlers"
 5. SCROLL-STOPPING TITLE — a developer mid-scroll thinks "wait, is that true?"
 
-FORBIDDEN title patterns — never generate these:
-❌ "Mastering X" | "A Complete Guide to X" | "Introduction to X"  
-❌ "Getting Started with X" | "Best Practices for X" | "Understanding X"
-❌ "Deep Dive into X" | "Everything You Need to Know About X" | "How to use X"
+TITLE RULES — the difference is context and specificity, not the words themselves:
 
-REQUIRED title patterns — must feel like one of these:
-✅ "We Migrated 47 Lambdas to Node.js 22 — Here's What Nobody Warned Us"
-✅ "Stop Paying $800/month for CloudWatch Logs — The Fix Is 4 Lines of CDK"
-✅ "AWS SDK v3 Tree-Shaking Lied to Me. Here's the Proof."
-✅ "The EventBridge Pipes Feature That Eliminated 4 of Our Lambda Functions"
-✅ "DynamoDB Single-Table Design Broke Our Team After 18 Months"
-✅ "Bun on Lambda Is Faster Than Node.js 22 — Is That Enough to Switch?"
-✅ "Secrets Manager Is Costing You $960/year Without You Realizing It"
-✅ "Aurora Serverless v2 Scale-to-Zero Finally Works. We Tested It for 30 Days."
-✅ "SQS Partial Batch Failure: The Default That Silently Drops Your Messages"
-✅ "TypeScript satisfies + AWS SDK v3: The Pattern That Changed How We Write Commands"
+The patterns below are ONLY bad when they are GENERIC (no real story, no real number, no real outcome).
+The same pattern becomes GREAT when it is SPECIFIC, honest, and backed by a real angle.
+
+❌ BANNED — generic, no story, could describe any post ever written:
+  "Mastering AWS Lambda"
+  "A Complete Guide to DynamoDB"
+  "Introduction to TypeScript"
+  "Getting Started with AWS SDK v3"
+  "Best Practices for Node.js"
+  "Understanding EventBridge"
+  "Deep Dive into S3"
+  "Everything You Need to Know About CDK"
+  "How to use SQS"
+
+✅ SAME PATTERNS — now specific, opinionated, backed by a real angle:
+  "Mastering Lambda cold starts took us 6 months — here's the one setting that fixed it"
+  "A Complete Rewrite of Our DynamoDB Schema After Single-Table Design Broke Us"
+  "Introduction to TypeScript satisfies: the operator that replaced 200 lines of type casting"
+  "Getting Started with AWS SDK v3 Hurt — Here's the Migration Guide We Wish Existed"
+  "Best Practices for Node.js on Lambda Are Wrong — Here's What Actually Works"
+  "Understanding Why EventBridge Delayed Our Events by 40 Seconds Under Load"
+  "Deep Dive: Why Our S3 Presigned URLs Were Expiring 10 Minutes Early"
+  "Everything You Need to Know About CDK Bootstrap (That the Docs Don't Tell You)"
+  "How to Use SQS Without Silently Dropping Messages (The Default Does)"
+
+✅ ALSO GREAT — spicy, contrarian, narrative-driven:
+  "We Migrated 47 Lambdas to Node.js 22 — Here's What Nobody Warned Us"
+  "Stop Paying $800/month for CloudWatch Logs — The Fix Is 4 Lines of CDK"
+  "AWS SDK v3 Tree-Shaking Lied to Me. Here's the Proof."
+  "The EventBridge Pipes Feature That Eliminated 4 of Our Lambda Functions"
+  "DynamoDB Single-Table Design Broke Our Team After 18 Months"
+  "Bun on Lambda Is Faster Than Node.js 22 — Is That Enough to Switch?"
+  "Secrets Manager Is Costing You $960/year Without You Realizing It"
+  "SQS Partial Batch Failure: The Default That Silently Drops Your Messages"
+  "TypeScript satisfies + AWS SDK v3: The Pattern That Changed How We Write Commands"
+  "We Deleted Jest From 12 Services — node:test Is Good Enough Now"
+  "Zod v4 Migration Broke Our API Layer — Every Change That Hit Us"
+  "node:sqlite Is Built Into Node.js 22 — We Removed better-sqlite3 Last Week"
+
+THE RULE IN ONE LINE:
+  Generic title + no story = ❌ banned
+  Specific title + real angle + real outcome = ✅ use it, whatever the pattern
 
 Return ONLY a raw JSON object (no markdown, no explanation):
 
@@ -751,9 +1147,11 @@ Return ONLY a raw JSON object (no markdown, no explanation):
   "title": "the scroll-stopping blog title",
   "hook": "2-3 punchy sentences that open the post — frames the controversy or discovery. No 'In this post'.",
   "angle": "the core contrarian lens or tension the post argues (1-2 sentences)",
-  "primaryService": "main AWS service name from the catalog",
-  "secondaryService": "second AWS service involved (cross-service angle preferred)",
-  "sdkPackages": ["@aws-sdk/package-1", "@aws-sdk/package-2"],
+  "primaryService": "main AWS service OR runtime topic name from the catalog",
+  "secondaryService": "second AWS service or runtime topic involved (cross-cutting preferred)",
+  "topicType": "aws | runtime | cross (aws+runtime)",
+  "sdkPackages": ["@aws-sdk/package-1 or npm-package-name"],
+  "nodeOrTsFeature": "specific Node.js/TypeScript feature involved if any (e.g. require(esm), satisfies, Zod v4)",
   "sections": [
     "section 1 heading",
     "section 2 heading",
@@ -881,8 +1279,13 @@ FORMAT: Clean Markdown only. No HTML. No YAML frontmatter. No intro like "Sure, 
     { max_tokens: 7500 }   // 7500 + ~600 scout = ~8100 total, safely under 12,000 TPM
   );
 
-  if (!markdown || markdown.length < 800) {
-    throw new Error(`Content too short (${markdown.length} chars) — generation failed`);
+  if (!markdown || markdown.length < 200) {
+    // Truly empty response — nothing to publish, abort
+    throw new Error(`Content empty or unusable (${markdown.length} chars) — generation failed`);
+  }
+  if (markdown.length < 800) {
+    // Short but might still be publishable — warn and continue
+    console.warn(`⚠️  Content shorter than expected (${markdown.length} chars) — publishing anyway`);
   }
 
   const withDisclosure = appendDisclosure(markdown, topic ?? {});
@@ -904,8 +1307,9 @@ function appendDisclosure(markdown, topic) {
 
 > **Transparency notice**
 >
+> This article was generated by an AI system using [Groq](https://groq.com) (LLaMA 3.3 70B).
 > The topic was scouted from live AWS and Node.js ecosystem signals, and the content —
-> including all code examples.
+> including all code examples — was written autonomously without human editing.
 >
 > **Published:** ${date} · **Primary focus:** ${service}
 >
@@ -985,57 +1389,133 @@ async function postToDevto(title, body, tags) {
 // ── Main ───────────────────────────────────────────────────────────────────────
 async function main() {
   const date     = new Date().toISOString().split("T")[0];
-  const services = Object.keys(AWS_SERVICES_CATALOG).length;
+  const awsCount = Object.keys(AWS_SERVICES_CATALOG).length;
+  const rtCount  = Object.keys(RUNTIME_CATALOG).length;
 
   console.log("╔═══════════════════════════════════════════════════╗");
   console.log("║   🔥 devCommunityBlogPost.js                      ║");
   console.log(`║   📅 ${date}                              ║`);
-  console.log(`║   ☁️  Catalog : ${String(services + " AWS services").padEnd(32)}║`);
-  console.log("║   ⏰ Schedule: Mon–Fri · 10:00 AM IST             ║");
+  console.log(`║   ☁️  AWS: ${String(awsCount + " services").padEnd(10)} ⚡ Runtime: ${String(rtCount + " topics").padEnd(11)}║`);
+  console.log("║   ⏰ Schedule : Mon–Fri · 06:00 AM IST            ║");
   console.log("╚═══════════════════════════════════════════════════╝\n");
 
-  if (!CONFIG.groqApiKey)  throw new Error("❌ GROQ_API_KEY secret is missing");
-  if (!CONFIG.devtoApiKey) throw new Error("❌ DEVTO_API_KEY secret is missing");
+  // ── Only hard-stop: missing secrets. Nothing works without these. ──────────
+  if (!CONFIG.groqApiKey)  { console.error("❌ GROQ_API_KEY secret is missing");  process.exit(1); }
+  if (!CONFIG.devtoApiKey) { console.error("❌ DEVTO_API_KEY secret is missing"); process.exit(1); }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // PHASE 1 — Scout today's topic
+  // If scout fails, abort — we have nothing to write about.
+  // ─────────────────────────────────────────────────────────────────────────
+  let topic;
   try {
-    // Phase 1 — Scout a fresh, spicy, AWS-services-grounded topic
-    const topic = await scoutTodaysTopic();
-
-    // Phase 2 — Wait 65s so Groq TPM window fully resets between scout and writer.
-    // Scout used ~600-800 tokens. Writer needs ~7500. Together > 12,000 TPM limit
-    // if fired back-to-back. 65s guarantees a clean window — costs one extra minute.
-    console.log("⏸️   Waiting 65s for Groq TPM window to reset before writer call...");
-    await sleep(65_000);
-    console.log("✅  TPM window reset. Starting writer call.\n");
-
-    // Phase 2 — Write the full post
-    const markdown = await writeBlogPost(topic);
-    const title    = extractTitle(markdown);
-    const body     = stripTitle(markdown);
-
-    console.log(`📌  Final title: "${title}"`);
-    console.log("─── Preview (first 400 chars) ─────────────────────");
-    console.log(body.slice(0, 400) + "...\n");
-
-    // Phase 3 — Verify Dev.to auth
-    await getDevtoUser();
-
-    // Phase 4 — Publish
-    const article = await postToDevto(title, body, sanitizeTags(topic.tags));
-    const url = article.url ?? "https://dev.to";
-
-    console.log("\n╔═══════════════════════════════════════════════════╗");
-    console.log("║  🎉 Published!                                    ║");
-    console.log("╠═══════════════════════════════════════════════════╣");
-    console.log(`║  ID     : ${String(article.id).padEnd(38)}║`);
-    console.log(`║  Title  : ${title.slice(0, 38).padEnd(38)}║`);
-    console.log(`║  URL    : ${url.slice(0, 38).padEnd(38)}║`);
-    console.log(`║  Status : ${(article.published ? "✅ published" : "📝 draft").padEnd(38)}║`);
-    console.log("╚═══════════════════════════════════════════════════╝");
-
+    topic = await scoutTodaysTopic();
   } catch (err) {
-    console.error("\n❌  Fatal:", err.message);
+    console.error("❌ Phase 1 (scout) failed:", err.message);
     process.exit(1);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PHASE 2 — Wait for Groq TPM window to reset, then write the post
+  // If write fails, abort — nothing to publish.
+  // ─────────────────────────────────────────────────────────────────────────
+  console.log("⏸️   Waiting 65s for Groq TPM window to reset...");
+  await sleep(65_000);
+  console.log("✅  TPM window reset. Starting writer call.\n");
+
+  let markdown;
+  try {
+    markdown = await writeBlogPost(topic);
+  } catch (err) {
+    console.error("❌ Phase 2 (writer) failed:", err.message);
+    process.exit(1);
+  }
+
+  const title = extractTitle(markdown);
+  const body  = stripTitle(markdown);
+
+  console.log(`📌  Title: "${title}"`);
+  console.log("─── Preview (first 400 chars) ─────────────────────");
+  console.log(body.slice(0, 400) + "...\n");
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PHASE 3 — Dedup check (non-blocking warning — does NOT stop publish)
+  // If history is unreadable or check fails for any reason, log and continue.
+  // A missed dedup check is better than a missed publish.
+  // ─────────────────────────────────────────────────────────────────────────
+  try {
+    const history    = await readHistory();
+    const normalize  = t => t.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 60);
+    const normalNew  = normalize(title);
+    const duplicate  = history.find(h => normalize(h.title).slice(0, 40) === normalNew.slice(0, 40));
+
+    if (duplicate) {
+      // Warn loudly but do NOT throw — still publish.
+      // The round-robin + history-in-prompt should have prevented this.
+      // If it still happens, a slightly similar post is better than no post.
+      console.warn("⚠️  Possible duplicate detected (publishing anyway):");
+      console.warn(`   Generated : "${title}"`);
+      console.warn(`   Similar to: "${duplicate.title}" (${duplicate.date})`);
+      console.warn("   The post will still be published. Check Dev.to manually if needed.");
+    } else {
+      console.log("✅  Dedup check passed — title is unique.\n");
+    }
+  } catch (err) {
+    // History file unreadable, corrupted, or check threw — not a reason to stop.
+    console.warn("⚠️  Dedup check skipped (non-fatal):", err.message);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PHASE 4 — Verify Dev.to auth (non-blocking — we try to publish regardless)
+  // getDevtoUser() is a preflight check. If it fails, we attempt publish anyway
+  // because the publish call itself will tell us if auth is actually broken.
+  // ─────────────────────────────────────────────────────────────────────────
+  try {
+    await getDevtoUser();
+  } catch (err) {
+    console.warn("⚠️  Dev.to auth preflight failed (attempting publish anyway):", err.message);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PHASE 5 — Publish to Dev.to  ← THE ONLY STEP THAT MUST SUCCEED
+  // This is the point of the entire script. If this fails, it is a real error.
+  // ─────────────────────────────────────────────────────────────────────────
+  let article;
+  try {
+    article = await postToDevto(title, body, sanitizeTags(topic.tags));
+  } catch (err) {
+    console.error("❌ Phase 5 (publish) failed:", err.message);
+    process.exit(1);
+  }
+
+  const url = article.url ?? "https://dev.to";
+
+  console.log("\n╔═══════════════════════════════════════════════════╗");
+  console.log("║  🎉 Published!                                    ║");
+  console.log("╠═══════════════════════════════════════════════════╣");
+  console.log(`║  ID     : ${String(article.id).padEnd(38)}║`);
+  console.log(`║  Title  : ${title.slice(0, 38).padEnd(38)}║`);
+  console.log(`║  URL    : ${url.slice(0, 38).padEnd(38)}║`);
+  console.log(`║  Status : ${(article.published ? "✅ published" : "📝 draft").padEnd(38)}║`);
+  console.log("╚═══════════════════════════════════════════════════╝");
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PHASE 6 — Write history (non-blocking — publish already succeeded)
+  // If this fails for any reason, log a warning. The post is already live.
+  // The history file will just be missing this one entry — not a disaster.
+  // ─────────────────────────────────────────────────────────────────────────
+  try {
+    await writeHistory({
+      date:    date,
+      title,
+      service: topic.primaryService ?? topic.targetService ?? "unknown",
+      url:     article.url ?? "",
+      tags:    topic.tags,
+    });
+  } catch (err) {
+    console.warn("⚠️  History write failed (non-fatal — post is already published):", err.message);
+    console.warn("   Manually add this entry to logs/post-history.json if needed:");
+    console.warn(`   { "date": "${date}", "title": "${title}", "service": "${topic.primaryService ?? "unknown"}", "url": "${article.url ?? ""}" }`);
   }
 }
 
