@@ -1,0 +1,24 @@
+# ── Never commit secrets or local env ─────────────────────────────────────────
+.env
+.env.*
+.env.local
+.env.production
+*.env
+
+# Sensitive credential patterns
+config/secrets.*
+secrets.*
+credentials.*
+*.pem
+*.key
+
+# Runtime logs (*.log ignored, but post-history.json MUST be tracked by git)
+logs/*.log
+# logs/*.json  ← do NOT ignore — post-history.json must be committed
+
+# macOS / editor noise
+.DS_Store
+.vscode/
+*.swp
+*.swo
+node_modules/
