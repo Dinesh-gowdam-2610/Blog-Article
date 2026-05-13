@@ -123,15 +123,27 @@ jobs:
       # post-history.json is updated by the script after each successful post.
       # Committing it back means the NEXT run knows what was already published.
       # If nothing changed (e.g. dry run or error), git commit is a no-op.
+      #
+      # FIX: GitHub Actions checks out in detached HEAD state.
+      # "git push" alone fails with "not currently on a branch".
+      # Solution: explicitly fetch the branch ref and push to origin/main.
       - name: 💾 Commit post-history.json
         if: success()
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Re-attach HEAD to main branch so push works correctly
+          git fetch origin main
+          git checkout main
+
           git add logs/post-history.json
-          # Only commit if the file actually changed
+
+          # Only commit if the file actually changed — skip if nothing new
           git diff --staged --quiet || git commit -m "chore: update post-history.json [skip ci]"
-          git push
+
+          # Push explicitly to origin main — avoids detached HEAD push error
+          git push origin main
 
       # ── 6. Job summary (zero secrets referenced here) ──────────────────────
       - name: 📋 Job summary
