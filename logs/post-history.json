@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "date": "2026-05-14",
+    "title": "BunOnLambda Is 3x Faster But Breaks 20% Of NodeJsApis",
+    "service": "Lambda",
+    "url": "https://dev.to/dineshgowtham/bunonlambda-is-3x-faster-but-breaks-20-of-nodejsapis-52d0",
+    "tags": [
+      "lambda",
+      "bun",
+      "nodejs",
+      "serverless"
+    ]
+  }
+]
