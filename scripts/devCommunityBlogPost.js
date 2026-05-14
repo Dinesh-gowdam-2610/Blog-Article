@@ -938,6 +938,26 @@ ALREADY PUBLISHED — DO NOT repeat these titles, angles, or primary services:
     historyBlock += `
 Your topic MUST be meaningfully different from all of the above.
 `;
+
+    // ── STRONG BLOCK: services used in last 7 publishes are OFF-LIMITS ──────
+    // Title-similarity matching is too weak. We block at the service level —
+    // same service ≠ different post, no matter how creative the angle.
+    const recentServices = recent.slice(-7).map(h => h.service).filter(Boolean);
+    if (recentServices.length > 0) {
+      const uniqueRecent = [...new Set(recentServices)];
+      historyBlock += `
+🚫 BLOCKED SERVICES — these were the primary topic of recent posts.
+   You MUST NOT pick any of these as primaryService today:
+`;
+      uniqueRecent.forEach(s => {
+        historyBlock += `   ✗ ${s}
+`;
+      });
+      historyBlock += `
+   Today's primaryService MUST be a service NOT in the blocked list above.
+   Pick from the 30+ other AWS services or runtime topics in the catalog instead.
+`;
+    }
   }
 
   let pulse = `AWS + Node.js + TypeScript Ecosystem Pulse — ${today}\n`;
@@ -1388,15 +1408,18 @@ async function postToDevto(title, body, tags) {
 
 // ── Main ───────────────────────────────────────────────────────────────────────
 async function main() {
-  const date     = new Date().toISOString().split("T")[0];
+  // TZ=Asia/Kolkata is set in the workflow env — toLocaleDateString uses it
+  const now      = new Date();
+  const date     = now.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }); // YYYY-MM-DD in IST
+  const timeIST  = now.toLocaleTimeString("en-IN",  { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" });
   const awsCount = Object.keys(AWS_SERVICES_CATALOG).length;
   const rtCount  = Object.keys(RUNTIME_CATALOG).length;
 
   console.log("╔═══════════════════════════════════════════════════╗");
   console.log("║   🔥 devCommunityBlogPost.js                      ║");
-  console.log(`║   📅 ${date}                              ║`);
+  console.log(`║   📅 ${date} · ${timeIST} IST                  ║`);
   console.log(`║   ☁️  AWS: ${String(awsCount + " services").padEnd(10)} ⚡ Runtime: ${String(rtCount + " topics").padEnd(11)}║`);
-  console.log("║   ⏰ Schedule : Mon–Fri · 06:00 AM IST            ║");
+  console.log("║   ⏰ Schedule : Mon–Fri · 08:00 AM IST            ║");
   console.log("╚═══════════════════════════════════════════════════╝\n");
 
   // ── Only hard-stop: missing secrets. Nothing works without these. ──────────
@@ -1404,15 +1427,48 @@ async function main() {
   if (!CONFIG.devtoApiKey) { console.error("❌ DEVTO_API_KEY secret is missing"); process.exit(1); }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // PHASE 1 — Scout today's topic
-  // If scout fails, abort — we have nothing to write about.
+  // PHASE 1 — Scout today's topic with service-level dedup retry
+  // The scout proposes a topic. If primaryService was used in the last 7 posts,
+  // we retry up to 3 times with stronger avoidance instructions. This catches
+  // the most common failure mode: scout repeatedly picking the same service.
   // ─────────────────────────────────────────────────────────────────────────
   let topic;
-  try {
-    topic = await scoutTodaysTopic();
-  } catch (err) {
-    console.error("❌ Phase 1 (scout) failed:", err.message);
-    process.exit(1);
+  const history = await readHistory();
+  const recentServices = history.slice(-7).map(h => (h.service ?? "").toLowerCase());
+
+  let scoutAttempt = 0;
+  const MAX_SCOUT_ATTEMPTS = 3;
+
+  while (scoutAttempt < MAX_SCOUT_ATTEMPTS) {
+    scoutAttempt++;
+    try {
+      topic = await scoutTodaysTopic();
+    } catch (err) {
+      console.error("❌ Phase 1 (scout) failed:", err.message);
+      process.exit(1);
+    }
+
+    // Check if the picked service was used recently
+    const pickedService = (topic.primaryService ?? topic.targetService ?? "").toLowerCase();
+    const isRecentlyUsed = recentServices.includes(pickedService);
+
+    if (!isRecentlyUsed) {
+      console.log(`✅  Scout picked "${pickedService}" — not in last 7 posts, proceeding.\n`);
+      break;
+    }
+
+    console.warn(`⚠️  Scout picked "${pickedService}" which was used recently in last 7 posts.`);
+    console.warn(`   Recent services: ${recentServices.filter(Boolean).join(", ")}`);
+    console.warn(`   Retry ${scoutAttempt}/${MAX_SCOUT_ATTEMPTS} — waiting 65s for Groq window reset...`);
+
+    if (scoutAttempt >= MAX_SCOUT_ATTEMPTS) {
+      console.warn("⚠️  Max scout retries reached — publishing with this topic anyway.");
+      console.warn("   (Better to publish a similar topic than miss a day.)");
+      break;
+    }
+
+    // Wait for TPM window before retry
+    await sleep(65_000);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1517,6 +1573,7 @@ async function main() {
     console.warn("   Manually add this entry to logs/post-history.json if needed:");
     console.warn(`   { "date": "${date}", "title": "${title}", "service": "${topic.primaryService ?? "unknown"}", "url": "${article.url ?? ""}" }`);
   }
+
 }
 
 main();
