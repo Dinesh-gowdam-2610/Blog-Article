@@ -1,10 +1,10 @@
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  .github/workflows/daily-post.yml                                          ║
-# ║  Publishes one AI-generated blog post every weekday at 06:00 AM IST        ║
+# ║  Publishes one AI-generated blog post every weekday at 08:00 AM IST        ║
 # ║  Skips Saturday and Sunday automatically (cron: Mon–Fri only)              ║
 # ║  Calls: scripts/devCommunityBlogPost.js                                    ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
-# ║  06:00 AM IST  =  00:30 UTC  (IST is UTC +5:30)                           ║
+# ║  08:00 AM IST  =  02:30 UTC  (IST is UTC +5:30)                           ║
 # ║  Cron field breakdown:  30 4 * * 1-5                                       ║
 # ║    30   → minute 30                                                        ║
 # ║    4    → hour 04 (UTC)                                                    ║
@@ -25,21 +25,26 @@
 # ║  • Minimum permissions: contents: read only                                ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
 # ║  REQUIRED SECRETS  (Settings → Secrets and variables → Actions):           ║
-# ║    GROQ_API_KEY   → https://console.groq.com                               ║
-# ║    DEVTO_API_KEY  → https://dev.to/settings/extensions                     ║
+# ║    GROQ_API_KEY          → https://console.groq.com                        ║
+# ║    DEVTO_API_KEY         → https://dev.to/settings/extensions              ║
+# ║                                                                            ║
+# ║  OPTIONAL SECRETS (LinkedIn — add to enable LinkedIn notifications):       ║
+# ║    LINKEDIN_ACCESS_TOKEN → OAuth token (expires every 60 days)            ║
+# ║    LINKEDIN_PERSON_URN   → your LinkedIn URN e.g. urn:li:person:ABC123    ║
+# ║    See README.md → LinkedIn Setup for how to get these                    ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
-name: 📅 Weekday Blog Post (6 AM IST)
+name: 📅 Weekday Blog Post (8 AM IST)
 
 on:
   schedule:
     #        ┌─ minute (30)
-    #        │  ┌─ hour in UTC (00:30 UTC = 06:00 AM IST)
+    #        │  ┌─ hour in UTC (02:30 UTC = 08:00 AM IST)
     #        │  │  ┌─ day of month (every)
     #        │  │  │  ┌─ month (every)
     #        │  │  │  │  ┌─ day of week: 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
     #        │  │  │  │  │
-    - cron: "30 0 * * 1-5"    # Mon–Fri · 00:30 UTC · 06:00 AM IST (off-peak — less GitHub runner delay)
+    - cron: "30 2 * * 1-5"    # Mon–Fri · 02:30 UTC · 08:00 AM IST (lowest global runner load)
 
   # Adds the "Run workflow" button in the GitHub Actions tab for manual testing
   workflow_dispatch:
@@ -114,8 +119,11 @@ jobs:
       # (CLI args are visible in `ps aux`; env vars are not)
       - name: 🚀 Run devCommunityBlogPost.js
         env:
-          GROQ_API_KEY:  ${{ secrets.GROQ_API_KEY }}    # ← encrypted secret, masked in logs
-          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}   # ← encrypted secret, masked in logs
+          GROQ_API_KEY:  ${{ secrets.GROQ_API_KEY }}             # ← encrypted, masked in logs
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}            # ← encrypted, masked in logs
+          # LinkedIn — optional. If not set, LinkedIn step is skipped gracefully.
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN:   ${{ secrets.LINKEDIN_PERSON_URN }}
           NODE_ENV:      production
         run: node scripts/devCommunityBlogPost.js
 
@@ -155,7 +163,7 @@ jobs:
             echo "| Field | Value |"
             echo "|-------|-------|"
             echo "| 📅 Date (UTC) | $(date -u '+%Y-%m-%d %H:%M UTC') |"
-            echo "| 🕙 Local time | 06:00 AM IST |"
+            echo "| 🕙 Local time | 08:00 AM IST |"
             echo "| ✅ Status | ${{ job.status }} |"
             echo "| 🖥️ Runner | ubuntu-latest |"
             echo "| 📆 Schedule | Mon–Fri only (no weekends) |"
