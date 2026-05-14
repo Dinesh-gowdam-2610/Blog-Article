@@ -5,9 +5,9 @@
 # ║  Calls: scripts/devCommunityBlogPost.js                                    ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
 # ║  08:00 AM IST  =  02:30 UTC  (IST is UTC +5:30)                           ║
-# ║  Cron field breakdown:  30 4 * * 1-5                                       ║
+# ║  Cron field breakdown:  30 2 * * 1-5                                       ║
 # ║    30   → minute 30                                                        ║
-# ║    4    → hour 04 (UTC)                                                    ║
+# ║    2    → hour 02 (UTC)                                                    ║
 # ║    *    → every day of month                                               ║
 # ║    *    → every month                                                      ║
 # ║    1-5  → Monday(1) through Friday(5) only — skips Sat(6) and Sun(0/7)    ║
@@ -22,39 +22,41 @@
 # ║  • API keys stored ONLY in GitHub Encrypted Secrets — never in code        ║
 # ║  • Injected as env vars at runtime — never as CLI args                     ║
 # ║  • GitHub auto-masks any accidental leak in logs as ***                    ║
-# ║  • Minimum permissions: contents: read only                                ║
+# ║  • Minimum permissions: contents: write (to commit post-history.json)      ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
 # ║  REQUIRED SECRETS  (Settings → Secrets and variables → Actions):           ║
-# ║    GROQ_API_KEY          → https://console.groq.com                        ║
-# ║    DEVTO_API_KEY         → https://dev.to/settings/extensions              ║
-# ║                                                                            ║
-# ║  OPTIONAL SECRETS (LinkedIn — add to enable LinkedIn notifications):       ║
-# ║    LINKEDIN_ACCESS_TOKEN → OAuth token (expires every 60 days)            ║
-# ║    LINKEDIN_PERSON_URN   → your LinkedIn URN e.g. urn:li:person:ABC123    ║
-# ║    See README.md → LinkedIn Setup for how to get these                    ║
+# ║    GROQ_API_KEY   → https://console.groq.com                               ║
+# ║    DEVTO_API_KEY  → https://dev.to/settings/extensions                     ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 name: 📅 Weekday Blog Post (8 AM IST)
 
 on:
   schedule:
-    #        ┌─ minute (30)
-    #        │  ┌─ hour in UTC (02:30 UTC = 08:00 AM IST)
+    # Target : 08:00 AM IST (Asia/Kolkata) every weekday
+    # Formula: IST - 5h30m = UTC  →  08:00 - 5:30 = 02:30 UTC
+    #
+    #        ┌─ minute (30)  ← IST is UTC+5:30, so minute must be 30
+    #        │  ┌─ hour (02) ← 08:00 IST - 5h30m = 02:30 UTC
     #        │  │  ┌─ day of month (every)
     #        │  │  │  ┌─ month (every)
     #        │  │  │  │  ┌─ day of week: 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
     #        │  │  │  │  │
-    - cron: "30 2 * * 1-5"    # Mon–Fri · 02:30 UTC · 08:00 AM IST (lowest global runner load)
+    - cron: "30 2 * * 1-5"    # 08:00 AM IST · 02:30 UTC · Mon–Fri only
 
   # Adds the "Run workflow" button in the GitHub Actions tab for manual testing
   workflow_dispatch:
 
-# Opt into Node.js 24 now — avoids the deprecation warning on every run.
-# GitHub forces this from June 2nd 2026 anyway. Doing it now is cleaner.
+# Workflow-level env:
+#   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 — opts into Node.js 24 now to avoid the
+#     deprecation warning GitHub started showing for Node.js 20 actions.
+#   TZ=Asia/Kolkata — all `date` commands, logs, timestamps render in IST.
+#     NOTE: GitHub cron always runs in UTC — TZ does NOT change cron timing.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  TZ: Asia/Kolkata
 
-# contents: write needed to commit post-history.json history back to repo
+# contents: write needed to commit post-history.json back to the repo
 permissions:
   contents: write
 
@@ -115,26 +117,22 @@ jobs:
           echo "🔒 Secrets validated. Values are encrypted and will not appear in logs."
 
       # ── 4. Run the publisher ───────────────────────────────────────────────
-      # Secrets injected ONLY as env vars — never as CLI arguments
-      # (CLI args are visible in `ps aux`; env vars are not)
+      # Secrets injected ONLY as env vars — never as CLI arguments.
+      # (CLI args show up in `ps aux`; env vars do not.)
       - name: 🚀 Run devCommunityBlogPost.js
         env:
-          GROQ_API_KEY:  ${{ secrets.GROQ_API_KEY }}             # ← encrypted, masked in logs
-          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}            # ← encrypted, masked in logs
-          # LinkedIn — optional. If not set, LinkedIn step is skipped gracefully.
-          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
-          LINKEDIN_PERSON_URN:   ${{ secrets.LINKEDIN_PERSON_URN }}
+          GROQ_API_KEY:  ${{ secrets.GROQ_API_KEY }}    # ← encrypted, masked in logs
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}   # ← encrypted, masked in logs
           NODE_ENV:      production
         run: node scripts/devCommunityBlogPost.js
 
-      # ── 5. Commit history file back to repo ──────────────────────────────────
+      # ── 5. Commit history file back to repo ────────────────────────────────
       # post-history.json is updated by the script after each successful post.
       # Committing it back means the NEXT run knows what was already published.
-      # If nothing changed (e.g. dry run or error), git commit is a no-op.
       #
       # FIX: GitHub Actions checks out in detached HEAD state.
       # "git push" alone fails with "not currently on a branch".
-      # Solution: explicitly fetch the branch ref and push to origin/main.
+      # Solution: explicitly checkout main before pushing.
       - name: 💾 Commit post-history.json
         if: success()
         run: |
@@ -162,11 +160,10 @@ jobs:
             echo ""
             echo "| Field | Value |"
             echo "|-------|-------|"
-            echo "| 📅 Date (UTC) | $(date -u '+%Y-%m-%d %H:%M UTC') |"
-            echo "| 🕙 Local time | 08:00 AM IST |"
+            echo "| 📅 Date (IST) | $(date '+%Y-%m-%d %H:%M IST') |"
+            echo "| 🕙 Schedule   | Mon–Fri · 08:00 AM IST (02:30 UTC) |"
             echo "| ✅ Status | ${{ job.status }} |"
             echo "| 🖥️ Runner | ubuntu-latest |"
-            echo "| 📆 Schedule | Mon–Fri only (no weekends) |"
             echo "| ⚙️ Actions runtime | Node.js 24 (FORCE_JAVASCRIPT_ACTIONS_TO_NODE24) |"
             echo ""
             echo "> 🔒 No API keys or secrets appear in this summary or any log above."
