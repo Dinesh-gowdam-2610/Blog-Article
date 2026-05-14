@@ -10,5 +10,17 @@
       "nodejs",
       "serverless"
     ]
+  },
+  {
+    "date": "2026-05-14",
+    "title": "BunOnLambda Broke Our NodeJsApis But Saved Us 40% On Lambda Costs",
+    "service": "Lambda",
+    "url": "https://dev.to/dineshgowtham/bunonlambda-broke-our-nodejsapis-but-saved-us-40-on-lambda-costs-26h6",
+    "tags": [
+      "lambda",
+      "bun",
+      "nodejs",
+      "serverless"
+    ]
   }
 ]
