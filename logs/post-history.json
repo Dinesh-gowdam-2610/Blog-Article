@@ -22,5 +22,16 @@
       "nodejs",
       "serverless"
     ]
+  },
+  {
+    "date": "2026-05-14",
+    "title": "BunOnLambda Is 3x Faster But Breaks Our NetSocket Code",
+    "service": "S3",
+    "url": "https://dev.to/dineshgowtham/bunonlambda-is-3x-faster-but-breaks-our-netsocket-code-13a5",
+    "tags": [
+      "aws",
+      "bun",
+      "lambda"
+    ]
   }
 ]
