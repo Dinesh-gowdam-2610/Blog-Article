@@ -15,6 +15,7 @@ const CONFIG = {
 
 const GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions";
 const DEVTO_BASE = "https://dev.to/api";
+const SERVICE_COOLDOWN_POSTS = 14;
 const COVERAGE_TRACKS = {
   broadTopics: [
     "AI Deep Learning",
@@ -1198,16 +1199,17 @@ async function readHistory() {
   }
 }
 
-// ── Layer 1: Randomized service assignment with strict no-repeat guard ───────
-// Reads full history and randomly picks from services NEVER used before.
-// If everything has been used already, we skip publish rather than repeat.
-function pickAssignedService(history, allServiceNames) {
-  const usedServices = new Set(
+// ── Layer 1: Randomized service assignment with rolling cooldown ──────────────
+// Reads history and randomly picks from services NOT used in the last N posts.
+// This keeps variety high and avoids permanently exhausting the catalog.
+function pickAssignedService(history, allServiceNames, windowSize = SERVICE_COOLDOWN_POSTS) {
+  const recentUsed = new Set(
     history
+      .slice(-windowSize)
       .map(h => normalizeTopicKey(h.service))
       .filter(Boolean)
   );
-  const eligible = allServiceNames.filter(svc => !usedServices.has(normalizeTopicKey(svc)));
+  const eligible = allServiceNames.filter(svc => !recentUsed.has(normalizeTopicKey(svc)));
   if (eligible.length === 0) return null;
   const pickedIdx = Math.floor(Math.random() * eligible.length);
   return eligible[pickedIdx];
@@ -1793,35 +1795,35 @@ async function main() {
   if (!CONFIG.devtoApiKey) { console.error("❌ DEVTO_API_KEY secret is missing"); process.exit(1); }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // PHASE 1 — Pick today's service randomly (strict no-repeat), then scout
+  // PHASE 1 — Pick today's service randomly (rolling cooldown), then scout
   //
   // Three-layer dedup that makes topic repetition impossible:
-  //   Layer 1: pickAssignedService() reads FULL history and randomly picks a
-  //            service/topic that has NEVER been used before.
+  //   Layer 1: pickAssignedService() reads recent history and randomly picks
+  //            a service/topic NOT used in the last SERVICE_COOLDOWN_POSTS posts.
   //   Layer 2: Scout MUST honor the assigned service. If it returns anything
   //            else, we reject and retry.
   //   Layer 3: If scout fails to comply after retries, SKIP TODAY entirely.
   //            One missed day is better than a duplicate post.
   // ─────────────────────────────────────────────────────────────────────────
   const history = await readHistory();
-  const recentServiceWindow = 7;
+  const recentServiceWindow = SERVICE_COOLDOWN_POSTS;
   const recentServices = history
     .slice(-recentServiceWindow)
     .map(h => normalizeTopicKey(h.service))
     .filter(Boolean);
   const blockedRecentServices = new Set(recentServices);
 
-  // Layer 1 — deterministic service assignment
+  // Layer 1 — randomized service assignment with cooldown
   const allTopicNames = ALL_TOPICS.map(t => t.name);
-  const assignedService = pickAssignedService(history, allTopicNames);
+  const assignedService = pickAssignedService(history, allTopicNames, recentServiceWindow);
   if (!assignedService) {
-    console.error("🛑  All catalog topics/services are already used in history.");
-    console.error("   SKIPPING TODAY to enforce strict no-repeat policy.");
-    console.error("   Add new topics/services to the catalog to continue publishing.");
+    console.error(`🛑  All catalog topics/services were used in the last ${recentServiceWindow} posts.`);
+    console.error("   SKIPPING TODAY to enforce cooldown dedup policy.");
+    console.error("   Add more topics/services or lower the cooldown window.");
     process.exit(0); // clean skip
   }
   console.log(`🎯  Today's assigned service: ${assignedService}`);
-  console.log("   (Randomly selected from NEVER-used catalog entries)\n");
+  console.log(`   (Randomly selected from entries not used in last ${recentServiceWindow} posts)\n`);
 
   // Layer 2 — scout must return the assigned service
   let topic;
@@ -1922,19 +1924,21 @@ async function main() {
   console.log(body.slice(0, 400) + "...\n");
 
   // ─────────────────────────────────────────────────────────────────────────
-  // PHASE 3 — Hard dedup gate (blocks publish when duplicate is detected)
-  // If the generated title/service is too similar to recent history, skip today.
-  // Missing one day is better than posting the same topic again.
+  // PHASE 3 — Hard dedup gate (blocks publish on duplicates)
+  // Title check: blocks any exact-title repeat ever (full history).
+  // Service check: blocks repeats within rolling cooldown window.
+  // Missing one day is better than posting a duplicate topic.
   // ─────────────────────────────────────────────────────────────────────────
   try {
     const history = await readHistory();
+    const recentHistory = history.slice(-SERVICE_COOLDOWN_POSTS);
     const normalNewTitle = normalizeTopicKey(title).slice(0, 60);
     const newService = normalizeTopicKey(topic.primaryService ?? topic.targetService ?? "");
     const duplicateByTitle = history.find(h =>
       normalizeTopicKey(h.title).slice(0, 40) === normalNewTitle.slice(0, 40)
     );
 
-    const duplicateByService = history.find(h => normalizeTopicKey(h.service) === newService);
+    const duplicateByService = recentHistory.find(h => normalizeTopicKey(h.service) === newService);
 
     if (duplicateByTitle || duplicateByService) {
       const dup = duplicateByTitle ?? duplicateByService;
@@ -1942,10 +1946,11 @@ async function main() {
       console.error(`   Generated title   : "${title}"`);
       console.error(`   Generated service : "${topic.primaryService ?? topic.targetService ?? "unknown"}"`);
       console.error(`   Conflicts with    : "${dup.title}" (${dup.date}) [${dup.service}]`);
+      console.error(`   (Reason: ${duplicateByTitle ? "same title in full history" : `service used in last ${SERVICE_COOLDOWN_POSTS} posts`})`);
       process.exit(0); // clean skip (not a workflow failure)
     }
 
-    console.log("✅  Dedup check passed — title/service are fresh.\n");
+    console.log(`✅  Dedup check passed — title unique and service fresh in last ${SERVICE_COOLDOWN_POSTS} posts.\n`);
   } catch (err) {
     // History unreadable -> safest behavior is skip to avoid accidental duplicate.
     console.error("🛑  Dedup check failed. Skipping publish for safety:", err.message);
