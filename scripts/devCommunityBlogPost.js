@@ -15,6 +15,15 @@ const CONFIG = {
 
 const GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions";
 const DEVTO_BASE = "https://dev.to/api";
+// LinkedIn posting — loaded dynamically so a missing file never crashes the script
+let postToLinkedIn = async () => ({ skipped: true, reason: "not_loaded" });
+try {
+  const li = await import("./postLinkedIn.js"); 
+  postToLinkedIn = li.postToLinkedIn;
+} catch {
+  // postLinkedIn.js not found — LinkedIn posting silently disabled
+}
+
 const SERVICE_COOLDOWN_POSTS = 14;
 const COVERAGE_TRACKS = {
   broadTopics: [
@@ -2010,6 +2019,21 @@ async function main() {
     console.warn(`   { "date": "${date}", "title": "${title}", "service": "${topic.primaryService ?? "unknown"}", "url": "${article.url ?? ""}" }`);
   }
 
+   // ─────────────────────────────────────────────────────────────────────────
+  // PHASE 7 — Post to LinkedIn (non-blocking, every 2nd publish)
+  // Dev.to is already published at this point. LinkedIn failure never
+  // affects the main publish. Token expiry handled gracefully.
+  // Cadence: odd post count = post, even = skip (every 2nd day).
+  // ─────────────────────────────────────────────────────────────────────────
+  try {
+    await postToLinkedIn({
+      title,
+      url:   article.url ?? "",
+      topic,
+    });
+  } catch (err) {
+    console.warn("⚠️  LinkedIn notification failed (non-fatal):", err.message);
+  }
 }
 
 main();
