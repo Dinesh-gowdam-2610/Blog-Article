@@ -25,8 +25,12 @@
 # ║  • Minimum permissions: contents: write (to commit post-history.json)      ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
 # ║  REQUIRED SECRETS  (Settings → Secrets and variables → Actions):           ║
-# ║    GROQ_API_KEY   → https://console.groq.com                               ║
-# ║    DEVTO_API_KEY  → https://dev.to/settings/extensions                     ║
+# ║    GROQ_API_KEY          → https://console.groq.com                        ║
+# ║    DEVTO_API_KEY         → https://dev.to/settings/extensions              ║
+# ║                                                                            ║
+# ║  OPTIONAL — LinkedIn (add to enable LinkedIn notifications):               ║
+# ║    LINKEDIN_ACCESS_TOKEN → OAuth token (expires every 60 days)            ║
+# ║    LINKEDIN_PERSON_URN   → urn:li:person:YOUR_ID (from /v2/userinfo sub)  ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 name: 📅 Weekday Blog Post (8 AM IST)
@@ -121,8 +125,11 @@ jobs:
       # (CLI args show up in `ps aux`; env vars do not.)
       - name: 🚀 Run devCommunityBlogPost.js
         env:
-          GROQ_API_KEY:  ${{ secrets.GROQ_API_KEY }}    # ← encrypted, masked in logs
-          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}   # ← encrypted, masked in logs
+          GROQ_API_KEY:  ${{ secrets.GROQ_API_KEY }}             # ← encrypted, masked in logs
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}            # ← encrypted, masked in logs
+          # LinkedIn — optional. If not set, LinkedIn step is skipped gracefully.
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN:   ${{ secrets.LINKEDIN_PERSON_URN }}
           NODE_ENV:      production
         run: node scripts/devCommunityBlogPost.js
 
