@@ -12,18 +12,13 @@
 
 const LINKEDIN_API = "https://api.linkedin.com/v2";
 
-// ── Read post count from history for cadence check ────────────────────────────
-async function getPublishCount() {
-  try {
-    const fs   = await import("fs");
-    const path = await import("path");
-    const fp   = path.default.resolve(process.cwd(), "logs/post-history.json");
-    if (!fs.default.existsSync(fp)) return 0;
-    const data = JSON.parse(fs.default.readFileSync(fp, "utf8"));
-    return Array.isArray(data) ? data.length : 0;
-  } catch {
-    return 0;
-  }
+// Stat card generator — uses ImageMagick (pre-installed on ubuntu-latest)
+let generateStatCard = null;
+try {
+  const mod = await import("./generateStatCard.js");
+  generateStatCard = mod.generateStatCard;
+} catch {
+  // generateStatCard.js not found — image posting disabled, falls back to text-only
 }
 
 // ── Build hashtags from topic data ────────────────────────────────────────────
@@ -77,84 +72,245 @@ function buildTags(topic) {
   return [...base].slice(0, 10).map(t => `#${t}`).join(" ");
 }
 
-// ── Build the LinkedIn post — structured, readable, engineer voice ─────────────
+// ── Clean personal language from any text ────────────────────────────────────
+// Strips "our team", "we found", "our service" etc — posts from a personal
+// engineer voice, not a company voice.
+function cleanTeamLanguage(text = "") {
+  return text
+    .replace(/our team/gi, "I")
+    .replace(/our teams/gi, "engineers")
+    .replace(/our service[s]?/gi, "the service")
+    .replace(/our system[s]?/gi, "the system")
+    .replace(/our codebase/gi, "the codebase")
+    .replace(/our stack/gi, "the stack")
+    .replace(/our app/gi, "the app")
+    .replace(/our lambda[s]?/gi, "the Lambda functions")
+    .replace(/our pipeline[s]?/gi, "the pipeline")
+    .replace(/our infrastructure/gi, "the infrastructure")
+    .replace(/we found/gi, "I found")
+    .replace(/we migrated/gi, "I migrated")
+    .replace(/we built/gi, "I built")
+    .replace(/we switched/gi, "I switched")
+    .replace(/we replaced/gi, "I replaced")
+    .replace(/we hit/gi, "I hit")
+    .replace(/we ran/gi, "I ran")
+    .replace(/we tested/gi, "I tested")
+    .replace(/we deployed/gi, "I deployed")
+    .replace(/we use/gi, "I use")
+    .replace(/we used/gi, "I used")
+    .replace(/we saw/gi, "I saw")
+    .replace(/we spent/gi, "I spent")
+    .replace(/we wasted/gi, "I wasted")
+    .replace(/we noticed/gi, "I noticed")
+    .replace(/we learned/gi, "I learned")
+    .replace(/we decided/gi, "I decided")
+    .trim();
+}
+
+// ── Build the LinkedIn post with 10 rotating patterns ────────────────────────
 //
-// Format (matching screenshot style):
+// Pattern 1  — Problem first        : pain → insight → bullets → gotcha
+// Pattern 2  — Discovery            : curiosity hook → angle → fix
+// Pattern 3  — Numbered steps       : 1️⃣2️⃣3️⃣ breakdown
+// Pattern 4  — Contrarian take      : spicy opener → evidence → CTA
+// Pattern 5  — Story arc            : before → broke → learned
+// Pattern 6  — Stats & numbers      : headline stat → context → implication
+// Pattern 7  — Business cost angle  : dollar/time cost → root cause → fix
+// Pattern 8  — Before / After       : old way vs new way side by side
+// Pattern 9  — Hot take + poll vibe : bold claim → 2 sides → reader question
+// Pattern 10 — Quick lessons list   : TIL style, digestible takeaways
 //
-//   🔥 [Hook — one punchy line that grabs attention]
-//
-//   [2-3 lines expanding the problem or discovery]
-//
-//   💡 The core insight:
-//   • [Key point 1]
-//   • [Key point 2]
-//   • [Key point 3]
-//
-//   ⚠️ The trap most teams fall into:
-//   [The gotcha — one sentence, specific]
-//
-//   👉 Full breakdown with working code in the article.
-//
-//   [hashtags]
-//
-//   [URL — always last for LinkedIn reach]
+// Rotates by day-of-year — predictable but never repeating same pattern
+// two days in a row (10-day full cycle).
 //
 function buildPostText(title, url, topic) {
   const service  = topic.primaryService ?? topic.targetService ?? "AWS";
-  const hook     = (topic.hook              ?? "").trim();
-  const angle    = (topic.angle             ?? "").trim();
-  const gotcha   = (topic.gotchaToReveal    ?? "").trim();
-  const scenario = (topic.codeScenario      ?? "").trim();
-  const sections = Array.isArray(topic.sections) ? topic.sections : [];
-  const tags     = buildTags(topic);
-
-  const lines = [];
-
-  // ── Opening hook ─────────────────────────────────────────────────────────
-  if (hook) {
-    lines.push(`🔥 ${hook}`);
-  } else {
-    lines.push(`🔥 ${title}`);
-  }
-
-  // ── Core angle / problem expansion ────────────────────────────────────────
-  if (angle) {
-    lines.push(angle);
-  }
-
-  // ── Key points from sections ──────────────────────────────────────────────
-  // Use the article section headings as bullet points — they summarise what
-  // the article covers, just like the screenshot's structured breakdown.
-  const bullets = sections
+  const hook     = cleanTeamLanguage(topic.hook           ?? "");
+  const angle    = cleanTeamLanguage(topic.angle          ?? "");
+  const gotcha   = cleanTeamLanguage(topic.gotchaToReveal ?? "");
+  const scenario = cleanTeamLanguage(topic.codeScenario   ?? "");
+  const sections = (Array.isArray(topic.sections) ? topic.sections : [])
     .filter(s => s && s.toLowerCase() !== "the takeaway")
     .slice(0, 4);
+  const tags     = buildTags(topic);
 
-  if (bullets.length > 0) {
-    lines.push(`💡 What this covers:\n${bullets.map(b => `• ${b}`).join("\n")}`);
+  const d         = new Date();
+  const start     = new Date(d.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((d - start) / 86_400_000);
+  const pattern   = (dayOfYear % 10) + 1;
+
+  let lines = [];
+
+  if (pattern === 1) {
+    // Problem first — lead with the pain, then the fix
+    lines.push(hook || title);
+    if (angle)  lines.push(angle);
+    if (sections.length) lines.push("What the article covers:\n" + sections.map(s => "→ " + s).join("\n"));
+    if (gotcha) lines.push("What caught me off guard:\n" + gotcha);
+    lines.push("Full code walkthrough in the article.");
+
+  } else if (pattern === 2) {
+    // Discovery — curiosity-driven "I just found out"
+    lines.push("Just found this out the hard way.");
+    lines.push(hook || angle || title);
+    if (gotcha)   lines.push("The hidden trap:\n" + gotcha);
+    if (scenario) lines.push("What the fix looks like:\n" + scenario);
+    lines.push("Wrote it up with working " + service + " code. Link below.");
+
+  } else if (pattern === 3) {
+    // Numbered steps — clear structured breakdown
+    lines.push(hook || title);
+    if (angle) lines.push(angle);
+    if (sections.length) {
+      const nums = ["1.", "2.", "3.", "4."];
+      lines.push("Here is what the article walks through:\n" + sections.map((s, i) => (nums[i] ?? (i+1)+".") + " " + s).join("\n"));
+    }
+    if (gotcha) lines.push("Most common mistake:\n" + gotcha);
+    lines.push("Code examples and full breakdown in the article.");
+
+  } else if (pattern === 4) {
+    // Contrarian — spicy take first
+    lines.push(angle || hook || title);
+    if (hook && hook !== angle) lines.push(hook);
+    if (sections.length) lines.push("What I dug into:\n" + sections.map(s => "- " + s).join("\n"));
+    if (gotcha)   lines.push("The part nobody talks about:\n" + gotcha);
+    if (scenario) lines.push(scenario);
+    lines.push("Full article + runnable code below.");
+
+  } else if (pattern === 5) {
+    // Story arc — before, what broke, what I learned
+    lines.push(hook || title);
+    if (angle)  lines.push(angle);
+    if (gotcha) lines.push("What broke:\n" + gotcha);
+    if (sections.length) lines.push("Key takeaways:\n" + sections.map(s => "- " + s).join("\n"));
+    lines.push("Everything documented with " + service + " + Node.js code.");
+
+  } else if (pattern === 6) {
+    // Stats and numbers — headline metric grabs attention
+    // Pull real numbers from the gotcha or scenario if they exist
+    const statLine = [gotcha, scenario, angle].find(t => /\d/.test(t)) || angle || hook;
+    lines.push("Numbers that made me stop and look twice:");
+    lines.push(statLine || title);
+    if (sections.length) lines.push("What this covers:\n" + sections.map(s => "• " + s).join("\n"));
+    lines.push("The context and the fix are in the article. Link below.");
+
+  } else if (pattern === 7) {
+    // Business cost angle — speaks to CTOs and tech leads
+    lines.push("This is costing engineering teams real time and money.");
+    lines.push(hook || angle || title);
+    if (gotcha) lines.push("Root cause:\n" + gotcha);
+    if (sections.length) lines.push("What the article covers:\n" + sections.map(s => "• " + s).join("\n"));
+    lines.push("If you run " + service + " in production, this one is worth 5 minutes of your time.");
+
+  } else if (pattern === 8) {
+    // Before / After — old way vs new way
+    lines.push("Before vs after on " + service + ":");
+    if (angle) lines.push(angle);
+    if (gotcha) {
+      lines.push("Before: " + gotcha);
+    }
+    if (scenario) {
+      lines.push("After: " + scenario);
+    }
+    if (sections.length) lines.push("Covered in the article:\n" + sections.map(s => "• " + s).join("\n"));
+    lines.push("Full code comparison in the article.");
+
+  } else if (pattern === 9) {
+    // Hot take + question — invites comments and engagement
+    lines.push(angle || hook || title);
+    lines.push(hook && hook !== angle ? hook : "");
+    if (gotcha) lines.push("The part that surprises most engineers:\n" + gotcha);
+    lines.push("Have you hit this in production? What was your fix?");
+    lines.push("My full approach with code is in the article below.");
+
+  } else {
+    // Quick lessons — TIL style digestible list
+    lines.push("Things I wish I knew before working with " + service + ":");
+    const lessons = [
+      gotcha,
+      angle,
+      scenario,
+      ...sections
+    ].filter(Boolean).slice(0, 4);
+    if (lessons.length) lines.push(lessons.map((l, i) => (i+1) + ". " + l).join("\n"));
+    lines.push("Full writeup with working code below.");
   }
 
-  // ── The trap / gotcha ─────────────────────────────────────────────────────
-  if (gotcha) {
-    lines.push(`⚠️ The trap most teams fall into:\n${gotcha}`);
-  }
+  // Remove empty lines caused by missing fields
+  lines = lines.filter(l => l && l.trim() !== "");
 
-  // ── Code scenario teaser ──────────────────────────────────────────────────
-  if (scenario) {
-    lines.push(`🛠️ The code example demonstrates:\n${scenario}`);
-  }
-
-  // ── CTA ───────────────────────────────────────────────────────────────────
-  lines.push(`👉 Full breakdown with working ${service} + Node.js code examples in the article.`);
-
-  // ── Tags ──────────────────────────────────────────────────────────────────
   lines.push(tags);
-
-  // ── URL last ─────────────────────────────────────────────────────────────
-  // LinkedIn penalises posts where the URL appears near the top.
-  // Always put it as the very last line for better organic reach.
   lines.push(url);
 
   return lines.join("\n\n");
+}
+
+// ── Upload image to LinkedIn (2-step: register → upload bytes) ───────────────
+async function uploadImageToLinkedIn(imagePath, personUrn, accessToken) {
+  const fs = await import("fs");
+
+  if (!fs.default.existsSync(imagePath)) {
+    console.warn("⚠️  Image file not found:", imagePath);
+    return null;
+  }
+
+  // Step 1 — Register the upload and get an upload URL
+  console.log("📤  Registering image upload with LinkedIn...");
+
+  const registerRes = await fetch(
+    `${LINKEDIN_API}/images?action=initializeUpload`,
+    {
+      method: "POST",
+      headers: {
+        "Authorization":             `Bearer ${accessToken}`,
+        "Content-Type":              "application/json",
+        "X-Restli-Protocol-Version": "2.0.0",
+      },
+      body: JSON.stringify({
+        initializeUploadRequest: {
+          owner: personUrn,
+        },
+      }),
+    }
+  );
+
+  if (!registerRes.ok) {
+    const err = await registerRes.text();
+    console.warn(`⚠️  Image register failed (${registerRes.status}): ${err.slice(0, 200)}`);
+    return null;
+  }
+
+  const registerData = await registerRes.json();
+  const uploadUrl    = registerData?.value?.uploadUrl;
+  const imageUrn     = registerData?.value?.image;
+
+  if (!uploadUrl || !imageUrn) {
+    console.warn("⚠️  LinkedIn did not return upload URL or image URN");
+    return null;
+  }
+
+  // Step 2 — Upload the PNG bytes
+  console.log("📤  Uploading PNG to LinkedIn...");
+
+  const imageBytes = fs.default.readFileSync(imagePath);
+
+  const uploadRes = await fetch(uploadUrl, {
+    method:  "PUT",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type":  "image/png",
+    },
+    body: imageBytes,
+  });
+
+  if (!uploadRes.ok) {
+    const err = await uploadRes.text();
+    console.warn(`⚠️  Image upload failed (${uploadRes.status}): ${err.slice(0, 200)}`);
+    return null;
+  }
+
+  console.log(`✅  Image uploaded. URN: ${imageUrn}`);
+  return imageUrn;
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
@@ -168,22 +324,26 @@ export async function postToLinkedIn({ title, url, topic }) {
     return { skipped: true, reason: "missing_credentials" };
   }
 
-  // ── Every 2nd post cadence ────────────────────────────────────────────────
-  // post-history.json is written BEFORE this call so count includes today.
-  // odd  count = post 1, 3, 5 ... → post to LinkedIn ✅
-  // even count = post 2, 4, 6 ... → skip LinkedIn    ⏭️
-  const publishCount = await getPublishCount();
-  const shouldPost   = publishCount % 2 !== 0;
+  // ── Mon / Wed / Fri cadence ─────────────────────────────────────────────
+  // Dev.to publishes every weekday (Mon–Fri).
+  // LinkedIn only posts on Monday (1), Wednesday (3), Friday (5).
+  // This is based on the actual calendar day — NOT the post count —
+  // so it never drifts and is always predictable.
+  const todayIST   = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  const dayOfWeek  = new Date(todayIST).getDay(); // 0=Sun 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri 6=Sat
+  const linkedInDays = new Set([1, 3, 5]);        // Monday, Wednesday, Friday
+  const shouldPost   = linkedInDays.has(dayOfWeek);
+  const dayNames     = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-  console.log(`📊  Total posts in history : ${publishCount}`);
-  console.log(`📅  LinkedIn cadence       : every 2nd post (this is #${publishCount})`);
+  console.log(`📅  Today (IST)     : ${todayIST} (${dayNames[dayOfWeek]})`);
+  console.log(`📅  LinkedIn days   : Mon, Wed, Fri`);
 
   if (!shouldPost) {
-    console.log("⏭️   LinkedIn: skipping today — will post on the next publish.\n");
-    return { skipped: true, reason: "cadence_every_2_days" };
+    console.log(`⏭️   LinkedIn: skipping today (${dayNames[dayOfWeek]}) — next post on next Mon/Wed/Fri.\n`);
+    return { skipped: true, reason: `not_a_linkedin_day_${dayNames[dayOfWeek]}` };
   }
 
-  console.log("✅  LinkedIn: posting today.\n");
+  console.log(`✅  LinkedIn: posting today (${dayNames[dayOfWeek]}).\n`);
 
   const postText = buildPostText(title, url, topic);
 
@@ -191,27 +351,79 @@ export async function postToLinkedIn({ title, url, topic }) {
   console.log(postText);
   console.log("────────────────────────────────────────────────────\n");
 
-  const payload = {
-    author:         personUrn,
-    lifecycleState: "PUBLISHED",
-    specificContent: {
-      "com.linkedin.ugc.ShareContent": {
-        shareCommentary:    { text: postText },
-        shareMediaCategory: "ARTICLE",
-        media: [
-          {
-            status:      "READY",
-            description: { text: topic.angle ?? title },
-            originalUrl: url,
-            title:       { text: title },
-          },
-        ],
+  // ── Generate and upload stat card image ──────────────────────────────────
+  let imageUrn = null;
+
+  if (generateStatCard) {
+    const os   = await import("os");
+    const path = await import("path");
+    const fs   = await import("fs");
+
+    const tmpPath = path.default.join(os.default.tmpdir(), `li_card_${Date.now()}.png`);
+
+    try {
+      const cardPath = await generateStatCard({ ...topic, title }, tmpPath);
+      if (cardPath) {
+        imageUrn = await uploadImageToLinkedIn(cardPath, personUrn, accessToken);
+        // Clean up temp file
+        try { fs.default.unlinkSync(cardPath); } catch {}
+      }
+    } catch (err) {
+      console.warn("⚠️  Stat card generation failed (non-fatal):", err.message);
+    }
+  }
+
+  // ── Build payload — with image if available, text-only as fallback ────────
+  let payload;
+
+  if (imageUrn) {
+    console.log("🖼️   Building post with image attachment...");
+    // Image post — shows the stat card in feed
+    payload = {
+      author:         personUrn,
+      lifecycleState: "PUBLISHED",
+      specificContent: {
+        "com.linkedin.ugc.ShareContent": {
+          shareCommentary:    { text: postText },
+          shareMediaCategory: "IMAGE",
+          media: [
+            {
+              status: "READY",
+              media:  imageUrn,
+              title:  { text: title },
+            },
+          ],
+        },
       },
-    },
-    visibility: {
-      "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
-    },
-  };
+      visibility: {
+        "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+      },
+    };
+  } else {
+    console.log("📝  Building text + article link post (no image)...");
+    // Fallback — text + article link card
+    payload = {
+      author:         personUrn,
+      lifecycleState: "PUBLISHED",
+      specificContent: {
+        "com.linkedin.ugc.ShareContent": {
+          shareCommentary:    { text: postText },
+          shareMediaCategory: "ARTICLE",
+          media: [
+            {
+              status:      "READY",
+              description: { text: topic.angle ?? title },
+              originalUrl: url,
+              title:       { text: title },
+            },
+          ],
+        },
+      },
+      visibility: {
+        "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+      },
+    };
+  }
 
   const res = await fetch(`${LINKEDIN_API}/ugcPosts`, {
     method:  "POST",
@@ -223,10 +435,15 @@ export async function postToLinkedIn({ title, url, topic }) {
     body: JSON.stringify(payload),
   });
 
-  // Token expired — warn clearly, never crash
+  // Token expired — warn clearly, create GitHub Issue, never crash
   if (res.status === 401) {
     console.warn("⚠️   LinkedIn token expired (401).");
     console.warn("    Update LINKEDIN_ACCESS_TOKEN in GitHub Secrets (expires every 60 days).");
+    console.warn("    1. Go to: https://www.linkedin.com/developers/apps");
+    console.warn("    2. Auth tab → OAuth 2.0 tools → Generate access token");
+    console.warn("    3. Select: openid + profile + w_member_social");
+    console.warn("    4. Update LINKEDIN_ACCESS_TOKEN in GitHub Secrets");
+
     return { skipped: true, reason: "token_expired" };
   }
 
