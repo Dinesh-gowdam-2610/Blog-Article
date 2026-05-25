@@ -1435,8 +1435,14 @@ THE RULE IN ONE LINE:
 
 Return ONLY a raw JSON object (no markdown, no explanation):
 
+CRITICAL: The "title" field is a HUMAN-READABLE headline with spaces, capitals, punctuation.
+  ✅ "TypeScript satisfies + AWS SDK v3: The Pattern That Changed How I Write Commands"
+  ❌ "typescriptsatisfieschangedourawssdkv3commands"  ← this is WRONG, never do this
+
+The tag rules below ONLY apply to the "tags" array. NOT to title, hook, angle, or any other field.
+
 {
-  "title": "the scroll-stopping blog title",
+  "title": "the scroll-stopping human-readable blog title with spaces and capitals",
   "hook": "2-3 punchy sentences that open the post — frames the controversy or discovery. No 'In this post'.",
   "angle": "the core contrarian lens or tension the post argues (1-2 sentences)",
   "primaryService": "main AWS service OR runtime topic name from the catalog",
@@ -1458,14 +1464,16 @@ Return ONLY a raw JSON object (no markdown, no explanation):
   "estimatedControversy": "low | medium | high"
 }
 
-STRICT TAG RULES — Dev.to will reject the post with a 422 error if violated:
+STRICT TAG RULES — these rules apply ONLY to the "tags" array, nothing else:
 - Max 4 tags
-- Each tag: lowercase letters and numbers ONLY
-- No spaces — merge words into one (e.g. "cost optimization" → "costoptimization", "api gateway" → "apigateway")
-- No hyphens, underscores, dots, or any special characters
+- Each tag: lowercase letters and numbers ONLY — no spaces, hyphens, dots, or symbols
+- Merge words into one (e.g. "cost optimization" → "costoptimization", "api gateway" → "apigateway")
 - Max 20 characters per tag
-- Good examples: "nodejs", "aws", "typescript", "lambda", "dynamodb", "serverless", "devops", "javascript", "cloudwatch", "s3"
-- Bad examples: "cost optimization", "api-gateway", "node.js", "AWS SDK", "best-practices"`;
+- Good tag examples: "nodejs", "aws", "typescript", "lambda", "dynamodb", "serverless"
+- Bad tag examples: "cost optimization", "api-gateway", "node.js", "AWS SDK"
+
+REMINDER: The "title" field is a normal English headline — spaces, capitals, punctuation all required.
+Do NOT apply tag rules to the title. The title should look like a newspaper headline, not a url slug.`;
 
   const raw = await groq(
     [{ role: "user", content: prompt }],
@@ -1478,6 +1486,23 @@ STRICT TAG RULES — Dev.to will reject the post with a 422 error if violated:
   } catch {
     const cleaned = raw.replace(/^```json|^```|```$/gm, "").trim();
     topic = JSON.parse(cleaned);
+  }
+
+  // ── Title sanity check ────────────────────────────────────────────────────
+  // Detect if the LLM accidentally normalized the title like a tag (no spaces).
+  // A real title must have spaces and be mixed-case or contain punctuation.
+  // If garbled, throw so the scout retries with a fresh call.
+  const titleStr = topic.title ?? "";
+  const hasSpaces     = titleStr.includes(" ");
+  const isSlug        = /^[a-z0-9]+$/.test(titleStr);      // all lowercase, no spaces
+  const tooShort      = titleStr.length < 20;
+  const isSentence    = titleStr.length > 0 && (hasSpaces || titleStr.includes("-") || titleStr.includes(":"));
+
+  if (!isSentence || isSlug || tooShort) {
+    throw new Error(
+      `Scout returned a garbled/slugified title: "${titleStr}". ` +
+      `Titles must be human-readable headlines with spaces. Retrying...`
+    );
   }
 
   console.log("📡  Topic scouted:");
