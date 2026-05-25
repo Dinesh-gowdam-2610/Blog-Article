@@ -1,6 +1,6 @@
 // ─── CONFIG ────────────────────────────────────────────────────────────────────
 // Only two values needed — both come from GitHub Encrypted Secrets.
-// Runs every weekday (Mon–Fri) at 10:00 AM IST via GitHub Actions cron.
+// Runs every weekday (Mon–Fri) at 08:00 AM IST via GitHub Actions cron.
 // No modes, no manual inputs, no dry-run flags — just publish every weekday.
 //
 //   GROQ_API_KEY   → from GitHub Encrypted Secret (https://console.groq.com)
@@ -1752,30 +1752,38 @@ async function main() {
     try {
       topic = await scoutTodaysTopic(assignedService);
     } catch (err) {
-      console.error("❌ Phase 1 (scout) failed:", err.message);
-      process.exit(1);
+      // Includes garbled title errors — retry rather than exit
+      console.warn(`⚠️  Scout attempt ${scoutAttempt} failed: ${err.message}`);
+
+      if (scoutAttempt >= MAX_SCOUT_ATTEMPTS) {
+        console.error("🛑  Scout failed after all retries. Skipping today.");
+        process.exit(0); // clean skip
+      }
+
+      console.warn(`   Retry ${scoutAttempt}/${MAX_SCOUT_ATTEMPTS} — waiting 65s for Groq window reset...`);
+      await sleep(65_000);
+      continue;
     }
 
     const returned = (topic.primaryService ?? topic.targetService ?? "").toLowerCase();
     const expected = assignedService.toLowerCase();
 
-    if (returned === expected) {
-      console.log(`✅  Scout honored assignment: ${assignedService}\n`);
-      break;
+    if (returned !== expected) {
+      console.warn(`⚠️  Scout returned "${topic.primaryService}" instead of "${assignedService}"`);
+
+      if (scoutAttempt >= MAX_SCOUT_ATTEMPTS) {
+        console.error("🛑  Scout refused to honor the assigned service after retries.");
+        console.error("   SKIPPING TODAY. Tomorrow will try a different service.");
+        process.exit(0);  // exit 0 = clean skip
+      }
+
+      console.warn(`   Retry ${scoutAttempt}/${MAX_SCOUT_ATTEMPTS} — waiting 65s for Groq window reset...`);
+      await sleep(65_000);
+      continue;
     }
 
-    console.warn(`⚠️  Scout returned "${topic.primaryService}" instead of "${assignedService}"`);
-
-    if (scoutAttempt >= MAX_SCOUT_ATTEMPTS) {
-      // Layer 3 — hard skip. Never publish a duplicate.
-      console.error("🛑  Scout refused to honor the assigned service after retries.");
-      console.error("   SKIPPING TODAY to avoid publishing a duplicate topic.");
-      console.error("   Tomorrow's run will try a different service.");
-      process.exit(0);  // exit 0 = clean skip, not a failure
-    }
-
-    console.warn(`   Retry ${scoutAttempt}/${MAX_SCOUT_ATTEMPTS} — waiting 65s for Groq window reset...`);
-    await sleep(65_000);
+    console.log(`✅  Scout honored assignment: ${assignedService}\n`);
+    break;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1808,15 +1816,16 @@ async function main() {
   // If history is unreadable, SKIP today for safety — better than a duplicate.
   // ─────────────────────────────────────────────────────────────────────────
   try {
-    const history = await readHistory();
+    // Reload history to get the latest state after the scout ran
+    const freshHistory = await readHistory();
     const DEDUP_WINDOW = 14;                        // only check last 14 posts
-    const recentHistory = history.slice(-DEDUP_WINDOW);
+    const recentHistory = freshHistory.slice(-DEDUP_WINDOW);
 
     const normalNewTitle = normalizeTopicKey(title).slice(0, 60);
     const newService = normalizeTopicKey(topic.primaryService ?? topic.targetService ?? "");
 
     // Title check — exact-title repetition is always blocked (any time)
-    const duplicateByTitle = history.find(h =>
+    const duplicateByTitle = freshHistory.find(h =>
       normalizeTopicKey(h.title).slice(0, 40) === normalNewTitle.slice(0, 40)
     );
 
