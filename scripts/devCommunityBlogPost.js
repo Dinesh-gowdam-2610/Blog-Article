@@ -15,162 +15,88 @@ const CONFIG = {
 
 const GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions";
 const DEVTO_BASE = "https://dev.to/api";
+
 // LinkedIn posting — loaded dynamically so a missing file never crashes the script
 let postToLinkedIn = async () => ({ skipped: true, reason: "not_loaded" });
 try {
-  const li = await import("./postLinkedIn.js"); 
+  const li = await import("./postLinkedIn.js");
   postToLinkedIn = li.postToLinkedIn;
 } catch {
   // postLinkedIn.js not found — LinkedIn posting silently disabled
 }
 
+// Stat card generator — loaded dynamically, uses ImageMagick (pre-installed on ubuntu-latest)
+// Zero npm dependencies. Falls back silently if unavailable.
+let generateStatCard = null;
+try {
+  const sc = await import("./generateStatCard.js");
+  generateStatCard = sc.generateStatCard;
+} catch {
+  // generateStatCard.js not found — LinkedIn image posting disabled, text-only fallback
+}
+
 const SERVICE_COOLDOWN_POSTS = 14;
 const COVERAGE_TRACKS = {
   broadTopics: [
-    "AI Deep Learning",
-    "Technology",
-    "Finance",
-    "Health",
-    "Sports",
-    "Business",
-    "AI",
-    "Programming",
-    "Cloud Computing",
-    "Payments",
-    "Cybersecurity",
+    "AI Deep Learning","Technology","Finance","Health","Sports",
+    "Business","AI","Programming","Cloud Computing","Payments","Cybersecurity",
   ],
   coreAiTags: [
-    "Artificial Intelligence",
-    "AI",
-    "Generative AI",
-    "AI Trends",
-    "AI Tools",
-    "AI Automation",
-    "AI Applications",
-    "Responsible AI",
-    "Explainable AI",
-    "AI Ethics",
+    "Artificial Intelligence","AI","Generative AI","AI Trends","AI Tools",
+    "AI Automation","AI Applications","Responsible AI","Explainable AI","AI Ethics",
   ],
   machineLearningTags: [
-    "Machine Learning",
-    "ML",
-    "Supervised Learning",
-    "Unsupervised Learning",
-    "Reinforcement Learning",
-    "Predictive Analytics",
-    "Data Science",
-    "Model Training",
-    "Feature Engineering",
-    "ML Algorithms",
+    "Machine Learning","ML","Supervised Learning","Unsupervised Learning",
+    "Reinforcement Learning","Predictive Analytics","Data Science",
+    "Model Training","Feature Engineering","ML Algorithms",
   ],
   deepLearningTags: [
-    "Deep Learning",
-    "Neural Networks",
-    "CNN",
-    "RNN",
-    "LSTM",
-    "Transformers",
-    "Computer Vision",
-    "NLP",
-    "Speech Recognition",
-    "Image Processing",
+    "Deep Learning","Neural Networks","CNN","RNN","LSTM","Transformers",
+    "Computer Vision","NLP","Speech Recognition","Image Processing",
   ],
   genAiAndLlmTags: [
-    "Large Language Models",
-    "LLM",
-    "ChatGPT",
-    "OpenAI",
-    "AI Agents",
-    "Prompt Engineering",
-    "Retrieval Augmented Generation",
-    "RAG",
-    "Multimodal AI",
-    "AI Assistants",
+    "Large Language Models","LLM","ChatGPT","OpenAI","AI Agents",
+    "Prompt Engineering","Retrieval Augmented Generation","RAG","Multimodal AI","AI Assistants",
   ],
   developmentTags: [
-    "Python",
-    "TensorFlow",
-    "PyTorch",
-    "Hugging Face",
-    "MLOps",
-    "AI Infrastructure",
-    "GPU Computing",
-    "Model Deployment",
-    "API Integration",
-    "Cloud AI",
+    "Python","TensorFlow","PyTorch","Hugging Face","MLOps",
+    "AI Infrastructure","GPU Computing","Model Deployment","API Integration","Cloud AI",
   ],
   trendingTags: [
-    "AI Revolution",
-    "Future of AI",
-    "AI Innovation",
-    "AI in 2026",
-    "Emerging Technology",
-    "Automation",
-    "Intelligent Systems",
-    "Smart Applications",
-    "Digital Transformation",
-    "Tech Trends",
+    "AI Revolution","Future of AI","AI Innovation","AI in 2026","Emerging Technology",
+    "Automation","Intelligent Systems","Smart Applications","Digital Transformation","Tech Trends",
   ],
   researchTags: [
-    "Diffusion Models",
-    "Fine Tuning",
-    "Transfer Learning",
-    "Embeddings",
-    "Vector Databases",
-    "Federated Learning",
-    "Edge AI",
-    "Self-Supervised Learning",
-    "Synthetic Data",
-    "AGI",
+    "Diffusion Models","Fine Tuning","Transfer Learning","Embeddings","Vector Databases",
+    "Federated Learning","Edge AI","Self-Supervised Learning","Synthetic Data","AGI",
   ],
   exampleTagSets: {
     aiTutorialArticle: [
-      "Artificial Intelligence",
-      "Machine Learning",
-      "Deep Learning",
-      "Python",
-      "Tutorial",
-      "Neural Networks",
-      "TensorFlow",
-      "AI Guide",
+      "Artificial Intelligence","Machine Learning","Deep Learning",
+      "Python","Tutorial","Neural Networks","TensorFlow","AI Guide",
     ],
     genAiChatGptArticle: [
-      "Generative AI",
-      "ChatGPT",
-      "OpenAI",
-      "Prompt Engineering",
-      "LLM",
-      "AI Agents",
-      "Automation",
-      "AI Tools",
+      "Generative AI","ChatGPT","OpenAI","Prompt Engineering",
+      "LLM","AI Agents","Automation","AI Tools",
     ],
     deepLearningResearchArticle: [
-      "Deep Learning",
-      "Transformers",
-      "Neural Networks",
-      "Computer Vision",
-      "NLP",
-      "PyTorch",
-      "Research",
-      "AI Innovation",
+      "Deep Learning","Transformers","Neural Networks",
+      "Computer Vision","NLP","PyTorch","Research","AI Innovation",
     ],
   },
 };
+
 const LIVE_SIGNAL_FEEDS = [
-  { name: "AWS What's New", url: "https://aws.amazon.com/about-aws/whats-new/recent/feed/" },
-  { name: "Node.js Blog", url: "https://nodejs.org/en/feed/blog.xml" },
-  { name: "TypeScript Blog", url: "https://devblogs.microsoft.com/typescript/feed/" },
+  { name: "AWS What\'s New", url: "https://aws.amazon.com/about-aws/whats-new/recent/feed/" },
+  { name: "Node.js Blog",     url: "https://nodejs.org/en/feed/blog.xml" },
+  { name: "TypeScript Blog",  url: "https://devblogs.microsoft.com/typescript/feed/" },
   { name: "GitHub Changelog", url: "https://github.blog/changelog/feed/" },
 ];
 
 function decodeXmlEntities(value = "") {
   return value
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, "\"")
-    .replace(/&#39;/g, "'")
-    .replace(/&#x27;/g, "'");
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, "\"").replace(/&#39;/g, "'").replace(/&#x27;/g, "'");
 }
 
 function stripHtml(value = "") {
@@ -185,12 +111,11 @@ function extractXmlTag(block, tag) {
 function parseRssItems(xml = "") {
   const items = [];
   const itemBlocks = xml.match(/<item\b[\s\S]*?<\/item>/gi) ?? [];
-
   for (const item of itemBlocks) {
-    const title = stripHtml(extractXmlTag(item, "title"));
-    const link = stripHtml(extractXmlTag(item, "link"));
+    const title      = stripHtml(extractXmlTag(item, "title"));
+    const link       = stripHtml(extractXmlTag(item, "link"));
     const pubDateRaw = extractXmlTag(item, "pubDate");
-    const pubDate = pubDateRaw ? new Date(pubDateRaw) : null;
+    const pubDate    = pubDateRaw ? new Date(pubDateRaw) : null;
     if (!title) continue;
     items.push({
       title,
@@ -198,26 +123,23 @@ function parseRssItems(xml = "") {
       pubDate: pubDate instanceof Date && !Number.isNaN(pubDate.getTime()) ? pubDate : null,
     });
   }
-
   return items;
 }
 
 async function fetchFeedSignals(feed, { daysBack = 14, maxItems = 2 } = {}) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  const timeout    = setTimeout(() => controller.abort(), 8000);
   try {
     const res = await fetch(feed.url, {
       headers: { "User-Agent": "devCommunityBlogPost/1.0" },
-      signal: controller.signal,
+      signal:  controller.signal,
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const xml = await res.text();
+    const xml     = await res.text();
     const minDate = Date.now() - daysBack * 86_400_000;
-    const parsed = parseRssItems(xml)
+    const parsed  = parseRssItems(xml)
       .filter(item => !item.pubDate || item.pubDate.getTime() >= minDate)
       .slice(0, maxItems);
-
     return { ...feed, items: parsed };
   } finally {
     clearTimeout(timeout);
@@ -229,24 +151,21 @@ async function buildLiveSignalPulse() {
   const settled = await Promise.allSettled(
     LIVE_SIGNAL_FEEDS.map(feed => fetchFeedSignals(feed))
   );
-
   const sources = [];
   for (const result of settled) {
     if (result.status === "fulfilled" && result.value.items.length > 0) {
       sources.push(result.value);
     }
   }
-
   if (sources.length === 0) {
     console.warn("⚠️  Live signals unavailable — using catalog signals only.");
-    return "LIVE SIGNALS: unavailable today (network/feed issue). Use the ecosystem pulse and avoid speculation.";
+    return "LIVE SIGNALS: unavailable today (network/feed issue).";
   }
-
   let block = "LIVE DOCUMENTATION + RELEASE SIGNALS (last 14 days):\n";
   for (const source of sources) {
     block += `\n${source.name}:\n`;
     source.items.forEach((item, idx) => {
-      const date = item.pubDate ? item.pubDate.toISOString().slice(0, 10) : "recent";
+      const date         = item.pubDate ? item.pubDate.toISOString().slice(0, 10) : "recent";
       const trimmedTitle = item.title.length > 140 ? `${item.title.slice(0, 137)}...` : item.title;
       block += `- [${date}] ${trimmedTitle}`;
       if (item.link) block += ` (${item.link})`;
@@ -254,13 +173,12 @@ async function buildLiveSignalPulse() {
     });
     block += "\n";
   }
-
   console.log(`✅  Live signals loaded from ${sources.length}/${LIVE_SIGNAL_FEEDS.length} sources`);
   return block.trim();
 }
 
 function buildCoveragePulse() {
-  const join = list => list.join(", ");
+  const join   = list => list.join(", ");
   const sample = (list, count) => {
     const pool = [...list];
     for (let i = pool.length - 1; i > 0; i--) {
@@ -269,22 +187,18 @@ function buildCoveragePulse() {
     }
     return pool.slice(0, Math.min(count, pool.length));
   };
-
-  const dailyFocus = {
-    broadTopics: sample(COVERAGE_TRACKS.broadTopics, 2),
-    coreAiTags: sample(COVERAGE_TRACKS.coreAiTags, 2),
+  const df = {
+    broadTopics:         sample(COVERAGE_TRACKS.broadTopics, 2),
+    coreAiTags:          sample(COVERAGE_TRACKS.coreAiTags, 2),
     machineLearningTags: sample(COVERAGE_TRACKS.machineLearningTags, 2),
-    deepLearningTags: sample(COVERAGE_TRACKS.deepLearningTags, 2),
-    genAiAndLlmTags: sample(COVERAGE_TRACKS.genAiAndLlmTags, 2),
-    developmentTags: sample(COVERAGE_TRACKS.developmentTags, 2),
-    trendingTags: sample(COVERAGE_TRACKS.trendingTags, 2),
-    researchTags: sample(COVERAGE_TRACKS.researchTags, 2),
+    deepLearningTags:    sample(COVERAGE_TRACKS.deepLearningTags, 2),
+    genAiAndLlmTags:     sample(COVERAGE_TRACKS.genAiAndLlmTags, 2),
+    developmentTags:     sample(COVERAGE_TRACKS.developmentTags, 2),
+    trendingTags:        sample(COVERAGE_TRACKS.trendingTags, 2),
+    researchTags:        sample(COVERAGE_TRACKS.researchTags, 2),
   };
-
-  const exampleKeys = Object.keys(COVERAGE_TRACKS.exampleTagSets);
-  const selectedExampleKey = sample(exampleKeys, 1)[0];
-  const selectedExampleTags = COVERAGE_TRACKS.exampleTagSets[selectedExampleKey];
-
+  const exKeys = Object.keys(COVERAGE_TRACKS.exampleTagSets);
+  const selKey = sample(exKeys, 1)[0];
   return `
 COVERAGE EXPANSION TRACKS (include these themes along with AWS/runtime topics):
 - Broad topics: ${join(COVERAGE_TRACKS.broadTopics)}
@@ -296,21 +210,16 @@ COVERAGE EXPANSION TRACKS (include these themes along with AWS/runtime topics):
 - Trending tags: ${join(COVERAGE_TRACKS.trendingTags)}
 - Research tags: ${join(COVERAGE_TRACKS.researchTags)}
 
-Example tag sets for framing:
-- AI Tutorial Article: ${join(COVERAGE_TRACKS.exampleTagSets.aiTutorialArticle)}
-- GenAI / ChatGPT Article: ${join(COVERAGE_TRACKS.exampleTagSets.genAiChatGptArticle)}
-- Deep Learning Research Article: ${join(COVERAGE_TRACKS.exampleTagSets.deepLearningResearchArticle)}
-
 TODAY'S RANDOM COVERAGE FOCUS (must use at least one):
-- Broad topics: ${join(dailyFocus.broadTopics)}
-- Core AI tags: ${join(dailyFocus.coreAiTags)}
-- ML tags: ${join(dailyFocus.machineLearningTags)}
-- Deep Learning tags: ${join(dailyFocus.deepLearningTags)}
-- GenAI/LLM tags: ${join(dailyFocus.genAiAndLlmTags)}
-- Dev/Engineering tags: ${join(dailyFocus.developmentTags)}
-- Trending tags: ${join(dailyFocus.trendingTags)}
-- Research tags: ${join(dailyFocus.researchTags)}
-- Random example style (${selectedExampleKey}): ${join(selectedExampleTags)}
+- Broad topics: ${join(df.broadTopics)}
+- Core AI tags: ${join(df.coreAiTags)}
+- ML tags: ${join(df.machineLearningTags)}
+- Deep Learning tags: ${join(df.deepLearningTags)}
+- GenAI/LLM tags: ${join(df.genAiAndLlmTags)}
+- Dev/Engineering tags: ${join(df.developmentTags)}
+- Trending tags: ${join(df.trendingTags)}
+- Research tags: ${join(df.researchTags)}
+- Random example style (${selKey}): ${join(COVERAGE_TRACKS.exampleTagSets[selKey])}
 `.trim();
 }
 
@@ -869,6 +778,7 @@ const AWS_SERVICES_CATALOG = {
 // equal depth. Topics here combine naturally with AWS services:
 //   "Node.js 22 require(esm) + Lambda layers"
 //   "TypeScript satisfies + AWS SDK v3 commands"
+//   "Bun vs Node.js on Lambda custom runtime"
 // ─────────────────────────────────────────────────────────────────────────────
 const RUNTIME_CATALOG = {
 
@@ -1016,6 +926,7 @@ const RUNTIME_CATALOG = {
       "esbuild + tsc --noEmit replacing ts-node in Lambda build pipelines",
       "swc replacing tsc for transpilation — 20x faster, no type checking",
       "tsx replacing ts-node for scripts and Lambda local dev",
+      "Bun as a TypeScript runtime — no config, instant startup",
       "tsup simplifying library bundling for shared Lambda layers",
       "Turborepo + TypeScript project references for monorepo incremental builds",
       "TypeScript declaration maps for monorepo go-to-definition across packages",
@@ -1070,6 +981,7 @@ const RUNTIME_CATALOG = {
     category: "ecosystem",
     signals: [
       "pnpm workspaces replacing npm/yarn in Lambda monorepos for disk efficiency",
+      "Bun install as drop-in npm replacement — 25x faster installs in CI",
       "npm provenance statements for supply chain security in published packages",
       "Node.js corepack making package manager version pinning automatic",
       "Volta replacing nvm for Node.js version management in team environments",
@@ -1077,14 +989,42 @@ const RUNTIME_CATALOG = {
     ],
     gotchas: [
       "pnpm symlinked node_modules break Lambda bundlers that expect flat structure",
+      "Bun install creates bun.lockb — git diffs are unreadable binary format",
       "npm provenance requires GitHub Actions — local publish breaks the chain",
       "corepack is experimental in Node 22 — teams enable it and forget, causing CI breaks",
       "Renovate auto-merge on AWS SDK v3 minor versions has caused silent breaking changes",
     ],
     spicyAngles: [
       "pnpm in Lambda: faster CI but your bundler needs this one config change",
+      "Bun install in GitHub Actions cut our install time from 45s to 2s — the setup",
       "Renovate Bot for AWS SDK v3 updates: auto-merge strategy that hasn't broken us yet",
       "npm provenance: supply chain security that takes 10 minutes to set up",
+    ],
+  },
+
+  // ── Runtime Alternatives ───────────────────────────────────────────────────
+  BunOnLambda: {
+    category: "runtime",
+    signals: [
+      "Bun 1.x Lambda custom runtime benchmarks: 3x faster cold starts than Node.js 22",
+      "Bun native S3 API client — no @aws-sdk needed for basic operations",
+      "Bun.serve() replacing Express/Fastify for Lambda HTTP handlers",
+      "Bun shell (Bun.$) replacing child_process exec in build scripts",
+      "Bun SQLite driver 10x faster than better-sqlite3 in benchmarks",
+      "AWS Lambda Web Adapter + Bun for running any HTTP framework serverlessly",
+    ],
+    gotchas: [
+      "Bun custom Lambda runtime adds 3-5MB to deployment package vs native Node.js",
+      "Bun doesn't support all Node.js APIs — net.Socket and some crypto APIs missing",
+      "Bun native S3 client has different error types than @aws-sdk — catch blocks break",
+      "Bun Lambda layers not available — must bundle Bun binary into every function",
+      "Bun test runner output format differs from Jest — CI reporters need updating",
+    ],
+    spicyAngles: [
+      "Bun on Lambda is 3x faster — but is it production ready? We ran it for 60 days",
+      "Bun native S3 vs @aws-sdk/client-s3: real benchmark + API comparison",
+      "We replaced Node.js 22 with Bun on Lambda — here's what broke and what didn't",
+      "Bun.serve() + Lambda Web Adapter: drop Express completely",
     ],
   },
 
@@ -1095,6 +1035,7 @@ const RUNTIME_CATALOG = {
       "Fastify 5 released — full TypeScript rewrite, faster schema validation",
       "Hono.js gaining traction on Lambda — tiny, fast, Edge-first design",
       "tRPC v11 with React Query 5 integration changing how teams design Lambda APIs",
+      "Elysia.js (Bun-first framework) benchmarks competing with Rust frameworks",
       "Express 5 finally stable after 10 years — async error handling built in",
       "Nitro (from Nuxt team) as a universal server for Lambda + edge deployments",
     ],
@@ -1103,6 +1044,7 @@ const RUNTIME_CATALOG = {
       "Hono on Lambda: response streaming requires Lambda function URLs, not API Gateway",
       "tRPC v11 client bundle size increased — needs explicit tree-shaking config",
       "Express 5 async error handling only works if you don't use next(err) pattern",
+      "Elysia.js is Bun-only — Node.js compatibility mode loses all performance gains",
     ],
     spicyAngles: [
       "Express 5 is finally here — is it worth migrating from Fastify?",
@@ -1147,60 +1089,29 @@ const HISTORY_FILE_CANDIDATES = [
   "../post-history.json",
 ];
 
-function normalizeTopicKey(value = "") {
-  return String(value).toLowerCase().replace(/[^a-z0-9]/g, "");
-}
-
-function hasBunReference(input = "") {
-  return /bunonlambda|\bbun\b|\bbun\./i.test(String(input));
-}
-
-function topicContainsBun(topic = {}) {
-  const fields = [
-    topic.title,
-    topic.hook,
-    topic.angle,
-    topic.primaryService,
-    topic.secondaryService,
-    topic.nodeOrTsFeature,
-    topic.codeScenario,
-    topic.gotchaToReveal,
-    ...(Array.isArray(topic.sections) ? topic.sections : []),
-    ...(Array.isArray(topic.tags) ? topic.tags : []),
-    ...(Array.isArray(topic.sdkPackages) ? topic.sdkPackages : []),
-  ].filter(Boolean);
-
-  return fields.some(value => hasBunReference(value));
-}
-
 function resolveHistoryFilePath(fs, path) {
-  const roots = [process.cwd(), __dirname].filter(Boolean);
+  const roots      = [process.cwd()].filter(Boolean);
   const candidates = [];
-
   for (const root of roots) {
     for (const rel of HISTORY_FILE_CANDIDATES) {
       candidates.push(path.resolve(root, rel));
     }
   }
-
   for (const candidate of candidates) {
     if (fs.existsSync(candidate)) return candidate;
   }
-
-  // Default write target if no file exists yet.
-  return path.resolve(__dirname, "../logs/post-history.json");
+  return path.resolve(process.cwd(), "logs/post-history.json");
 }
 
 async function readHistory() {
   try {
-    const fsModule = await import("fs");
+    const fsModule   = await import("fs");
     const pathModule = await import("path");
-    const fs = fsModule.default ?? fsModule;
-    const path = pathModule.default ?? pathModule;
+    const fs         = fsModule.default ?? fsModule;
+    const path       = pathModule.default ?? pathModule;
     const historyFile = resolveHistoryFilePath(fs, path);
-
     if (!fs.existsSync(historyFile)) return [];
-    const raw = fs.readFileSync(historyFile, "utf8");
+    const raw    = fs.readFileSync(historyFile, "utf8");
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
   } catch {
@@ -1208,10 +1119,18 @@ async function readHistory() {
   }
 }
 
-// ── Layer 1: Randomized service assignment with rolling cooldown ──────────────
-// Reads history and randomly picks from services NOT used in the last N posts.
-// This keeps variety high and avoids permanently exhausting the catalog.
-function pickAssignedService(history, allServiceNames, windowSize = SERVICE_COOLDOWN_POSTS) {
+// ── Layer 1: Deterministic service assignment — bypasses LLM choice ─────────
+// Reads history and returns the first service in the catalog that is NOT
+function normalizeTopicKey(value = "") {
+  return String(value).toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+
+// Pick a service that hasn't appeared in the last N posts (default 14).
+// Uses a rolling window instead of all-history so the catalog never gets
+// permanently exhausted. After ~3 weeks a service becomes reusable.
+function pickAssignedService(history, allServiceNames, windowSize = 14) {
+  // Only consider the most recent N posts as "blocked"
   const recentUsed = new Set(
     history
       .slice(-windowSize)
@@ -1226,20 +1145,14 @@ function pickAssignedService(history, allServiceNames, windowSize = SERVICE_COOL
 
 async function writeHistory(entry) {
   try {
-    const fsModule = await import("fs");
-    const pathModule = await import("path");
-    const fs = fsModule.default ?? fsModule;
-    const path = pathModule.default ?? pathModule;
-    const historyFile = resolveHistoryFilePath(fs, path);
-    const logsDir = path.dirname(historyFile);
-
-    if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
+    const fs = await import("fs");
+    if (!fs.existsSync("logs")) fs.mkdirSync("logs", { recursive: true });
     const history = await readHistory();
     history.push(entry);
     // Keep last 90 entries (3 months of weekdays)
     const trimmed = history.slice(-90);
-    fs.writeFileSync(historyFile, JSON.stringify(trimmed, null, 2));
-    console.log(`📝  History updated — ${trimmed.length} entries logged (${historyFile})`);
+    fs.writeFileSync(HISTORY_FILE, JSON.stringify(trimmed, null, 2));
+    console.log(`📝  History updated — ${trimmed.length} entries logged`);
   } catch (e) {
     console.warn("⚠️  Could not write history file:", e.message);
   }
@@ -1405,8 +1318,8 @@ async function scoutTodaysTopic(assignedService) {
     history.slice(-5).forEach(h => console.log(`   ✗ ${h.date}: ${h.service} → "${h.title}"`));
     console.log();
   }
-  const pulse = buildEcosystemPulse(today, history);
-  const livePulse = await buildLiveSignalPulse();
+  const pulse         = buildEcosystemPulse(today, history);
+  const livePulse     = await buildLiveSignalPulse();
   const coveragePulse = buildCoveragePulse();
 
   // HARD ASSIGNMENT — scout MUST honor the service chosen by Layer 1
@@ -1427,6 +1340,7 @@ Node.js Runtime signals:
 - Node.js 22 LTS: require(esm) stable, native fetch GA, --experimental-strip-types
 - ts-node / tsx disrupted by Node's native TypeScript stripping
 - Built-in node:test runner killing Jest in greenfield projects
+- Bun 1.x Lambda custom runtime benchmarks embarrassing native Node
 - diagnostics_channel for zero-cost observability — criminally underused
 - Node.js permission model (--allow-fs-read, --allow-net) for security sandboxing
 - Undici replacing axios/got in perf-sensitive Node.js services
@@ -1470,45 +1384,25 @@ Based on the signals above and the mode instructions, create the blog topic. Req
 3. SPECIFIC — references real package names, real error messages, real config values
 4. CROSS-CUTTING — best topics combine 2 of these: AWS service + Node.js feature + TypeScript pattern
    Examples: "TypeScript satisfies + AWS SDK v3", "Node.js 22 ESM + Lambda layers",
-             "Zod v4 migration + API Gateway request validation",
+             "Zod v4 migration + API Gateway request validation", "Bun on Lambda vs Node.js 22",
              "node:test replacing Jest in Lambda unit tests", "Effect-ts error handling in handlers"
 5. SCROLL-STOPPING TITLE — a developer mid-scroll thinks "wait, is that true?"
-6. CORE FOUNDATION COVERAGE — these domains MUST be covered regularly across posts:
-   AWS Lambda, DynamoDB, TypeScript, AWS SDK v3, EventBridge, S3, CDK, SQS.
-   These are required topic families; keep rotating through them over time.
-   You MAY use these exact themes, but avoid generic titles.
-7. COVERAGE EXPANSION — every post should include at least one of these dimensions when relevant:
-   - AI / ML / Deep Learning angle (modeling, infra, MLOps, GenAI, LLMs)
-   - Industry lens (Finance, Health, Sports, Business, Payments, Cybersecurity)
-   - Practical engineering lens (Programming, Cloud Computing, API Integration, Deployment)
-   Use these as secondary framing while keeping primaryService assignment strict.
-8. RANDOM DAILY FOCUS — you will receive a "TODAY'S RANDOM COVERAGE FOCUS" section.
-   You MUST incorporate at least one theme/tag/style from that random section in the topic.
-9. HARD BAN — Bun is completely disallowed:
-   - NEVER use Bun as primaryService
-   - NEVER use Bun as secondaryService
-   - NEVER propose BunOnLambda or any Bun-related runtime/package/topic
-   - If a Bun angle seems relevant, replace it with a Node.js 22 or AWS-native alternative
 
 TITLE RULES — the difference is context and specificity, not the words themselves:
 
 The patterns below are ONLY bad when they are GENERIC (no real story, no real number, no real outcome).
 The same pattern becomes GREAT when it is SPECIFIC, honest, and backed by a real angle.
 
-❌ BANNED — only the generic title STYLE is banned (not the domains themselves):
-  "Mastering [Topic]"
-  "A Complete Guide to [Topic]"
-  "Introduction to [Topic]"
-  "Getting Started with [Topic]"
-  "Best Practices for [Topic]"
-  "Understanding [Topic]"
-  "Deep Dive into [Topic]"
-  "Everything You Need to Know About [Topic]"
-  "How to use [Topic]"
-
-✅ DOMAIN COVERAGE IS REQUIRED:
-  AWS Lambda, DynamoDB, TypeScript, AWS SDK v3, Node.js, EventBridge, S3, CDK, SQS
-  You MUST cover these regularly; just make the titles specific and story-driven.
+❌ BANNED — generic, no story, could describe any post ever written:
+  "Mastering AWS Lambda"
+  "A Complete Guide to DynamoDB"
+  "Introduction to TypeScript"
+  "Getting Started with AWS SDK v3"
+  "Best Practices for Node.js"
+  "Understanding EventBridge"
+  "Deep Dive into S3"
+  "Everything You Need to Know About CDK"
+  "How to use SQS"
 
 ✅ SAME PATTERNS — now specific, opinionated, backed by a real angle:
   "Mastering Lambda cold starts took us 6 months — here's the one setting that fixed it"
@@ -1527,6 +1421,7 @@ The same pattern becomes GREAT when it is SPECIFIC, honest, and backed by a real
   "AWS SDK v3 Tree-Shaking Lied to Me. Here's the Proof."
   "The EventBridge Pipes Feature That Eliminated 4 of Our Lambda Functions"
   "DynamoDB Single-Table Design Broke Our Team After 18 Months"
+  "Bun on Lambda Is Faster Than Node.js 22 — Is That Enough to Switch?"
   "Secrets Manager Is Costing You $960/year Without You Realizing It"
   "SQS Partial Batch Failure: The Default That Silently Drops Your Messages"
   "TypeScript satisfies + AWS SDK v3: The Pattern That Changed How We Write Commands"
@@ -1704,9 +1599,9 @@ function appendDisclosure(markdown, topic) {
 
 > **Transparency notice**
 >
-> This article was generated by Me (Dinesh).
+> This article was generated by an AI system using [Groq](https://groq.com) (LLaMA 3.3 70B).
 > The topic was scouted from live AWS and Node.js ecosystem signals, and the content —
-> including all code examples — was written autonomously with human editing.
+> including all code examples — was written autonomously without human editing.
 >
 > **Published:** ${date} · **Primary focus:** ${service}
 >
@@ -1804,40 +1699,28 @@ async function main() {
   if (!CONFIG.devtoApiKey) { console.error("❌ DEVTO_API_KEY secret is missing"); process.exit(1); }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // PHASE 1 — Pick today's service randomly (rolling cooldown), then scout
+  // PHASE 1 — Pick today's service deterministically, then scout the topic
   //
   // Three-layer dedup that makes topic repetition impossible:
-  //   Layer 1: pickAssignedService() reads recent history and randomly picks
-  //            a service/topic NOT used in the last SERVICE_COOLDOWN_POSTS posts.
+  //   Layer 1: pickAssignedService() reads history and picks a service that
+  //            is NOT in the last 10 posts. Pure deterministic — no LLM input.
   //   Layer 2: Scout MUST honor the assigned service. If it returns anything
   //            else, we reject and retry.
-  //   Layer 3: If scout fails to comply after retries, SKIP TODAY entirely.
+  //   Layer 3: If scout fails to comply after 2 retries, SKIP TODAY entirely.
   //            One missed day is better than a duplicate post.
   // ─────────────────────────────────────────────────────────────────────────
   const history = await readHistory();
-  const recentServiceWindow = SERVICE_COOLDOWN_POSTS;
-  const recentServices = history
-    .slice(-recentServiceWindow)
-    .map(h => normalizeTopicKey(h.service))
-    .filter(Boolean);
-  const blockedRecentServices = new Set(recentServices);
 
-  // Layer 1 — randomized service assignment with cooldown
+  // Layer 1 — deterministic service assignment
   const allTopicNames = ALL_TOPICS.map(t => t.name);
-  const assignedService = pickAssignedService(history, allTopicNames, recentServiceWindow);
-  if (!assignedService) {
-    console.error(`🛑  All catalog topics/services were used in the last ${recentServiceWindow} posts.`);
-    console.error("   SKIPPING TODAY to enforce cooldown dedup policy.");
-    console.error("   Add more topics/services or lower the cooldown window.");
-    process.exit(0); // clean skip
-  }
+  const assignedService = pickAssignedService(history, allTopicNames);
   console.log(`🎯  Today's assigned service: ${assignedService}`);
-  console.log(`   (Randomly selected from entries not used in last ${recentServiceWindow} posts)\n`);
+  console.log(`   (Picked from catalog — guaranteed not in last 10 published posts)\n`);
 
   // Layer 2 — scout must return the assigned service
   let topic;
   let scoutAttempt = 0;
-  const MAX_SCOUT_ATTEMPTS = 3;
+  const MAX_SCOUT_ATTEMPTS = 2;
 
   while (scoutAttempt < MAX_SCOUT_ATTEMPTS) {
     scoutAttempt++;
@@ -1851,57 +1734,23 @@ async function main() {
     const returned = (topic.primaryService ?? topic.targetService ?? "").toLowerCase();
     const expected = assignedService.toLowerCase();
 
-    if (returned !== expected) {
-      console.warn(`⚠️  Scout returned "${topic.primaryService}" instead of "${assignedService}"`);
-
-      if (scoutAttempt >= MAX_SCOUT_ATTEMPTS) {
-        // Layer 3 — hard skip. Never publish a duplicate.
-        console.error("🛑  Scout refused to honor the assigned service after retries.");
-        console.error("   SKIPPING TODAY to avoid publishing a duplicate topic.");
-        console.error("   Tomorrow's run will try a different service.");
-        process.exit(0);  // exit 0 = clean skip, not a failure
-      }
-
-      console.warn(`   Retry ${scoutAttempt}/${MAX_SCOUT_ATTEMPTS} — waiting 65s for Groq window reset...`);
-      await sleep(65_000);
-      continue;
-    }
-
-    if (blockedRecentServices.has(returned)) {
-      console.warn(`⚠️  Scout picked "${topic.primaryService}" which was used recently in last ${recentServiceWindow} posts.`);
-      console.warn(`   Recent services: ${recentServices.join(", ") || "n/a"}`);
-
-      if (scoutAttempt >= MAX_SCOUT_ATTEMPTS) {
-        console.error("🛑  Scout kept returning a recently used primary service.");
-        console.error("   SKIPPING TODAY to avoid publishing a duplicate topic.");
-        process.exit(0); // clean skip
-      }
-
-      console.warn(`   Retry ${scoutAttempt}/${MAX_SCOUT_ATTEMPTS} — waiting 65s for Groq window reset...`);
-      await sleep(65_000);
-      continue;
-    }
-
-    if (topicContainsBun(topic)) {
-      console.warn("⚠️  Scout response contains Bun-related terms, which are hard-banned.");
-
-      if (scoutAttempt >= MAX_SCOUT_ATTEMPTS) {
-        console.error("🛑  Scout kept returning Bun-related topics after retries.");
-        console.error("   SKIPPING TODAY to enforce Bun ban.");
-        process.exit(0); // clean skip
-      }
-
-      console.warn(`   Retry ${scoutAttempt}/${MAX_SCOUT_ATTEMPTS} — waiting 65s for Groq window reset...`);
-      await sleep(65_000);
-      continue;
-    }
-
-    if (blockedRecentServices.size > 0) {
-      console.log(`✅  Scout picked "${topic.primaryService}" — not in last ${recentServiceWindow} posts, proceeding.\n`);
-    } else {
+    if (returned === expected) {
       console.log(`✅  Scout honored assignment: ${assignedService}\n`);
-    }
       break;
+    }
+
+    console.warn(`⚠️  Scout returned "${topic.primaryService}" instead of "${assignedService}"`);
+
+    if (scoutAttempt >= MAX_SCOUT_ATTEMPTS) {
+      // Layer 3 — hard skip. Never publish a duplicate.
+      console.error("🛑  Scout refused to honor the assigned service after retries.");
+      console.error("   SKIPPING TODAY to avoid publishing a duplicate topic.");
+      console.error("   Tomorrow's run will try a different service.");
+      process.exit(0);  // exit 0 = clean skip, not a failure
+    }
+
+    console.warn(`   Retry ${scoutAttempt}/${MAX_SCOUT_ATTEMPTS} — waiting 65s for Groq window reset...`);
+    await sleep(65_000);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1923,30 +1772,31 @@ async function main() {
   const title = extractTitle(markdown);
   const body  = stripTitle(markdown);
 
-  if (hasBunReference(title) || hasBunReference(body)) {
-    console.error("🛑  Generated article contains Bun-related content. Skipping publish.");
-    process.exit(0); // clean skip
-  }
-
   console.log(`📌  Title: "${title}"`);
   console.log("─── Preview (first 400 chars) ─────────────────────");
   console.log(body.slice(0, 400) + "...\n");
 
   // ─────────────────────────────────────────────────────────────────────────
-  // PHASE 3 — Hard dedup gate (blocks publish on duplicates)
-  // Title check: blocks any exact-title repeat ever (full history).
-  // Service check: blocks repeats within rolling cooldown window.
-  // Missing one day is better than posting a duplicate topic.
+  // PHASE 3 — Hard dedup gate (BLOCKS publish on duplicate)
+  // Title check: blocks any exact-title repeat ever (no two identical titles)
+  // Service check: blocks repeats within last 14 posts (catalog stays fresh)
+  // If history is unreadable, SKIP today for safety — better than a duplicate.
   // ─────────────────────────────────────────────────────────────────────────
   try {
     const history = await readHistory();
-    const recentHistory = history.slice(-SERVICE_COOLDOWN_POSTS);
+    const DEDUP_WINDOW = 14;                        // only check last 14 posts
+    const recentHistory = history.slice(-DEDUP_WINDOW);
+
     const normalNewTitle = normalizeTopicKey(title).slice(0, 60);
     const newService = normalizeTopicKey(topic.primaryService ?? topic.targetService ?? "");
+
+    // Title check — exact-title repetition is always blocked (any time)
     const duplicateByTitle = history.find(h =>
       normalizeTopicKey(h.title).slice(0, 40) === normalNewTitle.slice(0, 40)
     );
 
+    // Service check — only blocked if used within the last 14 posts
+    // (not "ever used" — that would permanently exhaust the catalog)
     const duplicateByService = recentHistory.find(h => normalizeTopicKey(h.service) === newService);
 
     if (duplicateByTitle || duplicateByService) {
@@ -1955,11 +1805,11 @@ async function main() {
       console.error(`   Generated title   : "${title}"`);
       console.error(`   Generated service : "${topic.primaryService ?? topic.targetService ?? "unknown"}"`);
       console.error(`   Conflicts with    : "${dup.title}" (${dup.date}) [${dup.service}]`);
-      console.error(`   (Reason: ${duplicateByTitle ? "same title in full history" : `service used in last ${SERVICE_COOLDOWN_POSTS} posts`})`);
+      console.error(`   (Reason: ${duplicateByTitle ? "same title in full history" : `service used in last ${DEDUP_WINDOW} posts`})`);
       process.exit(0); // clean skip (not a workflow failure)
     }
 
-    console.log(`✅  Dedup check passed — title unique and service fresh in last ${SERVICE_COOLDOWN_POSTS} posts.\n`);
+    console.log(`✅  Dedup check passed — title unique, service fresh in last ${DEDUP_WINDOW} posts.\n`);
   } catch (err) {
     // History unreadable -> safest behavior is skip to avoid accidental duplicate.
     console.error("🛑  Dedup check failed. Skipping publish for safety:", err.message);
@@ -2019,7 +1869,7 @@ async function main() {
     console.warn(`   { "date": "${date}", "title": "${title}", "service": "${topic.primaryService ?? "unknown"}", "url": "${article.url ?? ""}" }`);
   }
 
-   // ─────────────────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
   // PHASE 7 — Post to LinkedIn (non-blocking, every 2nd publish)
   // Dev.to is already published at this point. LinkedIn failure never
   // affects the main publish. Token expiry handled gracefully.
@@ -2034,6 +1884,7 @@ async function main() {
   } catch (err) {
     console.warn("⚠️  LinkedIn notification failed (non-fatal):", err.message);
   }
+
 }
 
 main();
