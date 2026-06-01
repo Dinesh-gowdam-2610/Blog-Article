@@ -12,15 +12,6 @@
 
 const LINKEDIN_API = "https://api.linkedin.com/v2";
 
-// Stat card generator — uses ImageMagick (pre-installed on ubuntu-latest)
-let generateStatCard = null;
-try {
-  const mod = await import("./generateStatCard.js");
-  generateStatCard = mod.generateStatCard;
-} catch {
-  // generateStatCard.js not found — image posting disabled, falls back to text-only
-}
-
 // ── Build hashtags from topic data ────────────────────────────────────────────
 function buildTags(topic) {
   const base = new Set([
@@ -245,73 +236,7 @@ function buildPostText(title, url, topic) {
   return lines.join("\n\n");
 }
 
-// ── Upload image to LinkedIn (2-step: register → upload bytes) ───────────────
-async function uploadImageToLinkedIn(imagePath, personUrn, accessToken) {
-  const fs = await import("fs");
 
-  if (!fs.default.existsSync(imagePath)) {
-    console.warn("⚠️  Image file not found:", imagePath);
-    return null;
-  }
-
-  // Step 1 — Register the upload and get an upload URL
-  console.log("📤  Registering image upload with LinkedIn...");
-
-  const registerRes = await fetch(
-    `${LINKEDIN_API}/images?action=initializeUpload`,
-    {
-      method: "POST",
-      headers: {
-        "Authorization":             `Bearer ${accessToken}`,
-        "Content-Type":              "application/json",
-        "X-Restli-Protocol-Version": "2.0.0",
-      },
-      body: JSON.stringify({
-        initializeUploadRequest: {
-          owner: personUrn,
-        },
-      }),
-    }
-  );
-
-  if (!registerRes.ok) {
-    const err = await registerRes.text();
-    console.warn(`⚠️  Image register failed (${registerRes.status}): ${err.slice(0, 200)}`);
-    return null;
-  }
-
-  const registerData = await registerRes.json();
-  const uploadUrl    = registerData?.value?.uploadUrl;
-  const imageUrn     = registerData?.value?.image;
-
-  if (!uploadUrl || !imageUrn) {
-    console.warn("⚠️  LinkedIn did not return upload URL or image URN");
-    return null;
-  }
-
-  // Step 2 — Upload the PNG bytes
-  console.log("📤  Uploading PNG to LinkedIn...");
-
-  const imageBytes = fs.default.readFileSync(imagePath);
-
-  const uploadRes = await fetch(uploadUrl, {
-    method:  "PUT",
-    headers: {
-      "Authorization": `Bearer ${accessToken}`,
-      "Content-Type":  "image/png",
-    },
-    body: imageBytes,
-  });
-
-  if (!uploadRes.ok) {
-    const err = await uploadRes.text();
-    console.warn(`⚠️  Image upload failed (${uploadRes.status}): ${err.slice(0, 200)}`);
-    return null;
-  }
-
-  console.log(`✅  Image uploaded. URN: ${imageUrn}`);
-  return imageUrn;
-}
 
 // ── Main export ───────────────────────────────────────────────────────────────
 export async function postToLinkedIn({ title, url, topic }) {
@@ -351,58 +276,18 @@ export async function postToLinkedIn({ title, url, topic }) {
   console.log(postText);
   console.log("────────────────────────────────────────────────────\n");
 
-  // ── Generate and upload stat card image ──────────────────────────────────
-  let imageUrn = null;
+  // ── Post as ARTICLE — LinkedIn pulls link card from Dev.to URL automatically
+  // Shows article title, description and cover image from the Dev.to page.
+  console.log("📝  Posting article link to LinkedIn...");
 
-  if (generateStatCard) {
-    const os   = await import("os");
-    const path = await import("path");
-    const fs   = await import("fs");
-
-    const tmpPath = path.default.join(os.default.tmpdir(), `li_card_${Date.now()}.png`);
-
-    try {
-      const cardPath = await generateStatCard({ ...topic, title }, tmpPath);
-      if (cardPath) {
-        imageUrn = await uploadImageToLinkedIn(cardPath, personUrn, accessToken);
-        // Clean up temp file
-        try { fs.default.unlinkSync(cardPath); } catch {}
-      }
-    } catch (err) {
-      console.warn("⚠️  Stat card generation failed (non-fatal):", err.message);
-    }
-  }
-
-  // ── Build payload — with image if available, text-only as fallback ────────
-  let payload;
-
-  if (imageUrn) {
-    console.log("🖼️   Building post with image attachment...");
-    // Image post — shows the stat card in feed
-    payload = {
-      author:         personUrn,
-      lifecycleState: "PUBLISHED",
-      specificContent: {
-        "com.linkedin.ugc.ShareContent": {
-          shareCommentary:    { text: postText },
-          shareMediaCategory: "IMAGE",
-          media: [
-            {
-              status: "READY",
-              media:  imageUrn,
-              title:  { text: title },
-            },
-          ],
-        },
-      },
-      visibility: {
-        "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
-      },
-    };
-  } else {
-    console.log("📝  Building text + article link post (no image)...");
-    // Fallback — text + article link card
-    payload = {
+  const res = await fetch(`${LINKEDIN_API}/ugcPosts`, {
+    method:  "POST",
+    headers: {
+      "Content-Type":              "application/json",
+      "Authorization":             `Bearer ${accessToken}`,
+      "X-Restli-Protocol-Version": "2.0.0",
+    },
+    body: JSON.stringify({
       author:         personUrn,
       lifecycleState: "PUBLISHED",
       specificContent: {
@@ -412,9 +297,9 @@ export async function postToLinkedIn({ title, url, topic }) {
           media: [
             {
               status:      "READY",
-              description: { text: topic.angle ?? title },
+              description: { text: (topic.angle ?? title).slice(0, 200) },
               originalUrl: url,
-              title:       { text: title },
+              title:       { text: title.slice(0, 400) },
             },
           ],
         },
@@ -422,17 +307,7 @@ export async function postToLinkedIn({ title, url, topic }) {
       visibility: {
         "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
       },
-    };
-  }
-
-  const res = await fetch(`${LINKEDIN_API}/ugcPosts`, {
-    method:  "POST",
-    headers: {
-      "Content-Type":              "application/json",
-      "Authorization":             `Bearer ${accessToken}`,
-      "X-Restli-Protocol-Version": "2.0.0",
-    },
-    body: JSON.stringify(payload),
+    }),
   });
 
   // Token expired — warn clearly, create GitHub Issue, never crash
