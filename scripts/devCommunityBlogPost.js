@@ -926,7 +926,6 @@ const RUNTIME_CATALOG = {
       "esbuild + tsc --noEmit replacing ts-node in Lambda build pipelines",
       "swc replacing tsc for transpilation — 20x faster, no type checking",
       "tsx replacing ts-node for scripts and Lambda local dev",
-      "Bun as a TypeScript runtime — no config, instant startup",
       "tsup simplifying library bundling for shared Lambda layers",
       "Turborepo + TypeScript project references for monorepo incremental builds",
       "TypeScript declaration maps for monorepo go-to-definition across packages",
@@ -981,7 +980,6 @@ const RUNTIME_CATALOG = {
     category: "ecosystem",
     signals: [
       "pnpm workspaces replacing npm/yarn in Lambda monorepos for disk efficiency",
-      "Bun install as drop-in npm replacement — 25x faster installs in CI",
       "npm provenance statements for supply chain security in published packages",
       "Node.js corepack making package manager version pinning automatic",
       "Volta replacing nvm for Node.js version management in team environments",
@@ -989,45 +987,18 @@ const RUNTIME_CATALOG = {
     ],
     gotchas: [
       "pnpm symlinked node_modules break Lambda bundlers that expect flat structure",
-      "Bun install creates bun.lockb — git diffs are unreadable binary format",
       "npm provenance requires GitHub Actions — local publish breaks the chain",
       "corepack is experimental in Node 22 — teams enable it and forget, causing CI breaks",
       "Renovate auto-merge on AWS SDK v3 minor versions has caused silent breaking changes",
     ],
     spicyAngles: [
       "pnpm in Lambda: faster CI but your bundler needs this one config change",
-      "Bun install in GitHub Actions cut our install time from 45s to 2s — the setup",
       "Renovate Bot for AWS SDK v3 updates: auto-merge strategy that hasn't broken us yet",
       "npm provenance: supply chain security that takes 10 minutes to set up",
     ],
   },
 
   // ── Runtime Alternatives ───────────────────────────────────────────────────
-  BunOnLambda: {
-    category: "runtime",
-    signals: [
-      "Bun 1.x Lambda custom runtime benchmarks: 3x faster cold starts than Node.js 22",
-      "Bun native S3 API client — no @aws-sdk needed for basic operations",
-      "Bun.serve() replacing Express/Fastify for Lambda HTTP handlers",
-      "Bun shell (Bun.$) replacing child_process exec in build scripts",
-      "Bun SQLite driver 10x faster than better-sqlite3 in benchmarks",
-      "AWS Lambda Web Adapter + Bun for running any HTTP framework serverlessly",
-    ],
-    gotchas: [
-      "Bun custom Lambda runtime adds 3-5MB to deployment package vs native Node.js",
-      "Bun doesn't support all Node.js APIs — net.Socket and some crypto APIs missing",
-      "Bun native S3 client has different error types than @aws-sdk — catch blocks break",
-      "Bun Lambda layers not available — must bundle Bun binary into every function",
-      "Bun test runner output format differs from Jest — CI reporters need updating",
-    ],
-    spicyAngles: [
-      "Bun on Lambda is 3x faster — but is it production ready? We ran it for 60 days",
-      "Bun native S3 vs @aws-sdk/client-s3: real benchmark + API comparison",
-      "We replaced Node.js 22 with Bun on Lambda — here's what broke and what didn't",
-      "Bun.serve() + Lambda Web Adapter: drop Express completely",
-    ],
-  },
-
   // ── Frameworks & APIs ──────────────────────────────────────────────────────
   NodeJSFrameworks: {
     category: "framework",
@@ -1035,7 +1006,6 @@ const RUNTIME_CATALOG = {
       "Fastify 5 released — full TypeScript rewrite, faster schema validation",
       "Hono.js gaining traction on Lambda — tiny, fast, Edge-first design",
       "tRPC v11 with React Query 5 integration changing how teams design Lambda APIs",
-      "Elysia.js (Bun-first framework) benchmarks competing with Rust frameworks",
       "Express 5 finally stable after 10 years — async error handling built in",
       "Nitro (from Nuxt team) as a universal server for Lambda + edge deployments",
     ],
@@ -1044,7 +1014,6 @@ const RUNTIME_CATALOG = {
       "Hono on Lambda: response streaming requires Lambda function URLs, not API Gateway",
       "tRPC v11 client bundle size increased — needs explicit tree-shaking config",
       "Express 5 async error handling only works if you don't use next(err) pattern",
-      "Elysia.js is Bun-only — Node.js compatibility mode loses all performance gains",
     ],
     spicyAngles: [
       "Express 5 is finally here — is it worth migrating from Fastify?",
@@ -1145,14 +1114,23 @@ function pickAssignedService(history, allServiceNames, windowSize = 14) {
 
 async function writeHistory(entry) {
   try {
-    const fs = await import("fs");
-    if (!fs.existsSync("logs")) fs.mkdirSync("logs", { recursive: true });
+    const fsModule   = await import("fs");
+    const pathModule = await import("path");
+    const fs         = fsModule.default ?? fsModule;
+    const path       = pathModule.default ?? pathModule;
+
+    // Resolve the correct history file path (same logic as readHistory)
+    const historyFile = resolveHistoryFilePath(fs, path);
+    const logsDir     = path.dirname(historyFile);
+
+    if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
+
     const history = await readHistory();
     history.push(entry);
     // Keep last 90 entries (3 months of weekdays)
     const trimmed = history.slice(-90);
-    fs.writeFileSync(HISTORY_FILE, JSON.stringify(trimmed, null, 2));
-    console.log(`📝  History updated — ${trimmed.length} entries logged`);
+    fs.writeFileSync(historyFile, JSON.stringify(trimmed, null, 2));
+    console.log(`📝  History updated — ${trimmed.length} entries logged (${historyFile})`);
   } catch (e) {
     console.warn("⚠️  Could not write history file:", e.message);
   }
@@ -1340,7 +1318,6 @@ Node.js Runtime signals:
 - Node.js 22 LTS: require(esm) stable, native fetch GA, --experimental-strip-types
 - ts-node / tsx disrupted by Node's native TypeScript stripping
 - Built-in node:test runner killing Jest in greenfield projects
-- Bun 1.x Lambda custom runtime benchmarks embarrassing native Node
 - diagnostics_channel for zero-cost observability — criminally underused
 - Node.js permission model (--allow-fs-read, --allow-net) for security sandboxing
 - Undici replacing axios/got in perf-sensitive Node.js services
@@ -1384,8 +1361,7 @@ Based on the signals above and the mode instructions, create the blog topic. Req
 3. SPECIFIC — references real package names, real error messages, real config values
 4. CROSS-CUTTING — best topics combine 2 of these: AWS service + Node.js feature + TypeScript pattern
    Examples: "TypeScript satisfies + AWS SDK v3", "Node.js 22 ESM + Lambda layers",
-             "Zod v4 migration + API Gateway request validation", "Bun on Lambda vs Node.js 22",
-             "node:test replacing Jest in Lambda unit tests", "Effect-ts error handling in handlers"
+             "Zod v4 migration + API Gateway request validation", "node:test replacing Jest in Lambda unit tests", "Effect-ts error handling in handlers"
 5. SCROLL-STOPPING TITLE — a developer mid-scroll thinks "wait, is that true?"
 
 TITLE RULES — the difference is context and specificity, not the words themselves:
@@ -1421,7 +1397,6 @@ The same pattern becomes GREAT when it is SPECIFIC, honest, and backed by a real
   "AWS SDK v3 Tree-Shaking Lied to Me. Here's the Proof."
   "The EventBridge Pipes Feature That Eliminated 4 of Our Lambda Functions"
   "DynamoDB Single-Table Design Broke Our Team After 18 Months"
-  "Bun on Lambda Is Faster Than Node.js 22 — Is That Enough to Switch?"
   "Secrets Manager Is Costing You $960/year Without You Realizing It"
   "SQS Partial Batch Failure: The Default That Silently Drops Your Messages"
   "TypeScript satisfies + AWS SDK v3: The Pattern That Changed How We Write Commands"
@@ -1624,7 +1599,7 @@ function appendDisclosure(markdown, topic) {
 
 > **Transparency notice**
 >
-> This article was generated by using AI system using [Groq](https://groq.com) Model - (LLaMA 3.3 70B).
+> This article was generated by an AI system using [Groq](https://groq.com) (LLaMA 3.3 70B).
 > The topic was scouted from live AWS and Node.js ecosystem signals, and the content —
 > including all code examples — was written autonomously without human editing.
 >
@@ -1891,11 +1866,15 @@ async function main() {
   // ─────────────────────────────────────────────────────────────────────────
   try {
     await writeHistory({
-      date:    date,
+      date:           date,
       title,
-      service: topic.primaryService ?? topic.targetService ?? "unknown",
-      url:     article.url ?? "",
-      tags:    topic.tags,
+      service:        topic.primaryService ?? topic.targetService ?? "unknown",
+      url:            article.url ?? "",
+      tags:           topic.tags,
+      // Extra fields used by LinkedIn weekly roundup — all from scout topic object
+      hook:           topic.hook           ?? "",
+      angle:          topic.angle          ?? "",
+      gotchaToReveal: topic.gotchaToReveal ?? "",
     });
   } catch (err) {
     console.warn("⚠️  History write failed (non-fatal — post is already published):", err.message);
