@@ -33,5 +33,20 @@
       "bun",
       "lambda"
     ]
+  },
+  {
+    "date": "2026-06-02",
+    "title": "VPC Lattice Is a Game-Changer for Service-to-Service Networking — But Beware the NAT Gateway Penalty",
+    "service": "VPC",
+    "url": "https://dev.to/dineshgowtham/vpc-lattice-is-a-game-changer-for-service-to-service-networking-but-beware-the-nat-gateway-penalty-4gi1",
+    "tags": [
+      "vpc",
+      "lambda",
+      "aws",
+      "serverless"
+    ],
+    "hook": "AWS VPC Lattice has revolutionized service-to-service networking without load balancers, but our team encountered a unexpected surprise that added 30% to our VPC costs. Here's the hidden penalty that nobody warned us about and how we mitigated it.",
+    "angle": "While VPC Lattice simplifies service networking, its lack of internet access by default can lead to a costly NAT Gateway requirement, undermining its benefits for some teams.",
+    "gotchaToReveal": "The NAT Gateway penalty for Lambda functions running in a VPC without an internet gateway, adding unnecessary costs to the VPC Lattice benefits"
   }
 ]
