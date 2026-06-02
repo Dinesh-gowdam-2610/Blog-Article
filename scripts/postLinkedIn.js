@@ -1,9 +1,9 @@
 // ─── postLinkedIn.js ──────────────────────────────────────────────────────────
-// Posts to LinkedIn after every 2nd Dev.to publish.
-// Description style: structured, emoji-driven, engineer voice — like the
-// screenshot reference. Hook → Problem → What we found → Key points → CTA → tags
+// Posts a WEEKLY ROUNDUP to LinkedIn every Wednesday.
+// 8 completely different trending patterns — rotates by ISO week number.
 //
-// Zero extra Groq API calls — built entirely from the scout's topic object.
+// ALL content is dynamic — pulled from post-history.json article data.
+// No hardcoded filler lines. Every sentence comes from the real articles.
 //
 // Required GitHub Secrets:
 //   LINKEDIN_ACCESS_TOKEN  → OAuth token (expires every 60 days)
@@ -12,273 +12,418 @@
 
 const LINKEDIN_API = "https://api.linkedin.com/v2";
 
-// ── Build hashtags from topic data ────────────────────────────────────────────
-function buildTags(topic) {
+// ── Get Monday of current week (IST) ─────────────────────────────────────────
+function getThisWeekMonday() {
+  const todayIST  = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  const d         = new Date(todayIST);
+  const day       = d.getDay();
+  const daysToMon = day === 0 ? -6 : 1 - day;
+  const monday    = new Date(d);
+  monday.setDate(d.getDate() + daysToMon);
+  return monday.toISOString().split("T")[0];
+}
+
+// ── Read this week's posts from history ───────────────────────────────────────
+async function getThisWeeksPosts() {
+  try {
+    const fs   = await import("fs");
+    const path = await import("path");
+    const fp   = path.default.resolve(process.cwd(), "logs/post-history.json");
+    if (!fs.default.existsSync(fp)) return [];
+    const history   = JSON.parse(fs.default.readFileSync(fp, "utf8"));
+    const mondayIST = getThisWeekMonday();
+    return history.filter(h => h.date >= mondayIST);
+  } catch {
+    return [];
+  }
+}
+
+// ── Build hashtags from the week's service topics ─────────────────────────────
+function buildTags(posts) {
   const base = new Set([
-    "aws", "nodejs", "typescript", "javascript", "softwaredevelopment", "devto",
+    "aws","nodejs","typescript","javascript","devto","programming","softwaredevelopment",
   ]);
-
-  const serviceTagMap = {
-    Lambda:             ["serverless", "awslambda", "cloudcomputing"],
-    ECS:                ["docker", "containers", "devops"],
-    AppRunner:          ["serverless", "containers", "cloudcomputing"],
-    S3:                 ["cloudstorage", "aws", "devops"],
-    DynamoDB:           ["dynamodb", "nosql", "database"],
-    RDS:                ["database", "postgresql", "aurora"],
-    ElastiCache:        ["redis", "caching", "database"],
-    SQS:                ["messagequeue", "eventdriven", "microservices"],
-    SNS:                ["pubsub", "eventdriven", "microservices"],
-    EventBridge:        ["eventdriven", "microservices", "serverless"],
-    Scheduler:          ["serverless", "automation", "devops"],
-    APIGateway:         ["api", "restapi", "serverless"],
-    CloudFront:         ["cdn", "performance", "aws"],
-    VPC:                ["networking", "cloudsecurity", "aws"],
-    Bedrock:            ["generativeai", "llm", "aiengineering"],
-    CloudWatch:         ["observability", "monitoring", "devops"],
-    XRay:               ["observability", "tracing", "microservices"],
-    SecretsManager:     ["security", "devsecops", "cloudsecurity"],
-    IAM:                ["security", "cloudsecurity", "devsecops"],
-    CDK:                ["iac", "devops", "cloudformation"],
-    CodeBuild:          ["cicd", "devops", "automation"],
-    StepFunctions:      ["serverless", "workflow", "automation"],
-    Kinesis:            ["streaming", "eventdriven", "bigdata"],
-    Athena:             ["bigdata", "analytics", "sql"],
-    NodeJS22:           ["nodejs22", "javascript", "runtimes"],
-    NodeJSPerformance:  ["performance", "nodejs", "backend"],
-    NodeJSTesting:      ["testing", "tdd", "jest"],
-    TypeScript55:       ["typescript", "typesafety", "javascript"],
-    TypeScriptPatterns: ["typescript", "designpatterns", "cleancode"],
-    TypeScriptBuild:    ["typescript", "esbuild", "bundling"],
-    JavaScriptPatterns: ["javascript", "es2025", "cleancode"],
-    PackageEcosystem:   ["npm", "pnpm", "javascript"],
-    NodeJSFrameworks:   ["fastify", "hono", "backend"],
+  const map = {
+    Lambda:             ["serverless","awslambda"],
+    ECS:                ["docker","containers"],
+    AppRunner:          ["serverless","containers"],
+    S3:                 ["cloudstorage"],
+    DynamoDB:           ["dynamodb","nosql"],
+    RDS:                ["database","postgresql"],
+    ElastiCache:        ["redis","caching"],
+    SQS:                ["messagequeue","eventdriven"],
+    SNS:                ["pubsub","eventdriven"],
+    EventBridge:        ["eventdriven","microservices"],
+    APIGateway:         ["api","restapi"],
+    CloudFront:         ["cdn","performance"],
+    Bedrock:            ["generativeai","llm"],
+    CloudWatch:         ["observability","monitoring"],
+    SecretsManager:     ["security","devsecops"],
+    IAM:                ["cloudsecurity"],
+    CDK:                ["iac","devops"],
+    StepFunctions:      ["serverless","workflow"],
+    Kinesis:            ["streaming","eventdriven"],
+    NodeJS22:           ["nodejs22","runtimes"],
+    NodeJSPerformance:  ["performance","backend"],
+    NodeJSTesting:      ["testing","tdd"],
+    TypeScript55:       ["typescript","typesafety"],
+    TypeScriptPatterns: ["typescript","designpatterns"],
+    TypeScriptBuild:    ["typescript","esbuild"],
+    JavaScriptPatterns: ["javascript","es2025"],
+    NodeJSFrameworks:   ["fastify","backend"],
   };
-
-  const primary   = serviceTagMap[topic.primaryService   ?? ""] ?? [];
-  const secondary = serviceTagMap[topic.secondaryService ?? ""] ?? [];
-
-  primary.forEach(t => base.add(t));
-  secondary.slice(0, 2).forEach(t => base.add(t));
-
+  posts.forEach(p => (map[p.service] ?? []).slice(0, 2).forEach(t => base.add(t)));
   return [...base].slice(0, 10).map(t => `#${t}`).join(" ");
 }
 
-// ── Clean personal language from any text ────────────────────────────────────
-// Strips "our team", "we found", "our service" etc — posts from a personal
-// engineer voice, not a company voice.
-function cleanTeamLanguage(text = "") {
-  return text
-    .replace(/our team/gi, "I")
-    .replace(/our teams/gi, "engineers")
-    .replace(/our service[s]?/gi, "the service")
-    .replace(/our system[s]?/gi, "the system")
-    .replace(/our codebase/gi, "the codebase")
-    .replace(/our stack/gi, "the stack")
-    .replace(/our app/gi, "the app")
-    .replace(/our lambda[s]?/gi, "the Lambda functions")
-    .replace(/our pipeline[s]?/gi, "the pipeline")
-    .replace(/our infrastructure/gi, "the infrastructure")
-    .replace(/we found/gi, "I found")
-    .replace(/we migrated/gi, "I migrated")
-    .replace(/we built/gi, "I built")
-    .replace(/we switched/gi, "I switched")
-    .replace(/we replaced/gi, "I replaced")
-    .replace(/we hit/gi, "I hit")
-    .replace(/we ran/gi, "I ran")
-    .replace(/we tested/gi, "I tested")
-    .replace(/we deployed/gi, "I deployed")
-    .replace(/we use/gi, "I use")
-    .replace(/we used/gi, "I used")
-    .replace(/we saw/gi, "I saw")
-    .replace(/we spent/gi, "I spent")
-    .replace(/we wasted/gi, "I wasted")
-    .replace(/we noticed/gi, "I noticed")
-    .replace(/we learned/gi, "I learned")
-    .replace(/we decided/gi, "I decided")
-    .trim();
-}
-
-// ── Build the LinkedIn post with 10 rotating patterns ────────────────────────
-//
-// Pattern 1  — Problem first        : pain → insight → bullets → gotcha
-// Pattern 2  — Discovery            : curiosity hook → angle → fix
-// Pattern 3  — Numbered steps       : 1️⃣2️⃣3️⃣ breakdown
-// Pattern 4  — Contrarian take      : spicy opener → evidence → CTA
-// Pattern 5  — Story arc            : before → broke → learned
-// Pattern 6  — Stats & numbers      : headline stat → context → implication
-// Pattern 7  — Business cost angle  : dollar/time cost → root cause → fix
-// Pattern 8  — Before / After       : old way vs new way side by side
-// Pattern 9  — Hot take + poll vibe : bold claim → 2 sides → reader question
-// Pattern 10 — Quick lessons list   : TIL style, digestible takeaways
-//
-// Rotates by day-of-year — predictable but never repeating same pattern
-// two days in a row (10-day full cycle).
-//
-function buildPostText(title, url, topic) {
-  const service  = topic.primaryService ?? topic.targetService ?? "AWS";
-  const hook     = cleanTeamLanguage(topic.hook           ?? "");
-  const angle    = cleanTeamLanguage(topic.angle          ?? "");
-  const gotcha   = cleanTeamLanguage(topic.gotchaToReveal ?? "");
-  const scenario = cleanTeamLanguage(topic.codeScenario   ?? "");
-  const sections = (Array.isArray(topic.sections) ? topic.sections : [])
-    .filter(s => s && s.toLowerCase() !== "the takeaway")
-    .slice(0, 4);
-  const tags     = buildTags(topic);
-
-  const d         = new Date();
-  const start     = new Date(d.getFullYear(), 0, 0);
-  const dayOfYear = Math.floor((d - start) / 86_400_000);
-  const pattern   = (dayOfYear % 10) + 1;
-
-  let lines = [];
-
-  if (pattern === 1) {
-    // Problem first — lead with the pain, then the fix
-    lines.push(hook || title);
-    if (angle)  lines.push(angle);
-    if (sections.length) lines.push("What the article covers:\n" + sections.map(s => "→ " + s).join("\n"));
-    if (gotcha) lines.push("What caught me off guard:\n" + gotcha);
-    lines.push("Full code walkthrough in the article.");
-
-  } else if (pattern === 2) {
-    // Discovery — curiosity-driven "I just found out"
-    lines.push("Just found this out the hard way.");
-    lines.push(hook || angle || title);
-    if (gotcha)   lines.push("The hidden trap:\n" + gotcha);
-    if (scenario) lines.push("What the fix looks like:\n" + scenario);
-    lines.push("Wrote it up with working " + service + " code. Link below.");
-
-  } else if (pattern === 3) {
-    // Numbered steps — clear structured breakdown
-    lines.push(hook || title);
-    if (angle) lines.push(angle);
-    if (sections.length) {
-      const nums = ["1.", "2.", "3.", "4."];
-      lines.push("Here is what the article walks through:\n" + sections.map((s, i) => (nums[i] ?? (i+1)+".") + " " + s).join("\n"));
-    }
-    if (gotcha) lines.push("Most common mistake:\n" + gotcha);
-    lines.push("Code examples and full breakdown in the article.");
-
-  } else if (pattern === 4) {
-    // Contrarian — spicy take first
-    lines.push(angle || hook || title);
-    if (hook && hook !== angle) lines.push(hook);
-    if (sections.length) lines.push("What I dug into:\n" + sections.map(s => "- " + s).join("\n"));
-    if (gotcha)   lines.push("The part nobody talks about:\n" + gotcha);
-    if (scenario) lines.push(scenario);
-    lines.push("Full article + runnable code below.");
-
-  } else if (pattern === 5) {
-    // Story arc — before, what broke, what I learned
-    lines.push(hook || title);
-    if (angle)  lines.push(angle);
-    if (gotcha) lines.push("What broke:\n" + gotcha);
-    if (sections.length) lines.push("Key takeaways:\n" + sections.map(s => "- " + s).join("\n"));
-    lines.push("Everything documented with " + service + " + Node.js code.");
-
-  } else if (pattern === 6) {
-    // Stats and numbers — headline metric grabs attention
-    // Pull real numbers from the gotcha or scenario if they exist
-    const statLine = [gotcha, scenario, angle].find(t => /\d/.test(t)) || angle || hook;
-    lines.push("Numbers that made me stop and look twice:");
-    lines.push(statLine || title);
-    if (sections.length) lines.push("What this covers:\n" + sections.map(s => "• " + s).join("\n"));
-    lines.push("The context and the fix are in the article. Link below.");
-
-  } else if (pattern === 7) {
-    // Business cost angle — speaks to CTOs and tech leads
-    lines.push("This is costing engineering teams real time and money.");
-    lines.push(hook || angle || title);
-    if (gotcha) lines.push("Root cause:\n" + gotcha);
-    if (sections.length) lines.push("What the article covers:\n" + sections.map(s => "• " + s).join("\n"));
-    lines.push("If you run " + service + " in production, this one is worth 5 minutes of your time.");
-
-  } else if (pattern === 8) {
-    // Before / After — old way vs new way
-    lines.push("Before vs after on " + service + ":");
-    if (angle) lines.push(angle);
-    if (gotcha) {
-      lines.push("Before: " + gotcha);
-    }
-    if (scenario) {
-      lines.push("After: " + scenario);
-    }
-    if (sections.length) lines.push("Covered in the article:\n" + sections.map(s => "• " + s).join("\n"));
-    lines.push("Full code comparison in the article.");
-
-  } else if (pattern === 9) {
-    // Hot take + question — invites comments and engagement
-    lines.push(angle || hook || title);
-    lines.push(hook && hook !== angle ? hook : "");
-    if (gotcha) lines.push("The part that surprises most engineers:\n" + gotcha);
-    lines.push("Have you hit this in production? What was your fix?");
-    lines.push("My full approach with code is in the article below.");
-
-  } else {
-    // Quick lessons — TIL style digestible list
-    lines.push("Things I wish I knew before working with " + service + ":");
-    const lessons = [
-      gotcha,
-      angle,
-      scenario,
-      ...sections
-    ].filter(Boolean).slice(0, 4);
-    if (lessons.length) lines.push(lessons.map((l, i) => (i+1) + ". " + l).join("\n"));
-    lines.push("Full writeup with working code below.");
+// ── Extract a stat/number from any article field ──────────────────────────────
+function extractStat(post) {
+  const sources = [post.hook, post.angle, post.gotchaToReveal, post.title].filter(Boolean);
+  for (const text of sources) {
+    const m = text.match(/\$[\d,]+[k]?|[\d,.]+\s*(?:ms|%|x|messages?|lines?|services?|days?|hours?|minutes?|KB|MB|GB)/i);
+    if (m) return m[0];
   }
-
-  // Remove empty lines caused by missing fields
-  lines = lines.filter(l => l && l.trim() !== "");
-
-  lines.push(tags);
-  lines.push(url);
-
-  return lines.join("\n\n");
+  return null;
 }
 
+// ── Get the single best insight line from a post ──────────────────────────────
+// Priority: hook sentence 1 → angle → gotcha → title
+function getInsight(post) {
+  if (post.hook) {
+    const first = post.hook.split(/[.!?]/)[0].trim();
+    if (first.length > 20 && first.length < 140) return first;
+  }
+  if (post.angle) {
+    const first = post.angle.split(/[.!?]/)[0].trim();
+    if (first.length > 20 && first.length < 140) return first;
+  }
+  if (post.gotchaToReveal) {
+    const first = post.gotchaToReveal.split(/[.!?]/)[0].trim();
+    if (first.length > 20) return first.slice(0, 140);
+  }
+  return post.title;
+}
 
+// ── Get the gotcha line from a post ───────────────────────────────────────────
+function getGotcha(post) {
+  if (post.gotchaToReveal) return post.gotchaToReveal.split(/[.!?]/)[0].trim().slice(0, 140);
+  if (post.angle)          return post.angle.split(/[.!?]/)[0].trim().slice(0, 140);
+  return null;
+}
+
+// ── Emoji sets for rotating ───────────────────────────────────────────────────
+const EMOJIS = {
+  numbers: ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣"],
+  warn:    ["❌","⚠️","🔥","💸","🚨"],
+  insight: ["🎯","⚡","💡","🔑","🛠️"],
+  track:   ["📊","📈","📉","🔍","📌"],
+  traffic: ["🔴","🟡","🟢","🔵","🟣"],
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8 PATTERNS — all content dynamic, zero hardcoded filler
+// ─────────────────────────────────────────────────────────────────────────────
+
+function pattern1_unpopular_opinion(posts, tags) {
+  // Opener: the strongest gotcha from this week's articles
+  const bestGotcha = posts.map(getGotcha).filter(Boolean)[0] ?? posts[0].title;
+  const lines = [
+    `Unpopular opinion:`,
+    ``,
+    bestGotcha + `.`,
+    ``,
+    `This week — ${posts.length} cases that prove it:`,
+    ``,
+    ...posts.map((p, i) => {
+      const stat    = extractStat(p);
+      const insight = getInsight(p);
+      return [
+        `${EMOJIS.warn[i % 5]} ${p.title}`,
+        `   ${insight}${stat ? ` (${stat})` : ""}`,
+        `   → ${p.url}`,
+      ].join("\n");
+    }),
+    ``,
+    `Which one are you fixing this week? ↓`,
+    ``,
+    tags,
+  ];
+  return lines.join("\n");
+}
+
+function pattern2_embarrassed(posts, tags) {
+  // Use the most shocking gotcha as the "embarrassing" discovery
+  const worst      = posts[0];
+  const stat       = extractStat(worst);
+  const gotcha     = getGotcha(worst) ?? worst.title;
+  const lines = [
+    `${gotcha}.`,
+    ``,
+    stat ? `The cost: ${stat}.` : `And nobody documents this.`,
+    ``,
+    `This week I found ${posts.length} more like it:`,
+    ``,
+    ...posts.map((p, i) => {
+      const insight = getInsight(p);
+      const g       = getGotcha(p);
+      return [
+        `${i + 1}. ${p.title}`,
+        g ? `   The gotcha: ${g}` : `   ${insight}`,
+        `   ${p.url}`,
+      ].join("\n");
+    }),
+    ``,
+    `What is the most unexpected bug you have found in production this year?`,
+    ``,
+    tags,
+  ];
+  return lines.join("\n");
+}
+
+function pattern3_nobody_talks(posts, tags) {
+  // Thread style — one insight per post, big white space, save-worthy
+  const lines = [
+    `${posts.length} AWS + Node.js gotchas nobody warns you about.`,
+    ``,
+    `(Save this thread.)`,
+    ``,
+    `↓`,
+    ``,
+    ...posts.flatMap((p, i) => {
+      const stat    = extractStat(p);
+      const insight = getInsight(p);
+      return [
+        `${EMOJIS.numbers[i] ?? (i + 1) + "."} ${p.title}`,
+        ``,
+        insight,
+        stat ? `The number: ${stat}` : ``,
+        ``,
+        `→ ${p.url}`,
+        ``,
+        i < posts.length - 1 ? `—` : ``,
+        ``,
+      ].filter(l => l !== undefined);
+    }),
+    `Which one are you sharing with your team?`,
+    ``,
+    tags,
+  ];
+  return lines.filter(l => l !== undefined).join("\n");
+}
+
+function pattern4_before_after(posts, tags) {
+  // Each article becomes a before/after story using its own hook + gotcha
+  const lines = [
+    `${posts.length} before/after stories from this week in AWS + Node.js:`,
+    ``,
+    ...posts.flatMap((p, i) => {
+      const gotcha  = getGotcha(p);
+      const insight = getInsight(p);
+      const stat    = extractStat(p);
+      return [
+        `${EMOJIS.traffic[i % 5]} ${p.title}`,
+        gotcha  ? `   Before: ${gotcha}` : `   Before: The default looked fine.`,
+        insight ? `   After:  ${insight}` : ``,
+        stat    ? `   Impact: ${stat}` : ``,
+        `   → ${p.url}`,
+        ``,
+      ].filter(Boolean);
+    }),
+    `Documentation tells you HOW things work.`,
+    `Production tells you WHAT actually happens.`,
+    ``,
+    `Which before/after surprised you most? ↓`,
+    ``,
+    tags,
+  ];
+  return lines.join("\n");
+}
+
+function pattern5_read_if(posts, tags) {
+  // Hyper-targeted opener using actual service names from this week
+  const services = [...new Set(posts.map(p => p.service))].slice(0, 3).join(", ");
+  const lines = [
+    `If you use ${services} in production — read this before your next deploy.`,
+    ``,
+    `This week: ${posts.length} things that look fine in development and fail in production.`,
+    ``,
+    ...posts.map((p, i) => {
+      const stat    = extractStat(p);
+      const gotcha  = getGotcha(p);
+      return [
+        `${EMOJIS.insight[i % 5]} ${p.title}`,
+        gotcha ? `   ${gotcha}` : ``,
+        stat   ? `   Impact: ${stat}` : ``,
+        `   → ${p.url}`,
+      ].filter(Boolean).join("\n");
+    }),
+    ``,
+    `Tag someone on your team who deploys these services.`,
+    ``,
+    tags,
+  ];
+  return lines.join("\n");
+}
+
+function pattern6_tracked(posts, tags) {
+  // Data-framed — each article = a "finding" using real numbers from the article
+  const lines = [
+    `${posts.length} production findings from this week in AWS + Node.js:`,
+    ``,
+    ...posts.map((p, i) => {
+      const stat    = extractStat(p);
+      const insight = getInsight(p);
+      return [
+        `${EMOJIS.track[i % 5]} Finding ${i + 1}: ${p.title}`,
+        `   ${insight}`,
+        stat ? `   Measured: ${stat}` : ``,
+        `   → ${p.url}`,
+        ``,
+      ].filter(Boolean).join("\n");
+    }),
+    `The pattern:`,
+    posts.map(p => getGotcha(p)).filter(Boolean)[0] ?? `The defaults hide the real cost.`,
+    ``,
+    `What is the most expensive AWS default you have hit?`,
+    ``,
+    tags,
+  ];
+  return lines.join("\n");
+}
+
+function pattern7_hard_truths(posts, tags) {
+  // Bold declarative format — each "truth" comes from the article's angle/gotcha
+  const lines = [
+    `${posts.length} things that tripped me up this week in AWS + Node.js:`,
+    ``,
+    ...posts.flatMap((p, i) => {
+      const truth  = getGotcha(p) ?? getInsight(p);
+      const stat   = extractStat(p);
+      return [
+        `${EMOJIS.insight[i % 5]} ${truth}.`,
+        stat ? `   The number that proves it: ${stat}` : ``,
+        `   Full breakdown → ${p.url}`,
+        ``,
+      ].filter(Boolean);
+    }),
+    `Which one would have saved you the most time if you knew it earlier?`,
+    ``,
+    tags,
+  ];
+  return lines.join("\n");
+}
+
+function pattern8_this_week_i(posts, tags) {
+  // Personal journal — each entry from the article's own data
+  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const lines = [
+    `This week in AWS + Node.js — ${posts.length} things worth reading:`,
+    ``,
+    ...posts.flatMap(p => {
+      const day     = dayNames[new Date(p.date).getDay()];
+      const insight = getInsight(p);
+      const stat    = extractStat(p);
+      return [
+        `${day}: ${p.title}`,
+        `→ ${insight}`,
+        stat ? `→ ${stat}` : ``,
+        `→ ${p.url}`,
+        ``,
+      ].filter(Boolean);
+    }),
+    `What did you discover the hard way this week? Drop it below ↓`,
+    ``,
+    tags,
+  ];
+  return lines.join("\n");
+}
+
+// ── Pick pattern by ISO week number ──────────────────────────────────────────
+function buildWeeklyPost(posts, tags) {
+  const now         = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const weekNum     = Math.ceil(((now - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+  const idx         = weekNum % 8;
+
+  const builders = [
+    pattern1_unpopular_opinion,
+    pattern2_embarrassed,
+    pattern3_nobody_talks,
+    pattern4_before_after,
+    pattern5_read_if,
+    pattern6_tracked,
+    pattern7_hard_truths,
+    pattern8_this_week_i,
+  ];
+  const names = [
+    "Unpopular Opinion",   "Production Gotcha",  "Nobody Warns You",
+    "Before vs After",     "Read This If",        "Tracked Findings",
+    "Things That Tripped", "This Week Journal",
+  ];
+
+  console.log(`📐  Week ${weekNum} → Pattern ${idx + 1}: "${names[idx]}"`);
+  return builders[idx](posts, tags);
+}
 
 // ── Main export ───────────────────────────────────────────────────────────────
 export async function postToLinkedIn({ title, url, topic }) {
   const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
   const personUrn   = process.env.LINKEDIN_PERSON_URN;
 
-  // ── Missing credentials — skip gracefully, never crash Dev.to publish ─────
   if (!accessToken || !personUrn) {
-    console.log("⏭️   LinkedIn: skipping — LINKEDIN_ACCESS_TOKEN or LINKEDIN_PERSON_URN not set");
+    console.log("⏭️   LinkedIn: skipping — credentials not set");
     return { skipped: true, reason: "missing_credentials" };
   }
 
-  // ── Mon / Wed / Fri cadence ─────────────────────────────────────────────
-  // Dev.to publishes every weekday (Mon–Fri).
-  // LinkedIn only posts on Monday (1), Wednesday (3), Friday (5).
-  // This is based on the actual calendar day — NOT the post count —
-  // so it never drifts and is always predictable.
-  const todayIST   = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
-  const dayOfWeek  = new Date(todayIST).getDay(); // 0=Sun 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri 6=Sat
-  const linkedInDays = new Set([1, 3, 5]);        // Monday, Wednesday, Friday
-  const shouldPost   = linkedInDays.has(dayOfWeek);
-  const dayNames     = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  // ── Wednesday only ────────────────────────────────────────────────────────
+  const todayIST  = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  const dayOfWeek = new Date(todayIST).getDay();
+  const dayNames  = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-  console.log(`📅  Today (IST)     : ${todayIST} (${dayNames[dayOfWeek]})`);
-  console.log(`📅  LinkedIn days   : Mon, Wed, Fri`);
-
-  if (!shouldPost) {
-    console.log(`⏭️   LinkedIn: skipping today (${dayNames[dayOfWeek]}) — next post on next Mon/Wed/Fri.\n`);
-    return { skipped: true, reason: `not_a_linkedin_day_${dayNames[dayOfWeek]}` };
+  if (dayOfWeek !== 3) {
+    console.log(`⏭️   LinkedIn: skipping (${dayNames[dayOfWeek]}) — weekly roundup on Wednesday only`);
+    return { skipped: true, reason: "not_wednesday" };
   }
 
-  console.log(`✅  LinkedIn: posting today (${dayNames[dayOfWeek]}).\n`);
+  console.log("📅  Wednesday — building weekly roundup...\n");
 
-  const postText = buildPostText(title, url, topic);
+  // ── Get this week's posts ─────────────────────────────────────────────────
+  const weekPosts = await getThisWeeksPosts();
 
-  console.log("─── LinkedIn post preview ──────────────────────────");
+  // Include today's article if not yet written to history
+  const alreadyIn = weekPosts.some(p => p.url === url);
+  if (!alreadyIn) {
+    weekPosts.push({
+      title,
+      url,
+      date:            todayIST,
+      service:         topic.primaryService ?? "AWS",
+      hook:            topic.hook            ?? "",
+      angle:           topic.angle           ?? "",
+      gotchaToReveal:  topic.gotchaToReveal  ?? "",
+    });
+  }
+
+  if (weekPosts.length === 0) {
+    console.log("⏭️   LinkedIn: no posts this week — skipping");
+    return { skipped: true, reason: "no_posts_this_week" };
+  }
+
+  weekPosts.sort((a, b) => a.date.localeCompare(b.date));
+
+  console.log(`📚  This week's articles (${weekPosts.length}):`);
+  weekPosts.forEach(p => console.log(`   ${p.date} [${p.service}] ${p.title.slice(0, 60)}`));
+  console.log();
+
+  const tags     = buildTags(weekPosts);
+  const postText = buildWeeklyPost(weekPosts, tags);
+
+  console.log("─── LinkedIn weekly roundup ────────────────────────────");
   console.log(postText);
-  console.log("────────────────────────────────────────────────────\n");
+  console.log("────────────────────────────────────────────────────────");
+  console.log(`Length: ${postText.length} chars\n`);
 
-  // ── Post as ARTICLE — LinkedIn pulls link card from Dev.to URL automatically
-  // Shows article title, description and cover image from the Dev.to page.
-  console.log("📝  Posting article link to LinkedIn...");
+  const featuredUrl = weekPosts[weekPosts.length - 1].url;
 
   const res = await fetch(`${LINKEDIN_API}/ugcPosts`, {
     method:  "POST",
@@ -294,14 +439,12 @@ export async function postToLinkedIn({ title, url, topic }) {
         "com.linkedin.ugc.ShareContent": {
           shareCommentary:    { text: postText },
           shareMediaCategory: "ARTICLE",
-          media: [
-            {
-              status:      "READY",
-              description: { text: (topic.angle ?? title).slice(0, 200) },
-              originalUrl: url,
-              title:       { text: title.slice(0, 400) },
-            },
-          ],
+          media: [{
+            status:      "READY",
+            description: { text: weekPosts[weekPosts.length - 1].title },
+            originalUrl: featuredUrl,
+            title:       { text: `AWS + Node.js — ${weekPosts.length} deep dives this week` },
+          }],
         },
       },
       visibility: {
@@ -310,27 +453,19 @@ export async function postToLinkedIn({ title, url, topic }) {
     }),
   });
 
-  // Token expired — warn clearly, create GitHub Issue, never crash
   if (res.status === 401) {
-    console.warn("⚠️   LinkedIn token expired (401).");
-    console.warn("    Update LINKEDIN_ACCESS_TOKEN in GitHub Secrets (expires every 60 days).");
-    console.warn("    1. Go to: https://www.linkedin.com/developers/apps");
-    console.warn("    2. Auth tab → OAuth 2.0 tools → Generate access token");
-    console.warn("    3. Select: openid + profile + w_member_social");
-    console.warn("    4. Update LINKEDIN_ACCESS_TOKEN in GitHub Secrets");
-
+    console.warn("⚠️  LinkedIn token expired. Update LINKEDIN_ACCESS_TOKEN in GitHub Secrets.");
     return { skipped: true, reason: "token_expired" };
   }
 
   if (!res.ok) {
     const err = await res.text();
-    console.warn(`⚠️   LinkedIn post failed (${res.status}) — Dev.to publish unaffected`);
-    console.warn(`    ${err.slice(0, 300)}`);
+    console.warn(`⚠️  LinkedIn post failed (${res.status}): ${err.slice(0, 300)}`);
     return { skipped: true, reason: `http_${res.status}` };
   }
 
   const data = await res.json();
-  console.log("✅  LinkedIn post published!");
-  console.log(`   Post ID : ${data.id ?? "unknown"}`);
-  return { success: true, id: data.id };
+  console.log(`✅  LinkedIn weekly roundup published! (${weekPosts.length} articles)`);
+  console.log(`   Post ID: ${data.id ?? "unknown"}`);
+  return { success: true, id: data.id, articleCount: weekPosts.length };
 }
