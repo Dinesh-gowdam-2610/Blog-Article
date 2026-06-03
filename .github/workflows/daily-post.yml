@@ -7,10 +7,10 @@
 # ║  08:00 AM IST  =  02:30 UTC  (IST is UTC +5:30)                           ║
 # ║  Cron field breakdown:  30 2 * * 1-5                                       ║
 # ║    30   → minute 30                                                        ║
-# ║    2    → hour 02 (UTC)                                                    ║
+# ║    2    → hour 02 (UTC)  ← 02:30 UTC + 5h30m = 08:00 AM IST              ║
 # ║    *    → every day of month                                               ║
 # ║    *    → every month                                                      ║
-# ║    1-5  → Monday(1) through Friday(5) only — skips Sat(6) and Sun(0/7)    ║
+# ║    1-5  → Monday(1) through Friday(5) only — skips Sat(6) and Sun(0/7)   ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
 # ║  ACTION VERSIONS (Node.js 24 compatible — updated May 2025):               ║
 # ║    actions/checkout@v4.2.2   → uses Node.js 24 internally                 ║
@@ -38,18 +38,25 @@ name: 📅 Weekday Blog Post (8 AM IST)
 on:
   schedule:
     # Target : 08:00 AM IST (Asia/Kolkata) every weekday
-    # Formula: IST - 5h30m = UTC  →  08:00 - 5:30 = 02:30 UTC
+    # Formula: IST - 5h30m = UTC  →  08:00 - 5:30 = 02:30 UTC (same day)
     #
     #        ┌─ minute (30)  ← IST is UTC+5:30, so minute must be 30
-    #        │  ┌─ hour (02) ← 08:00 IST - 5h30m = 02:30 UTC
+    #        │  ┌─ hour (02) ← 08:00 AM IST - 5h30m = 02:30 UTC
     #        │  │  ┌─ day of month (every)
     #        │  │  │  ┌─ month (every)
     #        │  │  │  │  ┌─ day of week: 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
     #        │  │  │  │  │
-    - cron: "30 2 * * 1-5"    # 08:00 AM IST · 02:30 UTC · Mon–Fri only
+    - cron: "30 2 * * 1-5"    # 08:00 AM IST · 02:30 UTC · Mon–Fri
 
   # Adds the "Run workflow" button in the GitHub Actions tab for manual testing
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run — generate and SEO-score but do NOT publish to Dev.to"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
 
 # Workflow-level env:
 #   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 — opts into Node.js 24 now to avoid the
@@ -130,6 +137,7 @@ jobs:
           # LinkedIn — optional. If not set, LinkedIn step is skipped gracefully.
           LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
           LINKEDIN_PERSON_URN:   ${{ secrets.LINKEDIN_PERSON_URN }}
+          DRY_RUN:       ${{ github.event.inputs.dry_run || 'false' }}
           NODE_ENV:      production
         run: node scripts/devCommunityBlogPost.js
 
@@ -141,7 +149,7 @@ jobs:
       # "git push" alone fails with "not currently on a branch".
       # Solution: explicitly checkout main before pushing.
       - name: 💾 Commit post-history.json
-        if: success()
+        if: always()
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
