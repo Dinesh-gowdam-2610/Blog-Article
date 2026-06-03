@@ -48,5 +48,20 @@
     "hook": "AWS VPC Lattice has revolutionized service-to-service networking without load balancers, but our team encountered a unexpected surprise that added 30% to our VPC costs. Here's the hidden penalty that nobody warned us about and how we mitigated it.",
     "angle": "While VPC Lattice simplifies service networking, its lack of internet access by default can lead to a costly NAT Gateway requirement, undermining its benefits for some teams.",
     "gotchaToReveal": "The NAT Gateway penalty for Lambda functions running in a VPC without an internet gateway, adding unnecessary costs to the VPC Lattice benefits"
+  },
+  {
+    "date": "2026-06-03",
+    "title": "The Hidden Cost of npm Package Bloat: How We Saved $10,000/month by Optimizing Our Lambda Dependencies",
+    "service": "PackageEcosystem",
+    "url": "https://dev.to/dineshgowtham/the-hidden-cost-of-npm-package-bloat-how-we-saved-10000month-by-optimizing-our-lambda-1a2",
+    "tags": [
+      "nodejs",
+      "aws",
+      "lambda",
+      "costoptimization"
+    ],
+    "hook": "As our serverless architecture grew, so did our npm package list. But when our monthly AWS bill skyrocketed, we realized that our dependencies were costing us big time. Here's the story of how we cut our costs by 70% with a simple package optimization technique.",
+    "angle": "The unchecked growth of npm packages in serverless projects can lead to staggering costs, but a few simple tweaks can make all the difference. We're sharing our hard-won lessons to help you avoid the same financial pitfalls.",
+    "gotchaToReveal": "The unexpected cost of npm package dependencies on serverless architectures, particularly when using Lambda functions."
   }
 ]
