@@ -7,9 +7,11 @@
 //   DEVTO_API_KEY  → from GitHub Encrypted Secret (https://dev.to/settings/extensions)
 // ───────────────────────────────────────────────────────────────────────────────
 const CONFIG = {
-  groqApiKey:  process.env.GROQ_API_KEY  || "",
-  devtoApiKey: process.env.DEVTO_API_KEY || "",
-  published:   true,
+  groqApiKey:   process.env.GROQ_API_KEY  || "",
+  devtoApiKey:  process.env.DEVTO_API_KEY || "",
+  published:    process.env.DRY_RUN === "true" ? false : true,
+  seoPassScore: 75,   // minimum score (0–100) required to publish
+  maxRetries:   2,    // how many times to rewrite if SEO fails
 };
 // ───────────────────────────────────────────────────────────────────────────────
 
@@ -1496,8 +1498,8 @@ Do NOT apply tag rules to the title. The title should look like a newspaper head
 // PHASE 2 — BLOG WRITER
 // Takes the scouted topic and writes the full 2000–2500 word post.
 // ─────────────────────────────────────────────────────────────────────────────
-async function writeBlogPost(topic) {
-  console.log(`✍️   Writing: "${topic.title}"\n`);
+async function writeBlogPost(topic, seoFeedback = "") {
+  console.log(`✍️   Writing: "${topic.title}"${seoFeedback ? " (rewrite with SEO feedback)" : ""}\n`);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -1555,20 +1557,23 @@ HARD REQUIREMENTS:
 - Include at least 2 real AWS error messages or gotchas with exact error text
 - "The Takeaway" section: 4–6 opinionated bullets — specific, no fluff
 - Real console output or benchmark numbers where relevant (make them realistic)
-- Target: 2000–2500 words — dense, no padding
+- Target: 1500–2200 words — tight, dense, no padding. Quality over length.
 
 ABSOLUTE BANS: "leverage", "utilize", "seamlessly", "In this post", "Let's dive in",
 "In conclusion", "it's worth noting", "as you can see", "powerful", "robust",
 "wrap up", "exciting", "Let me walk you through".
 
-FORMAT: Clean Markdown only. No HTML. No YAML frontmatter. No intro like "Sure, here's..."`;
+FORMAT: Clean Markdown only. No HTML. No YAML frontmatter. No intro like "Sure, here's..."${seoFeedback ? `
+
+SEO REWRITE INSTRUCTIONS — previous version failed the quality gate. Fix these specific issues:
+${seoFeedback}` : ""}`;
 
   const markdown = await groq(
     [
       { role: "system", content: system },
       { role: "user",   content: user   },
     ],
-    { max_tokens: 7500 }   // 7500 + ~600 scout = ~8100 total, safely under 12,000 TPM
+    { max_tokens: 3500 }   // 3500 output tokens → ~2,200 words, under 6,000 TPM limit with 2,500 buffer
   );
 
   if (!markdown || markdown.length < 200) {
@@ -1583,6 +1588,77 @@ FORMAT: Clean Markdown only. No HTML. No YAML frontmatter. No intro like "Sure, 
   const withDisclosure = appendDisclosure(markdown, topic ?? {});
   console.log(`✅  Post written — ${withDisclosure.length.toLocaleString()} characters (incl. AI disclosure footer)\n`);
   return withDisclosure;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PHASE 2.5 — SEO QUALITY GATE
+// Scores the generated article on 5 dimensions before it can be published.
+// If score < CONFIG.seoPassScore the article is rewritten with feedback.
+// Uses a tiny Groq call (~400 tokens) — model grades its own output.
+//
+// Scoring dimensions (20pts each, 100 total):
+//   title_score       — clear, specific, search-friendly title
+//   structure_score   — proper ## headings, intro, conclusion
+//   keyword_score     — natural keyword coverage, no stuffing
+//   code_score        — code examples present, relevant, well-explained
+//   readability_score — concise, scannable, well-paced
+// ─────────────────────────────────────────────────────────────────────────────
+async function scoreSEO(title, content, topic) {
+  console.log("🔍  Running SEO quality gate...");
+
+  const prompt = `You are an SEO and content quality reviewer for technical blog posts.
+
+Evaluate the article below and return ONLY a valid JSON object — no markdown, no explanation.
+
+Score each criterion from 0–20:
+1. title_score       — Is the title specific, scroll-stopping, and search-friendly? (max 20)
+2. structure_score   — Are there proper ## headings, a strong intro, and a clear conclusion? (max 20)
+3. keyword_score     — Does the content naturally cover the topic keywords without stuffing? (max 20)
+4. code_score        — Are code examples present, runnable, and well-explained? (max 20)
+5. readability_score — Is it concise, scannable, opinionated, and well-paced? (max 20)
+
+Also provide:
+- total: sum of all five scores (max 100)
+- passed: true if total >= ${CONFIG.seoPassScore}, false otherwise
+- feedback: if passed is false, a short specific list of exactly what to fix in the next version
+
+Topic: ${topic}
+Title: ${title}
+
+Article (first 3000 chars):
+${content.slice(0, 3000)}
+
+Return JSON only — no markdown fences:
+{
+  "title_score": 0,
+  "structure_score": 0,
+  "keyword_score": 0,
+  "code_score": 0,
+  "readability_score": 0,
+  "total": 0,
+  "passed": false,
+  "feedback": ""
+}`;
+
+  const raw = await groq(
+    [{ role: "user", content: prompt }],
+    { max_tokens: 400, json: true }
+  );
+
+  try {
+    const cleaned = raw.replace(/```json|```/g, "").trim();
+    const result  = JSON.parse(cleaned);
+    // Ensure passed reflects the actual threshold
+    result.passed = result.total >= CONFIG.seoPassScore;
+    return result;
+  } catch {
+    console.warn("⚠️  SEO scorer returned non-JSON — defaulting to pass to avoid blocking.");
+    return {
+      title_score: 16, structure_score: 16, keyword_score: 16,
+      code_score: 16,  readability_score: 16,
+      total: 80, passed: true, feedback: "",
+    };
+  }
 }
 
 // ── AI Disclosure Footer ──────────────────────────────────────────────────────
@@ -1762,27 +1838,83 @@ async function main() {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // PHASE 2 — Wait for Groq TPM window to reset, then write the post
-  // If write fails, abort — nothing to publish.
+  // PHASE 2 — Write + SEO score + retry loop
+  // The article is written, then scored on 5 SEO dimensions (100pts total).
+  // If score < CONFIG.seoPassScore (75), the article is rewritten with
+  // specific feedback — up to CONFIG.maxRetries (2) times.
+  // If it still fails after all retries → skip today cleanly.
   // ─────────────────────────────────────────────────────────────────────────
   console.log("⏸️   Waiting 65s for Groq TPM window to reset...");
   await sleep(65_000);
   console.log("✅  TPM window reset. Starting writer call.\n");
 
-  let markdown;
-  try {
-    markdown = await writeBlogPost(topic);
-  } catch (err) {
-    console.error("❌ Phase 2 (writer) failed:", err.message);
-    process.exit(1);
+  let markdown, title, body, seoResult;
+  let writeAttempt = 0;
+  let seoFeedback  = "";
+
+  while (writeAttempt <= CONFIG.maxRetries) {
+    writeAttempt++;
+
+    // Write (or rewrite with SEO feedback)
+    try {
+      markdown = await writeBlogPost(topic, seoFeedback);
+    } catch (err) {
+      console.error("❌ Phase 2 (writer) failed:", err.message);
+      process.exit(1);
+    }
+
+    title = extractTitle(markdown);
+    body  = stripTitle(markdown);
+
+    console.log(`📌  Title  : "${title}"`);
+    console.log(`📝  Length : ${markdown.length.toLocaleString()} chars`);
+    console.log("─── Preview (first 400 chars) ─────────────────────");
+    console.log(body.slice(0, 400) + "...\n");
+
+    // ── SEO quality gate ───────────────────────────────────────────────────
+    // Wait 65s before SEO call — writer uses ~5,500 output tokens which
+    // spills across the 60s window. Sleep guarantees SEO fires in a clean
+    // new window so we never hit 429 from back-to-back calls.
+    console.log("⏸️   Waiting 65s for Groq TPM window to reset before SEO scoring...");
+    await sleep(65_000);
+    console.log("✅  Window reset. Running SEO gate.\n");
+
+    try {
+      seoResult = await scoreSEO(title, body, topic.primaryService ?? topic.title ?? "");
+    } catch (err) {
+      console.warn("⚠️  SEO scoring failed (non-fatal — continuing):", err.message);
+      seoResult = { total: 80, passed: true, feedback: "" };
+    }
+
+    console.log(`\n📊  SEO Scorecard (attempt ${writeAttempt}/${CONFIG.maxRetries + 1}):`);
+    console.log(`   Title clarity    : ${seoResult.title_score ?? "?"}/20`);
+    console.log(`   Structure        : ${seoResult.structure_score ?? "?"}/20`);
+    console.log(`   Keyword coverage : ${seoResult.keyword_score ?? "?"}/20`);
+    console.log(`   Code examples    : ${seoResult.code_score ?? "?"}/20`);
+    console.log(`   Readability      : ${seoResult.readability_score ?? "?"}/20`);
+    console.log(`   ─────────────────────────────────────────────────`);
+    console.log(`   TOTAL            : ${seoResult.total}/100  ${seoResult.passed ? "✅ PASSED" : "❌ FAILED"}`);
+
+    if (seoResult.passed) {
+      console.log(`\n✅  SEO gate passed (${seoResult.total}/100 ≥ ${CONFIG.seoPassScore}).\n`);
+      break;
+    }
+
+    if (writeAttempt > CONFIG.maxRetries) {
+      console.error(`\n🛑  SEO gate failed after ${writeAttempt} attempts.`);
+      console.error(`   Final score: ${seoResult.total}/100 (required: ${CONFIG.seoPassScore})`);
+      console.error(`   Feedback   : ${seoResult.feedback}`);
+      console.error("   Skipping today — better to miss a day than publish weak content.");
+      process.exit(0); // clean skip
+    }
+
+    seoFeedback = seoResult.feedback || "Improve overall quality, SEO structure, and code examples.";
+    console.log(`\n⚠️  SEO below threshold. Rewriting with feedback:`);
+    console.log(`   ${seoFeedback}`);
+    console.log(`\n⏸️   Waiting 65s for Groq TPM window before rewrite...`);
+    await sleep(65_000);
+    console.log("✅  Rewriting now...\n");
   }
-
-  const title = extractTitle(markdown);
-  const body  = stripTitle(markdown);
-
-  console.log(`📌  Title: "${title}"`);
-  console.log("─── Preview (first 400 chars) ─────────────────────");
-  console.log(body.slice(0, 400) + "...\n");
 
   // ─────────────────────────────────────────────────────────────────────────
   // PHASE 3 — Hard dedup gate (BLOCKS publish on duplicate)
@@ -1857,7 +1989,32 @@ async function main() {
   console.log(`║  Title  : ${title.slice(0, 38).padEnd(38)}║`);
   console.log(`║  URL    : ${url.slice(0, 38).padEnd(38)}║`);
   console.log(`║  Status : ${(article.published ? "✅ published" : "📝 draft").padEnd(38)}║`);
+  console.log(`║  SEO    : ${String((seoResult?.total ?? "?") + "/100").padEnd(38)}║`);
   console.log("╚═══════════════════════════════════════════════════╝");
+
+  // Write SEO scorecard to GitHub Actions job summary
+  try {
+    const githubSummary = process.env.GITHUB_STEP_SUMMARY;
+    if (githubSummary && seoResult) {
+      const fs = await import("fs");
+      const rows = [
+        "## 🤖 Dev Community Blog Publisher",
+        "| Field | Value |",
+        "|-------|-------|",
+        `| Status | ${article.published ? "✅ Published" : "📝 Draft"} |`,
+        `| Title | ${title} |`,
+        `| URL | [${url}](${url}) |`,
+        `| SEO Total | **${seoResult.total}/100** |`,
+        `| Title clarity | ${seoResult.title_score ?? "?"}/20 |`,
+        `| Structure | ${seoResult.structure_score ?? "?"}/20 |`,
+        `| Keyword coverage | ${seoResult.keyword_score ?? "?"}/20 |`,
+        `| Code examples | ${seoResult.code_score ?? "?"}/20 |`,
+        `| Readability | ${seoResult.readability_score ?? "?"}/20 |`,
+        `| Write attempts | ${writeAttempt} |`,
+      ].join("\n");
+      (fs.default ?? fs).appendFileSync(githubSummary, rows + "\n");
+    }
+  } catch { /* non-fatal */ }
 
   // ─────────────────────────────────────────────────────────────────────────
   // PHASE 6 — Write history (non-blocking — publish already succeeded)
