@@ -1,16 +1,16 @@
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  .github/workflows/daily-post.yml                                          ║
-# ║  Publishes one AI-generated blog post every weekday at 08:00 AM IST        ║
-# ║  Skips Saturday and Sunday automatically (cron: Mon–Fri only)              ║
+# ║  Publishes one AI-generated blog post every Wed & Fri at 08:00 AM IST     ║
+# ║  Runs Wednesday and Friday only at 08:00 AM IST                            ║
 # ║  Calls: scripts/devCommunityBlogPost.js                                    ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
 # ║  08:00 AM IST  =  02:30 UTC  (IST is UTC +5:30)                           ║
-# ║  Cron field breakdown:  30 2 * * 1-5                                       ║
+# ║  Cron field breakdown:  30 2 * * 3,5                                       ║
 # ║    30   → minute 30                                                        ║
 # ║    2    → hour 02 (UTC)  ← 02:30 UTC + 5h30m = 08:00 AM IST              ║
 # ║    *    → every day of month                                               ║
 # ║    *    → every month                                                      ║
-# ║    1-5  → Monday(1) through Friday(5) only — skips Sat(6) and Sun(0/7)   ║
+# ║    3,5  → Wednesday(3) and Friday(5) only                                 ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
 # ║  ACTION VERSIONS (Node.js 24 compatible — updated May 2025):               ║
 # ║    actions/checkout@v4.2.2   → uses Node.js 24 internally                 ║
@@ -31,22 +31,27 @@
 # ║  OPTIONAL — LinkedIn (add to enable LinkedIn notifications):               ║
 # ║    LINKEDIN_ACCESS_TOKEN → OAuth token (expires every 60 days)            ║
 # ║    LINKEDIN_PERSON_URN   → urn:li:person:YOUR_ID (from /v2/userinfo sub)  ║
+# ╠══════════════════════════════════════════════════════════════════════════════╣
+# ║  OPTIONAL — Email notifications on publish success/failure:                ║
+# ║    EMAIL_TO       → your inbox e.g. dinesh.rs@foodhub.com                 ║
+# ║    EMAIL_USERNAME → Gmail address used to SEND the email                  ║
+# ║    EMAIL_PASSWORD → Gmail App Password (myaccount.google.com/apppasswords)║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
-name: 📅 Weekday Blog Post (8 AM IST)
+name: 📅 Blog Post — Wed & Fri (8 AM IST)
 
 on:
   schedule:
-    # Target : 08:00 AM IST (Asia/Kolkata) every weekday
+    # Target : 08:00 AM IST (Asia/Kolkata) — Wednesday and Friday only
     # Formula: IST - 5h30m = UTC  →  08:00 - 5:30 = 02:30 UTC (same day)
     #
     #        ┌─ minute (30)  ← IST is UTC+5:30, so minute must be 30
     #        │  ┌─ hour (02) ← 08:00 AM IST - 5h30m = 02:30 UTC
     #        │  │  ┌─ day of month (every)
     #        │  │  │  ┌─ month (every)
-    #        │  │  │  │  ┌─ day of week: 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
+    #        │  │  │  │  ┌─ day of week: 3=Wed, 5=Fri only
     #        │  │  │  │  │
-    - cron: "30 2 * * 1-5"    # 08:00 AM IST · 02:30 UTC · Mon–Fri
+    - cron: "30 2 * * 3,5"    # 08:00 AM IST · 02:30 UTC · Wed & Fri only
 
   # Adds the "Run workflow" button in the GitHub Actions tab for manual testing
   workflow_dispatch:
@@ -139,7 +144,9 @@ jobs:
           LINKEDIN_PERSON_URN:   ${{ secrets.LINKEDIN_PERSON_URN }}
           DRY_RUN:       ${{ github.event.inputs.dry_run || 'false' }}
           NODE_ENV:      production
-        run: node scripts/devCommunityBlogPost.js
+        run: |
+          echo "POST_DATE=$(date '+%Y-%m-%d %H:%M IST')" >> "$GITHUB_ENV"
+          node scripts/devCommunityBlogPost.js
 
       # ── 5. Commit history file back to repo ────────────────────────────────
       # post-history.json is updated by the script after each successful post.
@@ -176,10 +183,107 @@ jobs:
             echo "| Field | Value |"
             echo "|-------|-------|"
             echo "| 📅 Date (IST) | $(date '+%Y-%m-%d %H:%M IST') |"
-            echo "| 🕙 Schedule   | Mon–Fri · 08:00 AM IST (02:30 UTC) |"
+            echo "| 🕙 Schedule   | Wed & Fri · 08:00 AM IST (02:30 UTC) |"
             echo "| ✅ Status | ${{ job.status }} |"
             echo "| 🖥️ Runner | ubuntu-latest |"
             echo "| ⚙️ Actions runtime | Node.js 24 (FORCE_JAVASCRIPT_ACTIONS_TO_NODE24) |"
             echo ""
             echo "> 🔒 No API keys or secrets appear in this summary or any log above."
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # ── 7. Email notification on success ───────────────────────────────────
+      # Sends a success email with article title, URL, and SEO score.
+      # Requires two GitHub Secrets:
+      #   EMAIL_USERNAME → your Gmail address (e.g. you@gmail.com)
+      #   EMAIL_PASSWORD → Gmail App Password (not your Gmail login password)
+      #                    Generate at: myaccount.google.com/apppasswords
+      #                    (Requires 2FA to be enabled on your Google account)
+      - name: 📧 Email notification on success
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port:    465
+          secure:         true
+          username:       ${{ secrets.EMAIL_USERNAME }}
+          password:       ${{ secrets.EMAIL_PASSWORD }}
+          to:             ${{ secrets.EMAIL_TO }}
+          from:           "Dev Blog Publisher <${{ secrets.EMAIL_USERNAME }}>"
+          subject:        "✅ Blog published — ${{ env.POST_TITLE }}"
+          body: |
+            ✅ Your daily Dev.to blog post was published successfully!
+
+            ────────────────────────────────────────
+            ARTICLE
+            ────────────────────────────────────────
+            Title   : ${{ env.POST_TITLE }}
+            URL     : ${{ env.POST_URL }}
+            Service : ${{ env.POST_SERVICE }}
+            Status  : ${{ env.POST_STATUS }}
+            Date    : ${{ env.POST_DATE }}
+
+            ────────────────────────────────────────
+            SEO SCORECARD
+            ────────────────────────────────────────
+            Total Score    : ${{ env.SEO_TOTAL }}/100
+            ─────────────────────────────────────
+            Title clarity  : ${{ env.SEO_TITLE }}/20
+            Structure      : ${{ env.SEO_STRUCTURE }}/20
+            Keyword cover  : ${{ env.SEO_KEYWORDS }}/20
+            Code examples  : ${{ env.SEO_CODE }}/20
+            Readability    : ${{ env.SEO_READABILITY }}/20
+            ─────────────────────────────────────
+            Write attempts : ${{ env.SEO_ATTEMPTS }}
+
+            ────────────────────────────────────────
+            ACTIONS RUN
+            ────────────────────────────────────────
+            Full summary + logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            --
+            Sent automatically by your GitHub Actions workflow.
+          content_type: text/plain
+
+      # ── 8. Email notification on failure ───────────────────────────────────
+      - name: 📧 Email notification on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port:    465
+          secure:         true
+          username:       ${{ secrets.EMAIL_USERNAME }}
+          password:       ${{ secrets.EMAIL_PASSWORD }}
+          to:             ${{ secrets.EMAIL_TO }}
+          from:           "Dev Blog Publisher <${{ secrets.EMAIL_USERNAME }}>"
+          subject:        "❌ Blog publish FAILED — ${{ env.POST_DATE }}"
+          body: |
+            ❌ Your daily Dev.to blog post FAILED to publish.
+
+            ────────────────────────────────────────
+            FAILURE DETAILS
+            ────────────────────────────────────────
+            Date    : ${{ env.POST_DATE }}
+            Repo    : ${{ github.repository }}
+            Run ID  : ${{ github.run_id }}
+
+            ────────────────────────────────────────
+            SEO SCORECARD (if generated before failure)
+            ────────────────────────────────────────
+            Total Score    : ${{ env.SEO_TOTAL }}/100
+            Title clarity  : ${{ env.SEO_TITLE }}/20
+            Structure      : ${{ env.SEO_STRUCTURE }}/20
+            Keyword cover  : ${{ env.SEO_KEYWORDS }}/20
+            Code examples  : ${{ env.SEO_CODE }}/20
+            Readability    : ${{ env.SEO_READABILITY }}/20
+            Write attempts : ${{ env.SEO_ATTEMPTS }}
+
+            ────────────────────────────────────────
+            VIEW LOGS
+            ────────────────────────────────────────
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            --
+            Sent automatically by your GitHub Actions workflow.
+          content_type: text/plain
