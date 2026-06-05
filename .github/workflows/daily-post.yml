@@ -207,7 +207,7 @@ jobs:
           secure:         true
           username:       ${{ secrets.EMAIL_USERNAME }}
           password:       ${{ secrets.EMAIL_PASSWORD }}
-          to:             ${{ secrets.EMAIL_TO }}
+          to:             ${{ secrets.EMAIL_TO || secrets.EMAIL_USERNAME }}
           from:           "Dev Blog Publisher <${{ secrets.EMAIL_USERNAME }}>"
           subject:        "✅ Blog published — ${{ env.POST_TITLE }}"
           body: |
@@ -243,7 +243,6 @@ jobs:
 
             --
             Sent automatically by your GitHub Actions workflow.
-          content_type: text/plain
 
       # ── 8. Email notification on failure ───────────────────────────────────
       - name: 📧 Email notification on failure
@@ -255,7 +254,7 @@ jobs:
           secure:         true
           username:       ${{ secrets.EMAIL_USERNAME }}
           password:       ${{ secrets.EMAIL_PASSWORD }}
-          to:             ${{ secrets.EMAIL_TO }}
+          to:             ${{ secrets.EMAIL_TO || secrets.EMAIL_USERNAME }}
           from:           "Dev Blog Publisher <${{ secrets.EMAIL_USERNAME }}>"
           subject:        "❌ Blog publish FAILED — ${{ env.POST_DATE }}"
           body: |
@@ -286,4 +285,3 @@ jobs:
 
             --
             Sent automatically by your GitHub Actions workflow.
-          content_type: text/plain
