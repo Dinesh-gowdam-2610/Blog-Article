@@ -63,5 +63,20 @@
     "hook": "As our serverless architecture grew, so did our npm package list. But when our monthly AWS bill skyrocketed, we realized that our dependencies were costing us big time. Here's the story of how we cut our costs by 70% with a simple package optimization technique.",
     "angle": "The unchecked growth of npm packages in serverless projects can lead to staggering costs, but a few simple tweaks can make all the difference. We're sharing our hard-won lessons to help you avoid the same financial pitfalls.",
     "gotchaToReveal": "The unexpected cost of npm package dependencies on serverless architectures, particularly when using Lambda functions."
+  },
+  {
+    "date": "2026-06-05",
+    "title": "TypeScript satisfies + AWS SDK v3: The Pattern That Changed How I Write Commands",
+    "service": "TypeScriptPatterns",
+    "url": "https://dev.to/dineshgowtham/typescript-satisfies-aws-sdk-v3-the-pattern-that-changed-how-i-write-commands-3joo",
+    "tags": [
+      "typescript",
+      "awssdkv3",
+      "nodejs",
+      "lambda"
+    ],
+    "hook": "Last week, we migrated 12 of our Lambda handlers to TypeScript 5.5 and discovered the satisfies operator, which has changed how we write commands with AWS SDK v3. But what surprised us was how it affected our testing and validation pipelines.",
+    "angle": "The satisfies operator in TypeScript 5.5 has revolutionized how we write commands with AWS SDK v3, but its implications on testing and validation have been overlooked. We argue that this operator is a game-changer for AWS SDK v3 command patterns, but its adoption requires a paradigm shift in how we approach validation and testing.",
+    "gotchaToReveal": "The satisfies operator does not narrow the type at runtime, which can lead to unexpected behavior if not properly handled"
   }
 ]
