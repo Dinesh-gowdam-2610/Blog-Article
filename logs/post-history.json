@@ -93,5 +93,20 @@
     "hook": "We thought ElastiCache was the answer to our Node.js 22 performance woes, but it only masked the symptoms. After months of frustration, we discovered the real issue – and the fix – lay with our choice of HTTP client and request context propagation.",
     "angle": "Contrary to popular belief, ElastiCache is not the solution to all Node.js performance issues, and sometimes, the answer lies in optimizing your code with the right tools and techniques.",
     "gotchaToReveal": "Undici's fetch throws on non-2xx status codes, unlike browser fetch, and AsyncLocalStorage context can be lost across setImmediate() boundaries in some Node.js versions"
+  },
+  {
+    "date": "2026-06-06",
+    "title": "CloudWatch Logs Are Eating Your Margin: The $800/month Fix No One Tells You",
+    "service": "CloudWatch",
+    "url": "https://dev.to/dineshgowtham/cloudwatch-logs-are-eating-your-margin-the-800month-fix-no-one-tells-you-57ld-temp-slug-6499969",
+    "tags": [
+      "cloudwatch",
+      "costoptimization",
+      "aws",
+      "lambda"
+    ],
+    "hook": "Developers rely on CloudWatch for logging and monitoring, but an overlooked setting is quietly bleeding away $800 each month. Our team stumbled upon this expensive trap the hard way and now we're sharing the simple fix.",
+    "angle": "CloudWatch logs are a silent budget killer for many companies due to overlooked settings. Our discovery can save teams hundreds of dollars every month with a few lines of code.",
+    "gotchaToReveal": "Default CloudWatch Logs retention period is set to 'Never expire', leading to significant and avoidable costs over time"
   }
 ]
