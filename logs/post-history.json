@@ -78,5 +78,20 @@
     "hook": "Last week, we migrated 12 of our Lambda handlers to TypeScript 5.5 and discovered the satisfies operator, which has changed how we write commands with AWS SDK v3. But what surprised us was how it affected our testing and validation pipelines.",
     "angle": "The satisfies operator in TypeScript 5.5 has revolutionized how we write commands with AWS SDK v3, but its implications on testing and validation have been overlooked. We argue that this operator is a game-changer for AWS SDK v3 command patterns, but its adoption requires a paradigm shift in how we approach validation and testing.",
     "gotchaToReveal": "The satisfies operator does not narrow the type at runtime, which can lead to unexpected behavior if not properly handled"
+  },
+  {
+    "date": "2026-06-06",
+    "title": "ElastiCache Is Not a Silver Bullet: How We Fixed Node.js 22 Performance Issues with Undici and AsyncLocalStorage",
+    "service": "ElastiCache",
+    "url": "https://dev.to/dineshgowtham/elasticache-is-not-a-silver-bullet-how-we-fixed-nodejs-22-performance-issues-with-undici-and-gol",
+    "tags": [
+      "nodejs",
+      "elasticache",
+      "performance",
+      "undici"
+    ],
+    "hook": "We thought ElastiCache was the answer to our Node.js 22 performance woes, but it only masked the symptoms. After months of frustration, we discovered the real issue – and the fix – lay with our choice of HTTP client and request context propagation.",
+    "angle": "Contrary to popular belief, ElastiCache is not the solution to all Node.js performance issues, and sometimes, the answer lies in optimizing your code with the right tools and techniques.",
+    "gotchaToReveal": "Undici's fetch throws on non-2xx status codes, unlike browser fetch, and AsyncLocalStorage context can be lost across setImmediate() boundaries in some Node.js versions"
   }
 ]
