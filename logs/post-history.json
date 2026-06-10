@@ -108,5 +108,20 @@
     "hook": "Developers rely on CloudWatch for logging and monitoring, but an overlooked setting is quietly bleeding away $800 each month. Our team stumbled upon this expensive trap the hard way and now we're sharing the simple fix.",
     "angle": "CloudWatch logs are a silent budget killer for many companies due to overlooked settings. Our discovery can save teams hundreds of dollars every month with a few lines of code.",
     "gotchaToReveal": "Default CloudWatch Logs retention period is set to 'Never expire', leading to significant and avoidable costs over time"
+  },
+  {
+    "date": "2026-06-10",
+    "title": "Athena Query Performance Tanks After Migrating to Node.js 22: The Surprising Role of TypeScript Type Predicates",
+    "service": "Athena",
+    "url": "https://dev.to/dineshgowtham/athena-query-performance-tanks-after-migrating-to-nodejs-22-the-surprising-role-of-typescript-1h53",
+    "tags": [
+      "athena",
+      "nodejs",
+      "typescript",
+      "performance"
+    ],
+    "hook": "We thought Node.js 22 would be a slam dunk for our data pipeline, but Athena query performance plummeted. It took us weeks to discover the root cause. TypeScript type predicates, intended to simplify our code, were secretly killing our database performance. Here's how we finally fixed it.",
+    "angle": "The migration to Node.js 22 and the adoption of TypeScript 5.5's type predicates came with an unexpected performance price. Our story serves as a cautionary tale about the importance of thoroughly testing database interactions after significant technology changes.",
+    "gotchaToReveal": "TypeScript type predicates can lead to inefficient database query plans if not properly optimized, causing significant performance drops in Athena queries."
   }
 ]
