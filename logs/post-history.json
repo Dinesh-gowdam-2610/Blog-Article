@@ -123,5 +123,20 @@
     "hook": "We thought Node.js 22 would be a slam dunk for our data pipeline, but Athena query performance plummeted. It took us weeks to discover the root cause. TypeScript type predicates, intended to simplify our code, were secretly killing our database performance. Here's how we finally fixed it.",
     "angle": "The migration to Node.js 22 and the adoption of TypeScript 5.5's type predicates came with an unexpected performance price. Our story serves as a cautionary tale about the importance of thoroughly testing database interactions after significant technology changes.",
     "gotchaToReveal": "TypeScript type predicates can lead to inefficient database query plans if not properly optimized, causing significant performance drops in Athena queries."
+  },
+  {
+    "date": "2026-06-12",
+    "title": "We Replaced 20% of Our Lambda Functions with CDK Constructs — And Saved $12,000 on AWS Bills",
+    "service": "CDK",
+    "url": "https://dev.to/dineshgowtham/we-replaced-20-of-our-lambda-functions-with-cdk-constructs-and-saved-12000-on-aws-bills-14a4",
+    "tags": [
+      "cdk",
+      "lambda",
+      "typescript",
+      "costoptimization"
+    ],
+    "hook": "After weeks of refactoring, our team successfully migrated a fifth of our Lambda functions to CDK constructs, slashing our AWS costs and streamlining our architecture. Here's the surprising truth about what worked and what didn't.",
+    "angle": "CDK constructs can replace entire Lambda functions, drastically reducing your AWS bills, but only if you're willing to refactor your entire approach to infrastructure as code.",
+    "gotchaToReveal": "The little-known fact that CDK constructs can silently replace Lambda functions, but require a complete overhaul of your IaC approach to reap the full benefits."
   }
 ]
