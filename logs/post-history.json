@@ -138,5 +138,20 @@
     "hook": "After weeks of refactoring, our team successfully migrated a fifth of our Lambda functions to CDK constructs, slashing our AWS costs and streamlining our architecture. Here's the surprising truth about what worked and what didn't.",
     "angle": "CDK constructs can replace entire Lambda functions, drastically reducing your AWS bills, but only if you're willing to refactor your entire approach to infrastructure as code.",
     "gotchaToReveal": "The little-known fact that CDK constructs can silently replace Lambda functions, but require a complete overhaul of your IaC approach to reap the full benefits."
+  },
+  {
+    "date": "2026-06-17",
+    "title": "Kinesis Data Firehose Is Not a Silver Bullet: How Undocumented Partition Key Limits Broke Our Real-Time Analytics Pipeline",
+    "service": "Kinesis",
+    "url": "https://dev.to/dineshgowtham/kinesis-data-firehose-is-not-a-silver-bullet-how-undocumented-partition-key-limits-broke-our-5f77",
+    "tags": [
+      "kinesis",
+      "aws",
+      "lambda",
+      "nodejs"
+    ],
+    "hook": "Our real-time data pipeline was failing due to mysterious throughput limits. The culprit? A little-known Kinesis Data Firehose limitation that has nothing to do with shards or provisioned throughput. In this post, we expose the undocumented partition key limit that nobody talks about.",
+    "angle": "Kinesis Data Firehose's lack of transparent documentation around partition key limits is causing real-time data pipelines to fail catastrophically. We argue that the current implementation is fundamentally flawed and requires a redesign to prevent similar failures in the future.",
+    "gotchaToReveal": "Kinesis Data Firehose has a fixed limit of 1000 active partition keys, which can cause throughput limits and record failures if not properly handled"
   }
 ]
