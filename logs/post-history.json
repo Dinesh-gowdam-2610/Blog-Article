@@ -153,5 +153,20 @@
     "hook": "Our real-time data pipeline was failing due to mysterious throughput limits. The culprit? A little-known Kinesis Data Firehose limitation that has nothing to do with shards or provisioned throughput. In this post, we expose the undocumented partition key limit that nobody talks about.",
     "angle": "Kinesis Data Firehose's lack of transparent documentation around partition key limits is causing real-time data pipelines to fail catastrophically. We argue that the current implementation is fundamentally flawed and requires a redesign to prevent similar failures in the future.",
     "gotchaToReveal": "Kinesis Data Firehose has a fixed limit of 1000 active partition keys, which can cause throughput limits and record failures if not properly handled"
+  },
+  {
+    "date": "2026-06-19",
+    "title": "IAM Access Analyzer Lied to Us: The $1,000/Month Overprovisioning Mistake",
+    "service": "IAM",
+    "url": "https://dev.to/dineshgowtham/iam-access-analyzer-lied-to-us-the-1000month-overprovisioning-mistake-1omf",
+    "tags": [
+      "iam",
+      "lambda",
+      "security",
+      "costoptimization"
+    ],
+    "hook": "A month ago, we thought we'd solved our access control issues with IAM Access Analyzer. But a closer look revealed a staggering overprovisioning problem that's been quietly draining our budget. Here's the shocking truth and how we fixed it.",
+    "angle": "The supposed simplicity of IAM Access Analyzer can lead to dangerous overprovisioning if not properly understood, and fixing this requires a deep dive into least privilege access and resource tagging.",
+    "gotchaToReveal": "IAM Access Analyzer does not automatically suggest least privilege policies for all resources, leading to potential overprovisioning if not manually configured."
   }
 ]
