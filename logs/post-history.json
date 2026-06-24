@@ -168,5 +168,20 @@
     "hook": "A month ago, we thought we'd solved our access control issues with IAM Access Analyzer. But a closer look revealed a staggering overprovisioning problem that's been quietly draining our budget. Here's the shocking truth and how we fixed it.",
     "angle": "The supposed simplicity of IAM Access Analyzer can lead to dangerous overprovisioning if not properly understood, and fixing this requires a deep dive into least privilege access and resource tagging.",
     "gotchaToReveal": "IAM Access Analyzer does not automatically suggest least privilege policies for all resources, leading to potential overprovisioning if not manually configured."
+  },
+  {
+    "date": "2026-06-24",
+    "title": "Step Functions Broke Our Lambda Cold Starts — But Fixed Our EventBridge Delays",
+    "service": "StepFunctions",
+    "url": "https://dev.to/dineshgowtham/step-functions-broke-our-lambda-cold-starts-but-fixed-our-eventbridge-delays-4i7b",
+    "tags": [
+      "stepfunctions",
+      "eventbridge",
+      "lambda",
+      "aws"
+    ],
+    "hook": "We migrated 15 Lambdas to Step Functions to solve cold starts, but what we gained in warmness, we lost in EventBridge message delays. Here's the hidden pattern that changed everything.",
+    "angle": "Step Functions can introduce unexpected delays when integrated with EventBridge, which can be mitigated by rethinking your state machine design",
+    "gotchaToReveal": "The default retry mechanism in Step Functions can silently drop EventBridge messages if not properly configured, leading to data loss and processing delays"
   }
 ]
