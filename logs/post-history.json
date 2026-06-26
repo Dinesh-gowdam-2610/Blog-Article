@@ -183,5 +183,20 @@
     "hook": "We migrated 15 Lambdas to Step Functions to solve cold starts, but what we gained in warmness, we lost in EventBridge message delays. Here's the hidden pattern that changed everything.",
     "angle": "Step Functions can introduce unexpected delays when integrated with EventBridge, which can be mitigated by rethinking your state machine design",
     "gotchaToReveal": "The default retry mechanism in Step Functions can silently drop EventBridge messages if not properly configured, leading to data loss and processing delays"
+  },
+  {
+    "date": "2026-06-26",
+    "title": "We Deleted 300 Lines of Code After Discovering Node.js 22's Hidden Perf Feature",
+    "service": "NodeJSPerformance",
+    "url": "https://dev.to/dineshgowtham/we-deleted-300-lines-of-code-after-discovering-nodejs-22s-hidden-perf-feature-4177",
+    "tags": [
+      "nodejs",
+      "cloudwatch",
+      "lambda",
+      "performance"
+    ],
+    "hook": "Node.js 22's built-in diagnostics channel is being criminally underused. This week, our team stumbled upon an obscure option that replaced 300 lines of manual logging code, slashed our Lambda execution time by 25%, and saved us $1500 on CloudWatch Logs every month.",
+    "angle": "The built-in Node.js diagnostics channel is a game-changer for performance optimization, and its potential applications in production environments are still largely untapped. By integrating this feature with AWS Lambda and CloudWatch, developers can simplify their logging and monitoring workflows while reducing costs.",
+    "gotchaToReveal": "The default log retention policy in CloudWatch can silently accumulate massive bills if not properly configured, especially when using the diagnostics channel for high-volume logging."
   }
 ]
