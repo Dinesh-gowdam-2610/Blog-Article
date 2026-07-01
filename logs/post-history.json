@@ -198,5 +198,20 @@
     "hook": "Node.js 22's built-in diagnostics channel is being criminally underused. This week, our team stumbled upon an obscure option that replaced 300 lines of manual logging code, slashed our Lambda execution time by 25%, and saved us $1500 on CloudWatch Logs every month.",
     "angle": "The built-in Node.js diagnostics channel is a game-changer for performance optimization, and its potential applications in production environments are still largely untapped. By integrating this feature with AWS Lambda and CloudWatch, developers can simplify their logging and monitoring workflows while reducing costs.",
     "gotchaToReveal": "The default log retention policy in CloudWatch can silently accumulate massive bills if not properly configured, especially when using the diagnostics channel for high-volume logging."
+  },
+  {
+    "date": "2026-07-01",
+    "title": "Bedrock Direct Integration with Step Functions: The 40% Cost Savings We Never Expected",
+    "service": "Bedrock",
+    "url": "https://dev.to/dineshgowtham/bedrock-direct-integration-with-step-functions-the-40-cost-savings-we-never-expected-3lbf",
+    "tags": [
+      "bedrock",
+      "stepfunctions",
+      "costsavings",
+      "serverless"
+    ],
+    "hook": "We thought we'd save a few dollars by cutting out the Lambda middleman from our Step Functions workflow. What we found was a 40% reduction in costs and a significant boost in performance. Here's the secret to integrating Bedrock directly with Step Functions.",
+    "angle": "By leveraging Bedrock's direct integration with Step Functions, teams can eliminate the need for Lambda functions, reducing costs and improving workflow efficiency. However, this approach requires careful consideration of the trade-offs and potential pitfalls.",
+    "gotchaToReveal": "The potential for increased complexity and decreased visibility when using Bedrock with Step Functions, and how to mitigate these risks through careful workflow design and monitoring"
   }
 ]
