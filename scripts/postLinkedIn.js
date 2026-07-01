@@ -70,6 +70,7 @@ function buildTags(posts) {
     TypeScriptPatterns: ["typescript","designpatterns"],
     TypeScriptBuild:    ["typescript","esbuild"],
     JavaScriptPatterns: ["javascript","es2025"],
+    BunOnLambda:        ["bun","performance"],
     NodeJSFrameworks:   ["fastify","backend"],
   };
   posts.forEach(p => (map[p.service] ?? []).slice(0, 2).forEach(t => base.add(t)));
@@ -338,12 +339,15 @@ function pattern8_this_week_i(posts, tags) {
   return lines.join("\n");
 }
 
-// ── Pick pattern by ISO week number ──────────────────────────────────────────
+// ── Pick pattern by absolute epoch-week index (guaranteed rotation) ──────────
 function buildWeeklyPost(posts, tags) {
-  const now         = new Date();
-  const startOfYear = new Date(now.getFullYear(), 0, 1);
-  const weekNum     = Math.ceil(((now - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
-  const idx         = weekNum % 8;
+  // Rotate by absolute epoch-week index — increments by exactly 1 every
+  // calendar week, so consecutive Wednesdays always get a different pattern
+  // and the full 8-pattern cycle completes cleanly every 8 weeks.
+  const now            = new Date();
+  const daysSinceEpoch = Math.floor(now.getTime() / 86_400_000);
+  const weekNum        = Math.floor(daysSinceEpoch / 7);
+  const idx            = ((weekNum % 8) + 8) % 8;   // always 0–7, never negative
 
   const builders = [
     pattern1_unpopular_opinion,
