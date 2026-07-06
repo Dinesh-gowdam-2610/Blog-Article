@@ -1028,8 +1028,237 @@ const RUNTIME_CATALOG = {
 
 };
 
-// Combined rotation pool: AWS services + runtime topics interleaved
-// This ensures posts alternate between AWS-deep and Node/TS-deep topics naturally
+// ─────────────────────────────────────────────────────────────────────────────
+// AI / ML / GENAI CATALOG
+// Real, assignable AI topics — NOT just prompt decoration. Mirrors the AWS and
+// runtime catalog structure so the scout treats AI with equal depth. These
+// combine naturally with AWS (Bedrock, DynamoDB vector) and Node.js/TS.
+// Practical, engineering-focused AI — the kind a backend engineer ships, not
+// research papers. Every topic is something you build with real SDKs and code.
+// ─────────────────────────────────────────────────────────────────────────────
+const AI_CATALOG = {
+
+  LLMIntegration: {
+    category: "ai",
+    signals: [
+      "Streaming LLM tokens to the client with SSE is now the expected UX, not a nice-to-have",
+      "Structured output (JSON mode / tool calling) replacing brittle regex parsing of LLM responses",
+      "Function calling / tool use is how LLMs now trigger real backend actions",
+      "Prompt caching (Anthropic, OpenAI) cutting repeat-context costs up to 90%",
+      "Model routing — cheap model for easy queries, expensive for hard — becoming standard",
+    ],
+    gotchas: [
+      "LLM JSON mode still occasionally returns malformed JSON — you must retry-parse",
+      "Token limits are per-minute not per-request — batch workloads hit invisible ceilings",
+      "Streaming responses need explicit backpressure handling or Node.js buffers the whole reply",
+      "Temperature 0 is not deterministic across model versions — tests break on model updates",
+      "Tool-calling loops can run away — you need a hard max-iterations guard",
+    ],
+    spicyAngles: [
+      "We switched to LLM structured output and deleted 400 lines of regex parsing",
+      "Prompt caching cut our LLM bill 70% — the one header nobody documents",
+      "Streaming LLM tokens in Node.js: the 4 bugs you'll hit with SSE and fetch",
+      "Model routing saved us $2k/month — cheap model for 80% of queries",
+    ],
+  },
+
+  RAG: {
+    category: "ai",
+    signals: [
+      "RAG is the default pattern for grounding LLMs in your own data — everyone's building it",
+      "Chunking strategy matters more than model choice for RAG quality",
+      "Hybrid search (keyword + vector) beating pure vector search in production RAG",
+      "Reranking after retrieval is the cheap win most RAG pipelines skip",
+      "RAG evaluation (faithfulness, relevance) becoming a real engineering discipline",
+    ],
+    gotchas: [
+      "Naive fixed-size chunking splits sentences mid-thought and destroys retrieval quality",
+      "Embedding the query differently from the documents silently tanks recall",
+      "RAG returns confident wrong answers when retrieval misses — worse than no answer",
+      "Vector similarity ≠ relevance — high cosine score can still be off-topic",
+      "Re-embedding your whole corpus on a model change is expensive and slow",
+    ],
+    spicyAngles: [
+      "Your RAG is bad because of chunking, not the model — here's the fix",
+      "We added reranking to our RAG pipeline — retrieval quality jumped 40%",
+      "Hybrid search vs pure vector for RAG: the benchmark that changed our architecture",
+      "RAG hallucinates confidently — the guardrail pattern that catches it",
+    ],
+  },
+
+  VectorDatabases: {
+    category: "ai",
+    signals: [
+      "pgvector on Postgres challenging dedicated vector DBs for teams already on Postgres",
+      "DynamoDB vector search launched — vectors without a new database for AWS teams",
+      "HNSW vs IVFFlat index choice driving real latency/recall trade-offs",
+      "Vector DB cost at scale (millions of embeddings) becoming a budget line item",
+      "Binary and scalar quantization cutting vector storage 4-32x",
+    ],
+    gotchas: [
+      "pgvector without an index does a full table scan — fine at 10k rows, dead at 1M",
+      "HNSW index build is memory-hungry — teams OOM their Postgres on large corpora",
+      "Cosine vs L2 vs inner product — picking the wrong distance metric silently hurts recall",
+      "Quantization saves storage but drops recall — teams don't measure the trade-off",
+      "Re-indexing after bulk inserts is required or new vectors are invisible to search",
+    ],
+    spicyAngles: [
+      "pgvector vs Pinecone vs DynamoDB vector: the honest cost/latency comparison",
+      "We hit a full table scan in pgvector at 1M rows — the index that saved us",
+      "Vector quantization cut our storage 16x — here's what it cost in recall",
+      "DynamoDB vector search vs Aurora pgvector for production RAG on AWS",
+    ],
+  },
+
+  PromptEngineering: {
+    category: "ai",
+    signals: [
+      "Prompt engineering is now version-controlled and tested like code, not tweaked ad-hoc",
+      "Few-shot examples in the prompt beating fine-tuning for most structured tasks",
+      "Chain-of-thought prompting measurably improving reasoning on complex tasks",
+      "System prompts as the primary control surface — teams treating them as config",
+      "Prompt injection attacks becoming a real security concern in production apps",
+    ],
+    gotchas: [
+      "A prompt that works on one model version silently degrades on the next",
+      "Few-shot examples eat context window — teams blow token budgets without noticing",
+      "Prompt injection can override your system prompt — user input is not trusted input",
+      "Chain-of-thought increases latency and cost — not free reasoning improvement",
+      "Whitespace and formatting in prompts affect output more than engineers expect",
+    ],
+    spicyAngles: [
+      "We version-control our prompts and test them in CI — here's the setup",
+      "Prompt injection broke our AI feature in week one — the defense that worked",
+      "Few-shot beat fine-tuning for our use case — and cost 100x less to iterate",
+      "Chain-of-thought doubled our LLM bill for a 5% accuracy gain — was it worth it?",
+    ],
+  },
+
+  AIAgents: {
+    category: "ai",
+    signals: [
+      "AI agents (plan → tool call → observe → repeat) moving from demos to production",
+      "Multi-agent orchestration — specialized agents handing off to each other",
+      "Tool/function calling is the backbone that makes agents actually do things",
+      "Agent memory (short-term context + long-term store) becoming a design pattern",
+      "Human-in-the-loop checkpoints for agents taking consequential actions",
+    ],
+    gotchas: [
+      "Agents loop forever without a max-iteration cap — runaway token bills",
+      "Tool call failures cascade — one bad API response derails the whole agent run",
+      "Agents hallucinate tool arguments — you must validate before executing",
+      "Multi-agent handoffs lose context — state management is the hard part",
+      "Non-determinism makes agent bugs nearly impossible to reproduce",
+    ],
+    spicyAngles: [
+      "Our AI agent racked up a $400 bill in one runaway loop — the guardrails we added",
+      "Multi-agent systems are mostly hype — where they actually earned their keep",
+      "Agents hallucinate tool arguments — the validation layer that saved production",
+      "Build vs buy for AI agents: LangChain, custom, or a managed service?",
+    ],
+  },
+
+  Embeddings: {
+    category: "ai",
+    signals: [
+      "Embedding model choice (dimensions, cost, quality) driving real architecture decisions",
+      "Matryoshka embeddings letting you truncate dimensions without re-embedding",
+      "Embedding caching cutting repeated API costs on stable content",
+      "Multilingual embeddings enabling cross-language search without translation",
+      "Local embedding models (via ONNX/Transformers.js) removing API dependency",
+    ],
+    gotchas: [
+      "Mixing embeddings from different models in one index produces garbage similarity",
+      "Embedding dimension mismatch with your vector index throws cryptic errors",
+      "Normalizing embeddings matters for cosine similarity — teams forget and get bad results",
+      "API rate limits on embedding endpoints throttle bulk indexing jobs",
+      "Truncating non-Matryoshka embeddings destroys their meaning — not all models support it",
+    ],
+    spicyAngles: [
+      "Matryoshka embeddings let us cut dimensions 4x with almost no quality loss",
+      "We ran embeddings locally with Transformers.js — killed our per-token API bill",
+      "Mixing embedding models corrupted our search — the debugging story",
+      "Embedding model comparison: cost vs recall across 5 providers",
+    ],
+  },
+
+  ModelDeployment: {
+    category: "ai",
+    signals: [
+      "Serving open models (Llama, Mistral) on your own infra vs API — the make/buy line",
+      "Quantized models (GGUF, AWQ) running inference on commodity GPUs",
+      "Cold start for self-hosted models is brutal — keeping GPUs warm costs money",
+      "Inference batching to maximize GPU utilization becoming essential",
+      "SageMaker vs Bedrock vs self-hosted — the AWS model-serving decision",
+    ],
+    gotchas: [
+      "GPU cold starts can be 30-60s — not viable for latency-sensitive requests",
+      "Quantization drops quality — INT4 vs INT8 vs FP16 is a real accuracy trade-off",
+      "Self-hosted models cost more than API until very high volume — the break-even is high",
+      "Batching increases throughput but adds latency for individual requests",
+      "Model version drift between staging and prod causes silent behavior changes",
+    ],
+    spicyAngles: [
+      "Self-hosting Llama cost us more than the API until 2M requests/month — the math",
+      "Quantized model inference on a single GPU: what INT4 actually costs in quality",
+      "SageMaker vs Bedrock vs self-hosted: the AWS model-serving decision tree",
+      "We kept GPUs warm to kill cold starts — then saw the bill",
+    ],
+  },
+
+  AIGuardrails: {
+    category: "ai",
+    signals: [
+      "Content filtering / moderation now mandatory for user-facing AI features",
+      "Bedrock Guardrails and similar services abstracting safety checks",
+      "Output validation (schema, PII, toxicity) as a pipeline stage after generation",
+      "Prompt injection defense becoming a standard security requirement",
+      "AI observability — logging prompts, responses, and costs — becoming table stakes",
+    ],
+    gotchas: [
+      "Guardrails add latency — every safety check is another round trip",
+      "Over-aggressive filtering blocks legitimate content — false positives frustrate users",
+      "PII leaking into LLM logs is a compliance nightmare teams discover late",
+      "Guardrails on input AND output both needed — teams protect one side only",
+      "Moderation models have their own biases and gaps — not a complete solution",
+    ],
+    spicyAngles: [
+      "AI guardrails added 300ms latency — the async pattern that hid it",
+      "PII leaked into our LLM logs — the redaction layer we should've had day one",
+      "Bedrock Guardrails vs rolling your own: what the managed service actually catches",
+      "Prompt injection defense in production: the layered approach that works",
+    ],
+  },
+
+  AIEvaluation: {
+    category: "ai",
+    signals: [
+      "LLM-as-judge for evaluating AI output at scale replacing manual review",
+      "Eval-driven development — write evals before shipping AI features",
+      "Golden datasets and regression testing for prompts and RAG pipelines",
+      "Measuring faithfulness, relevance, and hallucination rate as real metrics",
+      "A/B testing AI outputs in production to compare models and prompts",
+    ],
+    gotchas: [
+      "LLM-as-judge is biased toward its own outputs — cross-model judging needed",
+      "Evals that pass in dev fail in prod when real user inputs are messier",
+      "No golden dataset means you're shipping AI changes blind",
+      "Faithfulness metrics disagree — different eval frameworks give different scores",
+      "Eval costs add up — running full suites on every change gets expensive",
+    ],
+    spicyAngles: [
+      "We shipped AI changes blind for months — then built evals and found the regressions",
+      "LLM-as-judge graded its own model highest — the cross-model fix",
+      "Eval-driven development for AI features: the workflow that caught our worst bug",
+      "How we measure hallucination rate in production RAG — the metric that matters",
+    ],
+  },
+
+};
+
+// Combined rotation pool: AWS services + runtime topics + AI topics
+// Interleaved so posts alternate between AWS-deep, Node/TS-deep, and AI-deep
+// topics naturally. Category-balanced selection happens in pickAssignedService.
 const ALL_TOPICS = [
   ...Object.entries(AWS_SERVICES_CATALOG).map(([name, data]) => ({
     name,
@@ -1039,6 +1268,11 @@ const ALL_TOPICS = [
   ...Object.entries(RUNTIME_CATALOG).map(([name, data]) => ({
     name,
     type: "runtime",
+    ...data,
+  })),
+  ...Object.entries(AI_CATALOG).map(([name, data]) => ({
+    name,
+    type: "ai",
     ...data,
   })),
 ];
@@ -1101,13 +1335,64 @@ function normalizeTopicKey(value = "") {
 // Uses a rolling window instead of all-history so the catalog never gets
 // permanently exhausted. After ~3 weeks a service becomes reusable.
 function pickAssignedService(history, allServiceNames, windowSize = 14) {
-  // Only consider the most recent N posts as "blocked"
+  // ── Category-balanced selection ──────────────────────────────────────────
+  // Old behavior: flat random across all 42 topics. Because AWS has 24 entries
+  // vs 9 runtime vs 9 AI, AWS was picked ~57% of the time and AI could go weeks
+  // without appearing. Fix: pick a CATEGORY first with even weighting, THEN a
+  // topic within it. This guarantees a roughly even AWS / runtime / AI mix
+  // regardless of how many topics each category holds.
+  //
+  // Falls back to flat selection if ALL_TOPICS metadata isn't available
+  // (keeps the function safe if called with a bare name list).
   const recentUsed = new Set(
     history
       .slice(-windowSize)
       .map(h => normalizeTopicKey(h.service))
       .filter(Boolean)
   );
+
+  // Look up each eligible name's category from ALL_TOPICS
+  const byCategory = { aws: [], runtime: [], ai: [] };
+  let haveCategories = false;
+
+  for (const svc of allServiceNames) {
+    if (recentUsed.has(normalizeTopicKey(svc))) continue;      // blocked (recent)
+    const meta = ALL_TOPICS.find(t => t.name === svc);
+    if (meta && byCategory[meta.type]) {
+      byCategory[meta.type].push(svc);
+      haveCategories = true;
+    }
+  }
+
+  // Recency-balance the category too: look at the categories of the last few
+  // posts and prefer a category that hasn't been used most recently. This stops
+  // two AWS days back-to-back even when AWS wins the random draw.
+  const recentTypes = history
+    .slice(-3)
+    .map(h => {
+      const meta = ALL_TOPICS.find(t => t.name === h.service);
+      return meta?.type;
+    })
+    .filter(Boolean);
+
+  if (haveCategories) {
+    // Only consider categories that still have eligible topics
+    let categories = Object.keys(byCategory).filter(c => byCategory[c].length > 0);
+
+    // Prefer categories NOT used in the last post (soft rotation)
+    const lastType = recentTypes[recentTypes.length - 1];
+    const notLast  = categories.filter(c => c !== lastType);
+    if (notLast.length > 0) categories = notLast;
+
+    // Pick a category uniformly at random, then a topic within it
+    const cat        = categories[Math.floor(Math.random() * categories.length)];
+    const pool       = byCategory[cat];
+    const pickedName = pool[Math.floor(Math.random() * pool.length)];
+    console.log(`🗂️   Category balance → picked "${cat}" (${pool.length} eligible), topic: ${pickedName}`);
+    return pickedName;
+  }
+
+  // ── Fallback: original flat selection ──────────────────────────────────────
   const eligible = allServiceNames.filter(svc => !recentUsed.has(normalizeTopicKey(svc)));
   if (eligible.length === 0) return null;
   const pickedIdx = Math.floor(Math.random() * eligible.length);
@@ -1139,7 +1424,7 @@ async function writeHistory(entry) {
 }
 
 function buildEcosystemPulse(today, history = []) {
-  // ALL_TOPICS = 24 AWS + 10 runtime/TS/JS = 34 total rotation slots
+  // ALL_TOPICS = 24 AWS + 9 runtime/TS/JS + 9 AI/ML/GenAI = 42 total rotation slots
   const total      = ALL_TOPICS.length;
 
   // ── Round-robin rotation by day-of-year across all 34 topics ─────────────
@@ -1675,7 +1960,7 @@ function appendDisclosure(markdown, topic) {
 
 > **Transparency notice**
 >
-> AI-crafted with Groq, powered by LLaMA 3.3 70B.
+> This article was generated by an AI system using [Groq](https://groq.com) (LLaMA 3.3 70B).
 > The topic was scouted from live AWS and Node.js ecosystem signals, and the content —
 > including all code examples — was written autonomously without human editing.
 >
