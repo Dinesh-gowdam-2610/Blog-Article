@@ -1335,15 +1335,17 @@ function normalizeTopicKey(value = "") {
 // Uses a rolling window instead of all-history so the catalog never gets
 // permanently exhausted. After ~3 weeks a service becomes reusable.
 function pickAssignedService(history, allServiceNames, windowSize = 14) {
-  // ── Category-balanced selection ──────────────────────────────────────────
-  // Old behavior: flat random across all 42 topics. Because AWS has 24 entries
-  // vs 9 runtime vs 9 AI, AWS was picked ~57% of the time and AI could go weeks
-  // without appearing. Fix: pick a CATEGORY first with even weighting, THEN a
-  // topic within it. This guarantees a roughly even AWS / runtime / AI mix
-  // regardless of how many topics each category holds.
+  // ── AI-favoring category selection (2:1) ─────────────────────────────────
+  // Desired rhythm: for every 1 AWS/runtime post, aim for ~2 AI posts.
+  // Cycle looks like:  aws → ai → ai → runtime → ai → ai → aws → ai → ai ...
   //
-  // Falls back to flat selection if ALL_TOPICS metadata isn't available
-  // (keeps the function safe if called with a bare name list).
+  // How it works — decide the category by looking at the last two posts:
+  //   • If the last post was NOT ai        → pick AI (start the AI streak)
+  //   • If last was ai but the one before  → pick AI again (second AI in a row)
+  //     was NOT ai (streak length == 1)
+  //   • If the last TWO were both ai        → AI streak done, pick aws/runtime
+  //   • No history yet                      → start with AI
+  // Falls back to flat selection if ALL_TOPICS metadata isn't available.
   const recentUsed = new Set(
     history
       .slice(-windowSize)
@@ -1351,7 +1353,7 @@ function pickAssignedService(history, allServiceNames, windowSize = 14) {
       .filter(Boolean)
   );
 
-  // Look up each eligible name's category from ALL_TOPICS
+  // Group eligible (not-recently-used) topics by category
   const byCategory = { aws: [], runtime: [], ai: [] };
   let haveCategories = false;
 
@@ -1364,32 +1366,57 @@ function pickAssignedService(history, allServiceNames, windowSize = 14) {
     }
   }
 
-  // Recency-balance the category too: look at the categories of the last few
-  // posts and prefer a category that hasn't been used most recently. This stops
-  // two AWS days back-to-back even when AWS wins the random draw.
-  const recentTypes = history
-    .slice(-3)
-    .map(h => {
-      const meta = ALL_TOPICS.find(t => t.name === h.service);
-      return meta?.type;
-    })
-    .filter(Boolean);
-
   if (haveCategories) {
-    // Only consider categories that still have eligible topics
-    let categories = Object.keys(byCategory).filter(c => byCategory[c].length > 0);
+    // Categories of the last two posts (most recent last)
+    const recentTypes = history
+      .slice(-2)
+      .map(h => ALL_TOPICS.find(t => t.name === h.service)?.type)
+      .filter(Boolean);
 
-    // Prefer categories NOT used in the last post (soft rotation)
-    const lastType = recentTypes[recentTypes.length - 1];
-    const notLast  = categories.filter(c => c !== lastType);
-    if (notLast.length > 0) categories = notLast;
+    const last       = recentTypes[recentTypes.length - 1];       // most recent
+    const secondLast = recentTypes[recentTypes.length - 2];       // one before
 
-    // Pick a category uniformly at random, then a topic within it
-    const cat        = categories[Math.floor(Math.random() * categories.length)];
-    const pool       = byCategory[cat];
-    const pickedName = pool[Math.floor(Math.random() * pool.length)];
-    console.log(`🗂️   Category balance → picked "${cat}" (${pool.length} eligible), topic: ${pickedName}`);
-    return pickedName;
+    // Count how many AI posts are at the tail (current AI streak length)
+    let aiStreak = 0;
+    for (let i = recentTypes.length - 1; i >= 0; i--) {
+      if (recentTypes[i] === "ai") aiStreak++;
+      else break;
+    }
+
+    // Decide the target category
+    let target;
+    if (aiStreak >= 2) {
+      // Two AI in a row already → break the streak with aws or runtime
+      target = "nonai";
+    } else {
+      // Either last wasn't AI, or only 1 AI so far → favor AI
+      target = "ai";
+    }
+
+    let chosenCat;
+    if (target === "ai" && byCategory.ai.length > 0) {
+      chosenCat = "ai";
+    } else {
+      // Want a non-AI category (or AI pool is empty) — pick aws/runtime,
+      // preferring whichever wasn't used most recently for variety.
+      let nonAi = ["aws", "runtime"].filter(c => byCategory[c].length > 0);
+      if (nonAi.length === 0) {
+        // Only AI topics left eligible — take AI rather than fail
+        chosenCat = byCategory.ai.length > 0 ? "ai" : null;
+      } else {
+        const notLast = nonAi.filter(c => c !== last);
+        if (notLast.length > 0) nonAi = notLast;
+        chosenCat = nonAi[Math.floor(Math.random() * nonAi.length)];
+      }
+    }
+
+    if (chosenCat && byCategory[chosenCat].length > 0) {
+      const pool       = byCategory[chosenCat];
+      const pickedName = pool[Math.floor(Math.random() * pool.length)];
+      console.log(`🗂️   AI-favoring rotation → category "${chosenCat}" (aiStreak was ${aiStreak}), topic: ${pickedName}`);
+      return pickedName;
+    }
+    // If we somehow couldn't choose, fall through to flat selection below.
   }
 
   // ── Fallback: original flat selection ──────────────────────────────────────
