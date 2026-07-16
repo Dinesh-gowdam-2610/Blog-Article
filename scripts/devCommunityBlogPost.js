@@ -1254,6 +1254,98 @@ const AI_CATALOG = {
     ],
   },
 
+  MCP: {
+    category: "ai",
+    signals: [
+      "Model Context Protocol (MCP) is the emerging standard for connecting AI models to tools and data",
+      "MCP lets one integration work across many AI clients instead of rebuilding per-model",
+      "MCP servers expose tools, resources, and prompts through a single open protocol",
+      "Claude, IDEs, and agent frameworks adopting MCP as the plugin layer for AI",
+      "Building an MCP server in Node.js/TypeScript is now a common first AI-infra task",
+    ],
+    gotchas: [
+      "MCP 'tools' vs 'resources' vs 'prompts' confuse beginners — each has a distinct role",
+      "MCP servers run locally or remotely — transport choice (stdio vs SSE) trips people up",
+      "Tool schemas must be precise or the model calls them with the wrong arguments",
+      "MCP is a protocol, not a framework — you still design the actual capabilities",
+    ],
+    spicyAngles: [
+      "MCP explained simply: what the Model Context Protocol actually is and why it matters",
+      "Build your first MCP server in Node.js — a beginner-friendly walkthrough",
+      "MCP vs plain function calling: when you need a protocol and when you don't",
+      "How MCP lets one tool integration work across Claude, IDEs, and agents",
+    ],
+  },
+
+  ClaudeFeatures: {
+    category: "ai",
+    signals: [
+      "Claude's tool use lets the model call your functions and APIs during a conversation",
+      "Claude's extended context windows change how much you can feed a model at once",
+      "Prompt caching on Claude reuses stable context to speed up repeated calls",
+      "Claude's vision capabilities read screenshots, diagrams, and documents",
+      "Structured output and JSON mode make Claude responses safe to parse in code",
+    ],
+    gotchas: [
+      "Bigger context windows aren't free — relevant context still beats more context",
+      "Tool-use loops need a stop condition or the model keeps calling tools",
+      "System prompts steer Claude far more than most beginners expect",
+      "Streaming responses need incremental parsing, not waiting for the whole reply",
+    ],
+    spicyAngles: [
+      "Claude tool use explained for beginners: how the model calls your code",
+      "How Claude's context window actually works — and why more isn't always better",
+      "Prompt caching on Claude, explained simply with a real example",
+      "A beginner's guide to structured output with Claude — parse responses safely",
+    ],
+  },
+
+  AICodingAssistants: {
+    category: "ai",
+    signals: [
+      "AI coding assistants moved from autocomplete to full multi-file, agentic edits",
+      "Assistants that read your whole repo give far better suggestions than single-file ones",
+      "Inline chat, edit-in-place, and agent modes are now distinct assistant workflows",
+      "Reviewing AI-generated code is becoming a core engineering skill",
+      "Context (which files the assistant sees) matters more than the underlying model",
+    ],
+    gotchas: [
+      "AI assistants confidently write code that compiles but is subtly wrong — review always",
+      "Giving the assistant too much context can dilute its focus and lower quality",
+      "Generated tests can pass while testing the wrong behavior",
+      "Blindly accepting refactors across many files hides breaking changes",
+    ],
+    spicyAngles: [
+      "How AI coding assistants actually work under the hood, explained simply",
+      "Getting real value from an AI coding assistant: a beginner-to-advanced guide",
+      "Why context matters more than the model in AI coding assistants",
+      "How to review AI-generated code without trusting it blindly",
+    ],
+  },
+
+  CursorAI: {
+    category: "ai",
+    signals: [
+      "Cursor turns the editor itself into an AI-native workspace, not a plugin",
+      "Cursor's codebase indexing lets the AI reason about your whole project",
+      "Composer/agent mode makes multi-file changes from a single instruction",
+      "Rules files let teams give the AI persistent project conventions",
+      "Cursor + MCP connects the editor to external tools and data sources",
+    ],
+    gotchas: [
+      "Cursor is only as good as the context you give it — vague prompts get vague edits",
+      "Agent mode editing many files at once needs careful review before accepting",
+      "Indexing a huge monorepo has limits — scoping the workspace helps",
+      "Rules files are powerful but easy to over-specify into contradictions",
+    ],
+    spicyAngles: [
+      "Cursor AI explained: what makes an AI-native editor different, in simple terms",
+      "A beginner's guide to getting real work done in Cursor",
+      "How Cursor's codebase indexing helps the AI understand your project",
+      "Using rules files in Cursor to teach the AI your team's conventions",
+    ],
+  },
+
 };
 
 // Combined rotation pool: AWS services + runtime topics + AI topics
@@ -1367,53 +1459,44 @@ function pickAssignedService(history, allServiceNames, windowSize = 14) {
   }
 
   if (haveCategories) {
-    // Categories of the last two posts (most recent last)
+    // Categories of the last few posts (most recent last)
     const recentTypes = history
-      .slice(-2)
+      .slice(-4)
       .map(h => ALL_TOPICS.find(t => t.name === h.service)?.type)
       .filter(Boolean);
 
-    const last       = recentTypes[recentTypes.length - 1];       // most recent
-    const secondLast = recentTypes[recentTypes.length - 2];       // one before
+    const last = recentTypes[recentTypes.length - 1];
 
-    // Count how many AI posts are at the tail (current AI streak length)
+    // Count trailing AI streak
     let aiStreak = 0;
     for (let i = recentTypes.length - 1; i >= 0; i--) {
       if (recentTypes[i] === "ai") aiStreak++;
       else break;
     }
 
-    // Decide the target category
-    let target;
-    if (aiStreak >= 2) {
-      // Two AI in a row already → break the streak with aws or runtime
-      target = "nonai";
-    } else {
-      // Either last wasn't AI, or only 1 AI so far → favor AI
-      target = "ai";
-    }
-
+    // ── AI-DOMINANT policy ───────────────────────────────────────────────────
+    // AI is the primary content focus. Default to AI every time. Only break to
+    // an AWS/runtime post after 3 AI posts in a row, so the feed stays ~75% AI
+    // with occasional supporting engineering content for variety.
     let chosenCat;
-    if (target === "ai" && byCategory.ai.length > 0) {
+    if (aiStreak >= 3 && (byCategory.aws.length > 0 || byCategory.runtime.length > 0)) {
+      // Time for one supporting (non-AI) post
+      let nonAi = ["aws", "runtime"].filter(c => byCategory[c].length > 0);
+      const notLast = nonAi.filter(c => c !== last);
+      if (notLast.length > 0) nonAi = notLast;
+      chosenCat = nonAi[Math.floor(Math.random() * nonAi.length)];
+    } else if (byCategory.ai.length > 0) {
       chosenCat = "ai";
     } else {
-      // Want a non-AI category (or AI pool is empty) — pick aws/runtime,
-      // preferring whichever wasn't used most recently for variety.
-      let nonAi = ["aws", "runtime"].filter(c => byCategory[c].length > 0);
-      if (nonAi.length === 0) {
-        // Only AI topics left eligible — take AI rather than fail
-        chosenCat = byCategory.ai.length > 0 ? "ai" : null;
-      } else {
-        const notLast = nonAi.filter(c => c !== last);
-        if (notLast.length > 0) nonAi = notLast;
-        chosenCat = nonAi[Math.floor(Math.random() * nonAi.length)];
-      }
+      // AI pool exhausted in the recent window — fall back to any available
+      const any = ["aws", "runtime"].filter(c => byCategory[c].length > 0);
+      chosenCat = any.length > 0 ? any[Math.floor(Math.random() * any.length)] : null;
     }
 
     if (chosenCat && byCategory[chosenCat].length > 0) {
       const pool       = byCategory[chosenCat];
       const pickedName = pool[Math.floor(Math.random() * pool.length)];
-      console.log(`🗂️   AI-favoring rotation → category "${chosenCat}" (aiStreak was ${aiStreak}), topic: ${pickedName}`);
+      console.log(`🗂️   AI-dominant rotation → category "${chosenCat}" (aiStreak was ${aiStreak}), topic: ${pickedName}`);
       return pickedName;
     }
     // If we somehow couldn't choose, fall through to flat selection below.
@@ -1654,9 +1737,12 @@ Controversy & hot takes (great for engagement):
 
   const prompt = `Today is ${today}.
 
-You are a technical content strategist who tracks GitHub Trending, AWS What's New, 
-Hacker News, and dev Twitter/X every single morning. You have access to today's 
-AWS ecosystem pulse and Node.js/TypeScript signals below.
+You are a senior AI engineer who is also a gifted teacher. You write educational
+content that makes complex AI concepts click for everyone — from someone brand new
+to AI, to a staff engineer who wants a clear mental model. You track the AI ecosystem
+daily: Claude's capabilities, MCP, AI agents, Cursor and AI coding assistants, prompt
+engineering, RAG, vector databases, and new AI tooling. You explain senior-level ideas
+in plain language, always grounded in a concrete example.
 
 ${pulse}
 
@@ -1670,13 +1756,42 @@ ${modeInstructions}
 
 Based on the signals above and the mode instructions, create the blog topic. Requirements:
 
-1. TIMELY — feels triggered by something real happening THIS week in the ecosystem
-2. SPICY — has a contrarian, surprising, or dramatic angle. Developer drama is fine.
-3. SPECIFIC — references real package names, real error messages, real config values
-4. CROSS-CUTTING — best topics combine 2 of these: AWS service + Node.js feature + TypeScript pattern
-   Examples: "TypeScript satisfies + AWS SDK v3", "Node.js 22 ESM + Lambda layers",
-             "Zod v4 migration + API Gateway request validation", "node:test replacing Jest in Lambda unit tests", "Effect-ts error handling in handlers"
-5. SCROLL-STOPPING TITLE — a developer mid-scroll thinks "wait, is that true?"
+1. EDUCATIONAL FIRST — the post must teach something. A reader should finish it
+   understanding a concept they didn't before. Clarity beats cleverness.
+2. ACCESSIBLE TO BEGINNERS, VALUABLE TO EXPERTS — explain from first principles in
+   plain language, but include the depth and nuance an experienced engineer respects.
+   Assume the reader is smart but may be new to this specific AI topic.
+3. AI-FIRST — the subject should be an AI concept: Claude features & mechanisms, AI
+   agents, MCP (Model Context Protocol), Cursor / AI coding assistants, prompt
+   engineering, RAG, vector databases, embeddings, or another current AI development.
+4. CONCRETE — anchored by a practical, real-world example or use case the reader can
+   picture or try. Real tool names, real code, real scenarios — no hand-waving.
+5. CLEAR TEACHING TITLE — the title should promise a clear takeaway, e.g.
+   "explained simply", "a beginner's guide to", "how X actually works", "understanding X".
+   A reader should know exactly what they'll learn.
+
+🎯 CONTENT DIRECTION — this is a hard steer, not a suggestion:
+   FOCUS on breaking down one AI concept clearly. Strong topic families:
+     • Claude AI features & how they work (tool use, context windows, prompt caching, vision)
+     • AI agents — what they are, how the loop works, how to build a simple one
+     • MCP (Model Context Protocol) — what it is, why it exists, building a server
+     • Cursor AI & AI coding assistants — how they work, how to use them well
+     • Prompt engineering — practical techniques explained with examples
+     • RAG — how retrieval-augmented generation works, step by step
+     • Vector databases & embeddings — the concepts made intuitive
+     • Other recent AI developments explained for a broad engineering audience
+
+   TONE: a patient senior engineer teaching a colleague. Encouraging, precise, and
+   example-driven. Define jargon the first time you use it. Use analogies to build
+   intuition, then show the real mechanism.
+
+   🚫 DO NOT write about any of these — they perform badly and are off-topic now:
+     • Cost cutting / cost optimization / "we saved $X" / bill reduction / cheaper-than
+     • Workflow optimization framed as efficiency/savings
+     • Cold starts / cold-start latency / init-phase tuning
+     • Contrarian rage-bait or "everyone is wrong" drama with no teaching value
+   The title and angle MUST NOT center on dollar amounts, "$/month", "cheaper", "bill",
+   "cost", "cold start", or "optimization". Teach a concept instead.
 
 TITLE RULES — the difference is context and specificity, not the words themselves:
 
@@ -1794,6 +1909,28 @@ Do NOT apply tag rules to the title. The title should look like a newspaper head
     );
   }
 
+  // ── Banned-theme guard ────────────────────────────────────────────────────
+  // Cost-cutting, cold-start, and pure-optimization posts perform poorly on
+  // LinkedIn. If the scout's title OR angle centers on these, reject and retry
+  // so it re-scouts with a capability/architecture framing instead.
+  const themeText = `${topic.title ?? ""} ${topic.angle ?? ""} ${topic.hook ?? ""}`.toLowerCase();
+  const bannedThemePatterns = [
+    /\bcost[\s-]?cutting\b/, /\bcost optimi/, /\boptimi\w*\s+cost/,
+    /\bsaved?\s+\$/, /\$\s?\d/, /\bper month\b/, /\/month\b/, /\/year\b/,
+    /\bcheaper\b/, /\bcut (?:our|the|your)\s+\w*\s*(?:bill|cost|spend)/,
+    /\breduce[sd]?\s+(?:cost|spend|bill)/, /\blower(?:ing)?\s+(?:cost|bill|spend)/,
+    /\bbill\b.*\b(month|year|cut|reduce|save)/, /\bcold[\s-]?start/,
+    /\binit[\s-]?phase\b/, /\bcost\b.*\b(save|cut|reduce|slash|trim)/,
+  ];
+  const hitPattern = bannedThemePatterns.find(rx => rx.test(themeText));
+  if (hitPattern) {
+    throw new Error(
+      `Scout returned a banned-theme topic (cost/cold-start/optimization): ` +
+      `"${titleStr}". These underperform on LinkedIn. Re-scouting with a ` +
+      `capability/architecture angle...`
+    );
+  }
+
   console.log("📡  Topic scouted:");
   console.log(`   🎯  Title      : ${topic.title}`);
   console.log(`   🔥  Angle      : ${topic.angle}`);
@@ -1829,16 +1966,19 @@ ${topic.secondaryService ? `Secondary service context — ${topic.secondaryServi
   Known gotchas: ${(secondaryData.gotchas ?? []).join(" | ")}` : ""}
 `;
 
-  const system = `You are a senior software engineer at a fast-growing startup, writing for Dev.to.
-Your posts get thousands of reactions because they're honest, specific, and full of code that actually runs.
+  const system = `You are a friendly, patient technical educator writing for Dev.to.
+Your posts get shared because they take something confusing about AI and make it click for beginners.
+Think of the reader as a developer who is curious about AI but new to it — you never assume prior knowledge.
 
 Voice:
-- Direct, confident, opinionated — you have takes and you defend them with data
-- Technically precise, never corporate or buzzwordy  
-- You've been burned by the exact gotcha you're writing about — that experience shows
-- Code examples compile and run — no "// your implementation here", no pseudo-code
-- You use > blockquote for: spicy warnings, counterintuitive facts, "I wish I'd known this"
-- When you say "it depends" you immediately say WHAT it depends on with numbers`;
+- Clear, warm, and encouraging — like a great teacher, not a show-off
+- Explain the WHY before the HOW — motivate every concept before showing code
+- Define every term the first time you use it (e.g. "an embedding — a list of numbers that captures meaning")
+- Use simple analogies to make abstract AI ideas concrete
+- Code examples are minimal, complete, and heavily commented so a beginner can follow each line
+- No jargon dumps, no assuming the reader knows the ecosystem
+- Use > blockquote for: key takeaways, helpful tips, and "in plain English" clarifications
+- Build understanding step by step — each section assumes only what came before it`;
 
   const sectionsBlock = topic.sections.map((s, i) => `${i + 1}. ${s}`).join("\n");
 
@@ -1863,17 +2003,18 @@ MAIN CODE SCENARIO: ${topic.codeScenario}
 HARD REQUIREMENTS:
 - First line: # ${topic.title}
 - Open immediately with the hook — NOT "In this post we'll explore..."
-- Every H2 section: at least one COMPLETE, RUNNABLE \`\`\`typescript\`\`\` code block
-- Use exact SDK v3 imports: import { Command } from '${topic.sdkPackages?.[0] ?? "@aws-sdk/..."}' 
-- At least one > blockquote callout per section (warning, tip, or spicy take)
-- Include at least 2 real AWS error messages or gotchas with exact error text
-- "The Takeaway" section: 4–6 opinionated bullets — specific, no fluff
-- Real console output or benchmark numbers where relevant (make them realistic)
-- Target: 1500–2200 words — tight, dense, no padding. Quality over length.
+- Explain the WHY before the HOW in every section — motivate the concept, then show it
+- Define each new term the first time it appears, in plain language
+- Every H2 section: at least one COMPLETE, well-commented code block a beginner can follow
+  (use \`\`\`typescript or \`\`\`javascript; comments should explain what each key line does)
+- Use at least one simple analogy to build intuition for the hardest concept
+- At least one > blockquote per section for a key takeaway, a tip, or an "in plain English" recap
+- "The Takeaway" section: 4–6 clear bullets summarizing what the reader just learned
+- Target: 1500–2200 words — clear and complete, no padding. Teaching over showing off.
 
 ABSOLUTE BANS: "leverage", "utilize", "seamlessly", "In this post", "Let's dive in",
 "In conclusion", "it's worth noting", "as you can see", "powerful", "robust",
-"wrap up", "exciting", "Let me walk you through".
+"wrap up", "exciting", "Let me walk you through", "game-changer", "revolutionary".
 
 FORMAT: Clean Markdown only. No HTML. No YAML frontmatter. No intro like "Sure, here's..."${seoFeedback ? `
 
