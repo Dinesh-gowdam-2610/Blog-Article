@@ -41,9 +41,24 @@ async function getThisWeeksPosts() {
 // ── Build hashtags from the week's service topics ─────────────────────────────
 function buildTags(posts) {
   const base = new Set([
-    "aws","nodejs","typescript","javascript","devto","programming","softwaredevelopment",
+    "ai","artificialintelligence","machinelearning","llm","softwareengineering","devto","programming",
   ]);
   const map = {
+    // AI topics (primary focus)
+    LLMIntegration:     ["llm","genai"],
+    RAG:                ["rag","genai"],
+    VectorDatabases:    ["vectordatabase","embeddings"],
+    PromptEngineering:  ["promptengineering","genai"],
+    AIAgents:           ["aiagents","agenticai"],
+    Embeddings:         ["embeddings","nlp"],
+    ModelDeployment:    ["mlops","modeldeployment"],
+    AIGuardrails:       ["aisafety","responsibleai"],
+    AIEvaluation:       ["aieval","mlops"],
+    MCP:                ["mcp","aitools"],
+    ClaudeFeatures:     ["claude","anthropic"],
+    AICodingAssistants: ["aicoding","developertools"],
+    CursorAI:           ["cursor","aicoding"],
+    // Supporting engineering topics
     Lambda:             ["serverless","awslambda"],
     ECS:                ["docker","containers"],
     AppRunner:          ["serverless","containers"],
@@ -63,15 +78,14 @@ function buildTags(posts) {
     CDK:                ["iac","devops"],
     StepFunctions:      ["serverless","workflow"],
     Kinesis:            ["streaming","eventdriven"],
-    NodeJS22:           ["nodejs22","runtimes"],
-    NodeJSPerformance:  ["performance","backend"],
+    NodeJS22:           ["nodejs","runtimes"],
+    NodeJSPerformance:  ["nodejs","backend"],
     NodeJSTesting:      ["testing","tdd"],
     TypeScript55:       ["typescript","typesafety"],
     TypeScriptPatterns: ["typescript","designpatterns"],
     TypeScriptBuild:    ["typescript","esbuild"],
     JavaScriptPatterns: ["javascript","es2025"],
-    BunOnLambda:        ["bun","performance"],
-    NodeJSFrameworks:   ["fastify","backend"],
+    NodeJSFrameworks:   ["nodejs","backend"],
   };
   posts.forEach(p => (map[p.service] ?? []).slice(0, 2).forEach(t => base.add(t)));
   return [...base].slice(0, 10).map(t => `#${t}`).join(" ");
@@ -122,82 +136,69 @@ const EMOJIS = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 8 PATTERNS — all content dynamic, zero hardcoded filler
+// 8 PATTERNS — educational, AI-first. All content dynamic from article data.
+// Framing teaches a concept and invites discussion — no cost/gotcha/rage-bait.
 // ─────────────────────────────────────────────────────────────────────────────
 
-function pattern1_unpopular_opinion(posts, tags) {
-  // Opener: the strongest gotcha from this week's articles
-  const bestGotcha = posts.map(getGotcha).filter(Boolean)[0] ?? posts[0].title;
+function pattern1_learn_this_week(posts, tags) {
+  const lead = posts[0];
+  const insight = getInsight(lead);
   const lines = [
-    `Unpopular opinion:`,
-    ``,
-    bestGotcha + `.`,
-    ``,
-    `This week — ${posts.length} cases that prove it:`,
+    `If you're learning AI, here's a clear place to start this week 👇`,
     ``,
     ...posts.map((p, i) => {
-      const stat    = extractStat(p);
-      const insight = getInsight(p);
+      const ins = getInsight(p);
       return [
-        `${EMOJIS.warn[i % 5]} ${p.title}`,
-        `   ${insight}${stat ? ` (${stat})` : ""}`,
+        `${EMOJIS.insight[i % 5]} ${p.title}`,
+        ins ? `   ${ins}` : ``,
         `   → ${p.url}`,
-      ].join("\n");
+      ].filter(Boolean).join("\n");
     }),
     ``,
-    `Which one are you fixing this week? ↓`,
+    `Each one breaks a complex idea into something you can actually follow.`,
+    ``,
+    `What AI concept do you wish someone would explain simply? ↓`,
     ``,
     tags,
   ];
   return lines.join("\n");
 }
 
-function pattern2_embarrassed(posts, tags) {
-  // Use the most shocking gotcha as the "embarrassing" discovery
-  const worst      = posts[0];
-  const stat       = extractStat(worst);
-  const gotcha     = getGotcha(worst) ?? worst.title;
+function pattern2_eli5(posts, tags) {
+  const lead = posts[0];
+  const insight = getInsight(lead);
   const lines = [
-    `${gotcha}.`,
+    `${lead.title}`,
     ``,
-    stat ? `The cost: ${stat}.` : `And nobody documents this.`,
+    `In plain English:`,
+    insight ? insight + `.` : `A concept worth understanding, explained step by step.`,
     ``,
-    `This week I found ${posts.length} more like it:`,
+    posts.length > 1 ? `Plus ${posts.length - 1} more AI topics broken down simply this week:` : `Read the full breakdown:`,
     ``,
-    ...posts.map((p, i) => {
-      const insight = getInsight(p);
-      const g       = getGotcha(p);
-      return [
-        `${i + 1}. ${p.title}`,
-        g ? `   The gotcha: ${g}` : `   ${insight}`,
-        `   ${p.url}`,
-      ].join("\n");
-    }),
+    ...posts.slice(posts.length > 1 ? 1 : 0).map((p, i) => `${EMOJIS.numbers[i] ?? (i + 1) + "."} ${p.title}\n   → ${p.url}`),
     ``,
-    `What is the most unexpected bug you have found in production this year?`,
+    posts.length === 1 ? `→ ${lead.url}` : ``,
+    `Which of these would help you most right now? ↓`,
     ``,
     tags,
-  ];
+  ].filter(l => l !== undefined && l !== "");
   return lines.join("\n");
 }
 
-function pattern3_nobody_talks(posts, tags) {
-  // Thread style — one insight per post, big white space, save-worthy
+function pattern3_save_this(posts, tags) {
   const lines = [
-    `${posts.length} AWS + Node.js gotchas nobody warns you about.`,
+    `${posts.length} AI concepts, explained simply.`,
     ``,
-    `(Save this thread.)`,
+    `(Save this — good for whenever you want to actually understand them.)`,
     ``,
     `↓`,
     ``,
     ...posts.flatMap((p, i) => {
-      const stat    = extractStat(p);
       const insight = getInsight(p);
       return [
         `${EMOJIS.numbers[i] ?? (i + 1) + "."} ${p.title}`,
         ``,
-        insight,
-        stat ? `The number: ${stat}` : ``,
+        insight ? insight : ``,
         ``,
         `→ ${p.url}`,
         ``,
@@ -205,134 +206,123 @@ function pattern3_nobody_talks(posts, tags) {
         ``,
       ].filter(l => l !== undefined);
     }),
-    `Which one are you sharing with your team?`,
+    `Which one are you sharing with someone learning AI? ↓`,
     ``,
     tags,
   ];
   return lines.filter(l => l !== undefined).join("\n");
 }
 
-function pattern4_before_after(posts, tags) {
-  // Each article becomes a before/after story using its own hook + gotcha
+function pattern4_how_it_works(posts, tags) {
+  const lead = posts[0];
+  const insight = getInsight(lead);
   const lines = [
-    `${posts.length} before/after stories from this week in AWS + Node.js:`,
+    `Ever wondered how it actually works under the hood?`,
     ``,
-    ...posts.flatMap((p, i) => {
-      const gotcha  = getGotcha(p);
-      const insight = getInsight(p);
-      const stat    = extractStat(p);
-      return [
-        `${EMOJIS.traffic[i % 5]} ${p.title}`,
-        gotcha  ? `   Before: ${gotcha}` : `   Before: The default looked fine.`,
-        insight ? `   After:  ${insight}` : ``,
-        stat    ? `   Impact: ${stat}` : ``,
-        `   → ${p.url}`,
-        ``,
-      ].filter(Boolean);
-    }),
-    `Documentation tells you HOW things work.`,
-    `Production tells you WHAT actually happens.`,
-    ``,
-    `Which before/after surprised you most? ↓`,
-    ``,
-    tags,
-  ];
-  return lines.join("\n");
-}
-
-function pattern5_read_if(posts, tags) {
-  // Hyper-targeted opener using actual service names from this week
-  const services = [...new Set(posts.map(p => p.service))].slice(0, 3).join(", ");
-  const lines = [
-    `If you use ${services} in production — read this before your next deploy.`,
-    ``,
-    `This week: ${posts.length} things that look fine in development and fail in production.`,
+    `This week I broke down ${posts.length === 1 ? "one AI concept" : `${posts.length} AI concepts`} from the ground up:`,
     ``,
     ...posts.map((p, i) => {
-      const stat    = extractStat(p);
-      const gotcha  = getGotcha(p);
+      const ins = getInsight(p);
       return [
         `${EMOJIS.insight[i % 5]} ${p.title}`,
-        gotcha ? `   ${gotcha}` : ``,
-        stat   ? `   Impact: ${stat}` : ``,
+        ins ? `   ${ins}` : ``,
         `   → ${p.url}`,
       ].filter(Boolean).join("\n");
     }),
     ``,
-    `Tag someone on your team who deploys these services.`,
+    `No hand-waving — just the mechanism, explained clearly with examples.`,
+    ``,
+    `What part of AI still feels like a black box to you? ↓`,
     ``,
     tags,
   ];
   return lines.join("\n");
 }
 
-function pattern6_tracked(posts, tags) {
-  // Data-framed — each article = a "finding" using real numbers from the article
+function pattern5_beginner_friendly(posts, tags) {
+  const topics = [...new Set(posts.map(p => p.service))].slice(0, 3).join(", ");
   const lines = [
-    `${posts.length} production findings from this week in AWS + Node.js:`,
+    `New to AI and not sure where to start?`,
+    ``,
+    `Here's a beginner-friendly walkthrough of ${topics || "key AI concepts"} — no prior experience needed:`,
     ``,
     ...posts.map((p, i) => {
-      const stat    = extractStat(p);
       const insight = getInsight(p);
       return [
-        `${EMOJIS.track[i % 5]} Finding ${i + 1}: ${p.title}`,
-        `   ${insight}`,
-        stat ? `   Measured: ${stat}` : ``,
+        `${EMOJIS.insight[i % 5]} ${p.title}`,
+        insight ? `   ${insight}` : ``,
+        `   → ${p.url}`,
+      ].filter(Boolean).join("\n");
+    }),
+    ``,
+    `Written to be clear for beginners and still useful for experienced engineers.`,
+    ``,
+    `Tag someone who's just getting into AI ↓`,
+    ``,
+    tags,
+  ];
+  return lines.join("\n");
+}
+
+function pattern6_concept_explained(posts, tags) {
+  const lines = [
+    `${posts.length === 1 ? "One AI concept" : `${posts.length} AI concepts`}, explained clearly this week:`,
+    ``,
+    ...posts.map((p, i) => {
+      const insight = getInsight(p);
+      return [
+        `${EMOJIS.insight[i % 5]} ${p.title}`,
+        insight ? `   ${insight}` : ``,
         `   → ${p.url}`,
         ``,
       ].filter(Boolean).join("\n");
     }),
-    `The pattern:`,
-    posts.map(p => getGotcha(p)).filter(Boolean)[0] ?? `The defaults hide the real cost.`,
+    `The goal: take something that sounds intimidating and make it click.`,
     ``,
-    `What is the most expensive AWS default you have hit?`,
-    ``,
-    tags,
-  ];
-  return lines.join("\n");
-}
-
-function pattern7_hard_truths(posts, tags) {
-  // Bold declarative format — each "truth" comes from the article's angle/gotcha
-  const lines = [
-    `${posts.length} things that tripped me up this week in AWS + Node.js:`,
-    ``,
-    ...posts.flatMap((p, i) => {
-      const truth  = getGotcha(p) ?? getInsight(p);
-      const stat   = extractStat(p);
-      return [
-        `${EMOJIS.insight[i % 5]} ${truth}.`,
-        stat ? `   The number that proves it: ${stat}` : ``,
-        `   Full breakdown → ${p.url}`,
-        ``,
-      ].filter(Boolean);
-    }),
-    `Which one would have saved you the most time if you knew it earlier?`,
+    `Which AI topic should I break down next? ↓`,
     ``,
     tags,
   ];
   return lines.join("\n");
 }
 
-function pattern8_this_week_i(posts, tags) {
-  // Personal journal — each entry from the article's own data
-  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function pattern7_curiosity(posts, tags) {
+  const lead = posts[0];
+  const insight = getInsight(lead);
   const lines = [
-    `This week in AWS + Node.js — ${posts.length} things worth reading:`,
+    lead.title.endsWith("?") ? lead.title : `Here's something worth understanding about AI:`,
+    ``,
+    insight ? insight + `.` : ``,
+    ``,
+    posts.length > 1 ? `That plus ${posts.length - 1} more, explained simply this week:` : `Full explanation here:`,
+    ``,
+    ...posts.map((p, i) => `${EMOJIS.numbers[i] ?? (i + 1) + "."} ${p.title}\n   → ${p.url}`),
+    ``,
+    `The kind of thing that's obvious once someone explains it well.`,
+    ``,
+    `What clicked for you recently in AI? ↓`,
+    ``,
+    tags,
+  ].filter(Boolean);
+  return lines.join("\n");
+}
+
+function pattern8_this_week_learning(posts, tags) {
+  const lines = [
+    `This week in AI — ${posts.length === 1 ? "a concept" : `${posts.length} concepts`} worth learning:`,
     ``,
     ...posts.flatMap(p => {
-      const day     = dayNames[new Date(p.date).getDay()];
       const insight = getInsight(p);
-      const stat    = extractStat(p);
       return [
-        `${day}: ${p.title}`,
-        `→ ${insight}`,
-        stat ? `→ ${stat}` : ``,
+        `${EMOJIS.insight[0]} ${p.title}`,
+        insight ? `→ ${insight}` : ``,
         `→ ${p.url}`,
         ``,
       ].filter(Boolean);
     }),
-    `What did you discover the hard way this week? Drop it below ↓`,
+    `Each one written to teach, not to impress.`,
+    ``,
+    `What are you learning in AI right now? ↓`,
     ``,
     tags,
   ];
@@ -350,19 +340,19 @@ function buildWeeklyPost(posts, tags) {
   const idx            = ((weekNum % 8) + 8) % 8;   // always 0–7, never negative
 
   const builders = [
-    pattern1_unpopular_opinion,
-    pattern2_embarrassed,
-    pattern3_nobody_talks,
-    pattern4_before_after,
-    pattern5_read_if,
-    pattern6_tracked,
-    pattern7_hard_truths,
-    pattern8_this_week_i,
+    pattern1_learn_this_week,
+    pattern2_eli5,
+    pattern3_save_this,
+    pattern4_how_it_works,
+    pattern5_beginner_friendly,
+    pattern6_concept_explained,
+    pattern7_curiosity,
+    pattern8_this_week_learning,
   ];
   const names = [
-    "Unpopular Opinion",   "Production Gotcha",  "Nobody Warns You",
-    "Before vs After",     "Read This If",        "Tracked Findings",
-    "Things That Tripped", "This Week Journal",
+    "Learn This Week",     "Explain Like I'm 5",  "Save This",
+    "How It Works",        "Beginner Friendly",   "Concept Explained",
+    "Curiosity Hook",      "This Week in AI",
   ];
 
   console.log(`📐  Week ${weekNum} → Pattern ${idx + 1}: "${names[idx]}"`);
@@ -447,7 +437,7 @@ export async function postToLinkedIn({ title, url, topic }) {
             status:      "READY",
             description: { text: weekPosts[weekPosts.length - 1].title },
             originalUrl: featuredUrl,
-            title:       { text: `AWS + Node.js — ${weekPosts.length} deep dives this week` },
+            title:       { text: `AI, explained simply — ${weekPosts.length} this week` },
           }],
         },
       },
