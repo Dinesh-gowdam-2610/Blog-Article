@@ -1796,57 +1796,51 @@ Based on the signals above and the mode instructions, create the blog topic. Req
 TITLE RULES — the difference is context and specificity, not the words themselves:
 
 The patterns below are ONLY bad when they are GENERIC (no real story, no real number, no real outcome).
-The same pattern becomes GREAT when it is SPECIFIC, honest, and backed by a real angle.
+A great title makes a clear promise: "read this and you'll understand X."
 
-❌ BANNED — generic, no story, could describe any post ever written:
-  "Mastering AWS Lambda"
-  "A Complete Guide to DynamoDB"
-  "Introduction to TypeScript"
-  "Getting Started with AWS SDK v3"
-  "Best Practices for Node.js"
-  "Understanding EventBridge"
-  "Deep Dive into S3"
-  "Everything You Need to Know About CDK"
-  "How to use SQS"
+❌ BANNED — vague, no clear takeaway, could describe any post ever written:
+  "Mastering AI"
+  "A Complete Guide to LLMs"
+  "Introduction to Prompt Engineering"
+  "Getting Started with AI Agents"
+  "Everything You Need to Know About RAG"
+  "Understanding Vector Databases"
+  "Deep Dive into MCP"
 
-✅ SAME PATTERNS — now specific, opinionated, backed by a real angle:
-  "Mastering Lambda cold starts took us 6 months — here's the one setting that fixed it"
-  "A Complete Rewrite of Our DynamoDB Schema After Single-Table Design Broke Us"
-  "Introduction to TypeScript satisfies: the operator that replaced 200 lines of type casting"
-  "Getting Started with AWS SDK v3 Hurt — Here's the Migration Guide We Wish Existed"
-  "Best Practices for Node.js on Lambda Are Wrong — Here's What Actually Works"
-  "Understanding Why EventBridge Delayed Our Events by 40 Seconds Under Load"
-  "Deep Dive: Why Our S3 Presigned URLs Were Expiring 10 Minutes Early"
-  "Everything You Need to Know About CDK Bootstrap (That the Docs Don't Tell You)"
-  "How to Use SQS Without Silently Dropping Messages (The Default Does)"
+✅ GREAT — clear learning promise, tells the reader exactly what they'll understand:
+  "MCP Explained Simply: What the Model Context Protocol Actually Is"
+  "How AI Agents Work: The Plan-Act-Observe Loop, Explained Step by Step"
+  "RAG for Beginners: How AI Answers Questions Using Your Own Documents"
+  "What Are Embeddings? A Plain-English Guide With a Real Example"
+  "Claude Tool Use Explained: How the Model Calls Your Code"
+  "Prompt Engineering Basics: 5 Techniques That Actually Change the Output"
+  "Vector Databases, Explained Without the Math"
+  "How Cursor Understands Your Whole Codebase — And How to Use It Well"
+  "Building Your First MCP Server in Node.js: A Beginner-Friendly Walkthrough"
+  "How Claude's Context Window Works — And Why Bigger Isn't Always Better"
+  "AI Coding Assistants: How They Really Work Under the Hood"
 
-✅ ALSO GREAT — spicy, contrarian, narrative-driven:
-  "We Migrated 47 Lambdas to Node.js 22 — Here's What Nobody Warned Us"
-  "Stop Paying $800/month for CloudWatch Logs — The Fix Is 4 Lines of CDK"
-  "AWS SDK v3 Tree-Shaking Lied to Me. Here's the Proof."
-  "The EventBridge Pipes Feature That Eliminated 4 of Our Lambda Functions"
-  "DynamoDB Single-Table Design Broke Our Team After 18 Months"
-  "Secrets Manager Is Costing You $960/year Without You Realizing It"
-  "SQS Partial Batch Failure: The Default That Silently Drops Your Messages"
-  "TypeScript satisfies + AWS SDK v3: The Pattern That Changed How We Write Commands"
-  "We Deleted Jest From 12 Services — node:test Is Good Enough Now"
-  "Zod v4 Migration Broke Our API Layer — Every Change That Hit Us"
-  "node:sqlite Is Built Into Node.js 22 — We Removed better-sqlite3 Last Week"
+✅ ALSO GREAT — a clear question or curiosity gap the post then teaches:
+  "Why Does My RAG Return Confident Wrong Answers? (And How to Fix It)"
+  "What Actually Happens When an AI Agent Calls a Tool?"
+  "Structured Output: How to Make an LLM Return JSON You Can Trust"
+  "Prompt Caching, Explained: Why Your Repeated Calls Can Get Much Faster"
 
 THE RULE IN ONE LINE:
-  Generic title + no story = ❌ banned
-  Specific title + real angle + real outcome = ✅ use it, whatever the pattern
+  Vague title, no clear takeaway = ❌ banned
+  Clear promise of one thing the reader will learn = ✅ use it
+  The reader should think "I want to understand that" — not "wait, is that true?"
 
 Return ONLY a raw JSON object (no markdown, no explanation):
 
 CRITICAL: The "title" field is a HUMAN-READABLE headline with spaces, capitals, punctuation.
-  ✅ "TypeScript satisfies + AWS SDK v3: The Pattern That Changed How I Write Commands"
-  ❌ "typescriptsatisfieschangedourawssdkv3commands"  ← this is WRONG, never do this
+  ✅ "MCP Explained Simply: What the Model Context Protocol Actually Is"
+  ❌ "mcpexplainedwhatmodelcontextprotocolis"  ← this is WRONG, never do this
 
 The tag rules below ONLY apply to the "tags" array. NOT to title, hook, angle, or any other field.
 
 {
-  "title": "the scroll-stopping human-readable blog title with spaces and capitals",
+  "title": "a clear, human-readable title that promises what the reader will learn (spaces and capitals)",
   "hook": "2-3 punchy sentences that open the post — frames the controversy or discovery. No 'In this post'.",
   "angle": "the core contrarian lens or tension the post argues (1-2 sentences)",
   "primaryService": "main AWS service OR runtime topic name from the catalog",
@@ -2064,7 +2058,7 @@ async function scoreSEO(title, content, topic) {
 Evaluate the article below and return ONLY a valid JSON object — no markdown, no explanation.
 
 Score each criterion from 0–20:
-1. title_score       — Is the title specific, scroll-stopping, and search-friendly? (max 20)
+1. title_score       — Is the title clear, specific, and does it promise a concrete learning takeaway? (max 20)
 2. structure_score   — Are there proper ## headings, a strong intro, and a clear conclusion? (max 20)
 3. keyword_score     — Does the content naturally cover the topic keywords without stuffing? (max 20)
 4. code_score        — Are code examples present, runnable, and well-explained? (max 20)
