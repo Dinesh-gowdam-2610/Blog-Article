@@ -243,5 +243,20 @@
     "hook": "As LLM adoption skyrockets, our AIEvaluation audit exposes a costly mistake crippling most integrations. The culprit? Incorrect prompt caching configuration, which silently overcharges teams by 90%. We'll dissect the overlooked settings causing this financial bleeding and demonstrate how to rectify it with a simple, step-by-step LLM prompt optimization guide.",
     "angle": "The LLM integration landscape is fraught with costly inefficiencies stemming from suboptimal prompt caching strategies. By challenging conventional wisdom on LLM cost optimization, we reveal a practical approach to slashing over 70% of unnecessary expenses through targeted AIEvaluation and tailored prompt engineering.",
     "gotchaToReveal": "Incorrectly assuming that default prompt caching settings are cost-effective, leading to substantial overpayment for LLM services."
+  },
+  {
+    "date": "2026-07-22",
+    "title": "Understanding Vector Databases: A Beginner's Guide to Embeddings and Similarity Search",
+    "service": "VectorDatabases",
+    "url": "https://dev.to/dineshgowtham/understanding-vector-databases-a-beginners-guide-to-embeddings-and-similarity-search-30i8",
+    "tags": [
+      "vectordatabases",
+      "embeddings",
+      "similaritysearch",
+      "aws"
+    ],
+    "hook": "Vector databases are changing the game for AI applications, but what exactly are they? How do they enable similarity search and what are the key concepts to understand when working with embeddings?",
+    "angle": "Vector databases are not just a new type of NoSQL database, but a fundamental shift in how we store and query data, leveraging the power of embeddings to enable efficient similarity search",
+    "gotchaToReveal": "The importance of proper data normalization and handling of high-dimensional data when working with vector databases"
   }
 ]
