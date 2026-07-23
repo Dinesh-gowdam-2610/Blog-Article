@@ -1062,51 +1062,49 @@ const AI_CATALOG = {
     ],
   },
 
-  RAG: {
+  ChatGPTForEngineers: {
     category: "ai",
     signals: [
-      "RAG is the default pattern for grounding LLMs in your own data — everyone's building it",
-      "Chunking strategy matters more than model choice for RAG quality",
-      "Hybrid search (keyword + vector) beating pure vector search in production RAG",
-      "Reranking after retrieval is the cheap win most RAG pipelines skip",
-      "RAG evaluation (faithfulness, relevance) becoming a real engineering discipline",
+      "Engineers using ChatGPT for code review, debugging, and rubber-ducking daily",
+      "Custom GPTs and Projects letting teams save reusable coding assistants",
+      "ChatGPT's code interpreter running and testing snippets before you paste them",
+      "Voice and screenshot input changing how engineers ask coding questions",
+      "GPT vs Claude vs Gemini for coding — engineers developing strong tool preferences",
     ],
     gotchas: [
-      "Naive fixed-size chunking splits sentences mid-thought and destroys retrieval quality",
-      "Embedding the query differently from the documents silently tanks recall",
-      "RAG returns confident wrong answers when retrieval misses — worse than no answer",
-      "Vector similarity ≠ relevance — high cosine score can still be off-topic",
-      "Re-embedding your whole corpus on a model change is expensive and slow",
+      "ChatGPT confidently invents API methods that don't exist — always verify",
+      "Long conversations drift — it forgets constraints you set 20 messages ago",
+      "Pasting proprietary code into ChatGPT is a real data-leak risk to check first",
+      "It defaults to verbose over-engineered solutions unless you ask for simple ones",
     ],
     spicyAngles: [
-      "Your RAG is bad because of chunking, not the model — here's the fix",
-      "We added reranking to our RAG pipeline — retrieval quality jumped 40%",
-      "Hybrid search vs pure vector for RAG: the benchmark that changed our architecture",
-      "RAG hallucinates confidently — the guardrail pattern that catches it",
+      "How I actually use ChatGPT as a senior engineer (beyond 'write me a function')",
+      "10 ChatGPT prompts that made me faster at debugging real production code",
+      "Custom GPTs for your codebase: a practical setup that actually helps",
+      "ChatGPT vs Claude for coding: how I decide which one to reach for",
     ],
   },
 
-  VectorDatabases: {
+  ClaudeCode: {
     category: "ai",
     signals: [
-      "pgvector on Postgres challenging dedicated vector DBs for teams already on Postgres",
-      "DynamoDB vector search launched — vectors without a new database for AWS teams",
-      "HNSW vs IVFFlat index choice driving real latency/recall trade-offs",
-      "Vector DB cost at scale (millions of embeddings) becoming a budget line item",
-      "Binary and scalar quantization cutting vector storage 4-32x",
+      "Claude's agentic coding runs multi-step tasks across your whole repo, not just autocomplete",
+      "Claude reads context from many files to make coherent multi-file edits",
+      "Engineers delegating whole tasks ('add tests for this module') to Claude",
+      "Claude explaining unfamiliar codebases faster than reading the docs",
+      "Terminal and IDE integrations bringing Claude into the real dev loop",
     ],
     gotchas: [
-      "pgvector without an index does a full table scan — fine at 10k rows, dead at 1M",
-      "HNSW index build is memory-hungry — teams OOM their Postgres on large corpora",
-      "Cosine vs L2 vs inner product — picking the wrong distance metric silently hurts recall",
-      "Quantization saves storage but drops recall — teams don't measure the trade-off",
-      "Re-indexing after bulk inserts is required or new vectors are invisible to search",
+      "Claude works best with clear, scoped instructions — vague asks give vague edits",
+      "It can confidently refactor across files — review every change before you commit",
+      "Giving it too much irrelevant context dilutes focus and lowers quality",
+      "Generated tests can pass while asserting the wrong behavior",
     ],
     spicyAngles: [
-      "pgvector vs Pinecone vs DynamoDB vector: the honest cost/latency comparison",
-      "We hit a full table scan in pgvector at 1M rows — the index that saved us",
-      "Vector quantization cut our storage 16x — here's what it cost in recall",
-      "DynamoDB vector search vs Aurora pgvector for production RAG on AWS",
+      "How I use Claude to understand a 100k-line codebase in an afternoon",
+      "Delegating real engineering tasks to Claude: what works and what doesn't",
+      "Claude for multi-file refactors: my actual workflow, step by step",
+      "The prompts I use to get production-quality code out of Claude",
     ],
   },
 
@@ -1158,99 +1156,95 @@ const AI_CATALOG = {
     ],
   },
 
-  Embeddings: {
+  AIPairProgramming: {
     category: "ai",
     signals: [
-      "Embedding model choice (dimensions, cost, quality) driving real architecture decisions",
-      "Matryoshka embeddings letting you truncate dimensions without re-embedding",
-      "Embedding caching cutting repeated API costs on stable content",
-      "Multilingual embeddings enabling cross-language search without translation",
-      "Local embedding models (via ONNX/Transformers.js) removing API dependency",
+      "AI pair programming shifting from autocomplete to full task delegation",
+      "Engineers developing habits for what to hand off to AI vs write themselves",
+      "Inline chat, agent mode, and edit-in-place becoming distinct daily workflows",
+      "Reviewing AI-written code emerging as a core skill, not an afterthought",
+      "Teams sharing prompt patterns and conventions the way they share snippets",
     ],
     gotchas: [
-      "Mixing embeddings from different models in one index produces garbage similarity",
-      "Embedding dimension mismatch with your vector index throws cryptic errors",
-      "Normalizing embeddings matters for cosine similarity — teams forget and get bad results",
-      "API rate limits on embedding endpoints throttle bulk indexing jobs",
-      "Truncating non-Matryoshka embeddings destroys their meaning — not all models support it",
+      "Accepting AI edits without reading them ships subtle bugs that compile fine",
+      "AI writes code that works but ignores your existing patterns — drift adds up",
+      "It's fast at the wrong abstraction — you still own the design decisions",
+      "Over-relying on it for things you don't understand slows your own growth",
     ],
     spicyAngles: [
-      "Matryoshka embeddings let us cut dimensions 4x with almost no quality loss",
-      "We ran embeddings locally with Transformers.js — killed our per-token API bill",
-      "Mixing embedding models corrupted our search — the debugging story",
-      "Embedding model comparison: cost vs recall across 5 providers",
+      "How I actually pair with AI day to day as a senior engineer",
+      "What I delegate to AI vs what I still write myself — my real dividing line",
+      "AI pair programming made me faster — and these habits kept the code good",
+      "The review discipline that lets me trust AI-generated code",
     ],
   },
 
-  ModelDeployment: {
+  AIDevTools: {
     category: "ai",
     signals: [
-      "Serving open models (Llama, Mistral) on your own infra vs API — the make/buy line",
-      "Quantized models (GGUF, AWQ) running inference on commodity GPUs",
-      "Cold start for self-hosted models is brutal — keeping GPUs warm costs money",
-      "Inference batching to maximize GPU utilization becoming essential",
-      "SageMaker vs Bedrock vs self-hosted — the AWS model-serving decision",
+      "The AI dev-tool landscape exploding: Copilot, Cursor, Cody, Windsurf, v0, Claude Code",
+      "Each tool carving a niche — scaffolding, refactoring, whole-app generation",
+      "Engineers stacking multiple AI tools instead of committing to just one",
+      "AI tools moving up the stack from editor into terminal, CI, and code review",
+      "The 'which AI tool for what task' decision becoming part of engineering judgment",
     ],
     gotchas: [
-      "GPU cold starts can be 30-60s — not viable for latency-sensitive requests",
-      "Quantization drops quality — INT4 vs INT8 vs FP16 is a real accuracy trade-off",
-      "Self-hosted models cost more than API until very high volume — the break-even is high",
-      "Batching increases throughput but adds latency for individual requests",
-      "Model version drift between staging and prod causes silent behavior changes",
+      "Tool sprawl — using five AI tools badly beats using one well",
+      "Each tool has different context limits that change the quality you get",
+      "Switching tools mid-project loses the context you built up",
+      "Flashy demos hide that most value comes from a few boring everyday uses",
     ],
     spicyAngles: [
-      "Self-hosting Llama cost us more than the API until 2M requests/month — the math",
-      "Quantized model inference on a single GPU: what INT4 actually costs in quality",
-      "SageMaker vs Bedrock vs self-hosted: the AWS model-serving decision tree",
-      "We kept GPUs warm to kill cold starts — then saw the bill",
+      "The AI dev tools I actually use every day (and the ones I dropped)",
+      "Copilot vs Cursor vs Claude Code: how I pick the right tool for each task",
+      "My AI-assisted development stack in 2026, explained",
+      "The AI coding tools worth your time — a working engineer's honest take",
     ],
   },
 
-  AIGuardrails: {
+  PromptTipsAndTricks: {
     category: "ai",
     signals: [
-      "Content filtering / moderation now mandatory for user-facing AI features",
-      "Bedrock Guardrails and similar services abstracting safety checks",
-      "Output validation (schema, PII, toxicity) as a pipeline stage after generation",
-      "Prompt injection defense becoming a standard security requirement",
-      "AI observability — logging prompts, responses, and costs — becoming table stakes",
+      "Concrete prompting techniques (few-shot, role, constraints) that reliably improve output",
+      "Engineers building personal prompt libraries for recurring coding tasks",
+      "Giving the model examples beating long descriptions for code generation",
+      "Asking for the plan first, then the code, producing better results",
+      "Structured output requests making AI responses safe to use in scripts",
     ],
     gotchas: [
-      "Guardrails add latency — every safety check is another round trip",
-      "Over-aggressive filtering blocks legitimate content — false positives frustrate users",
-      "PII leaking into LLM logs is a compliance nightmare teams discover late",
-      "Guardrails on input AND output both needed — teams protect one side only",
-      "Moderation models have their own biases and gaps — not a complete solution",
+      "Vague prompts get vague code — specificity is the whole game",
+      "Asking for too much at once produces shallow work across all of it",
+      "The model agrees with wrong assumptions in your prompt — state facts carefully",
+      "Copy-pasting clever prompts without understanding them rarely transfers",
     ],
     spicyAngles: [
-      "AI guardrails added 300ms latency — the async pattern that hid it",
-      "PII leaked into our LLM logs — the redaction layer we should've had day one",
-      "Bedrock Guardrails vs rolling your own: what the managed service actually catches",
-      "Prompt injection defense in production: the layered approach that works",
+      "10 prompting tricks that actually improve the code AI writes for you",
+      "The prompt structure I use for every coding task, explained",
+      "Stop describing, start showing: why examples beat instructions for code",
+      "My reusable prompt library for everyday engineering work",
     ],
   },
 
-  AIEvaluation: {
+  AIWorkflows: {
     category: "ai",
     signals: [
-      "LLM-as-judge for evaluating AI output at scale replacing manual review",
-      "Eval-driven development — write evals before shipping AI features",
-      "Golden datasets and regression testing for prompts and RAG pipelines",
-      "Measuring faithfulness, relevance, and hallucination rate as real metrics",
-      "A/B testing AI outputs in production to compare models and prompts",
+      "Engineers wiring multiple AI tools into repeatable daily workflows",
+      "AI moving into the whole loop: plan in Claude, build in Cursor, review with GPT",
+      "Personal automation combining AI with scripts, hooks, and CLIs",
+      "Teams standardizing AI workflows so quality doesn't depend on who's prompting",
+      "AI-assisted workflows for docs, tests, and PR descriptions, not just code",
     ],
     gotchas: [
-      "LLM-as-judge is biased toward its own outputs — cross-model judging needed",
-      "Evals that pass in dev fail in prod when real user inputs are messier",
-      "No golden dataset means you're shipping AI changes blind",
-      "Faithfulness metrics disagree — different eval frameworks give different scores",
-      "Eval costs add up — running full suites on every change gets expensive",
+      "A workflow that depends on constant prompting isn't a workflow — it's toil",
+      "Chaining AI steps compounds errors if you don't check the intermediate output",
+      "The best workflow is invisible — if you're fighting the tools, simplify",
+      "What works for a solo dev doesn't always survive contact with a team",
     ],
     spicyAngles: [
-      "We shipped AI changes blind for months — then built evals and found the regressions",
-      "LLM-as-judge graded its own model highest — the cross-model fix",
-      "Eval-driven development for AI features: the workflow that caught our worst bug",
-      "How we measure hallucination rate in production RAG — the metric that matters",
+      "My end-to-end AI workflow: from ticket to merged PR",
+      "How I combine Claude, Cursor, and ChatGPT into one smooth daily loop",
+      "The AI workflow that cut my busywork without cutting quality",
+      "Building a repeatable AI-assisted development process, step by step",
     ],
   },
 
@@ -1698,17 +1692,31 @@ async function scoutTodaysTopic(assignedService) {
   const coveragePulse = buildCoveragePulse();
 
   // HARD ASSIGNMENT — scout MUST honor the service chosen by Layer 1
-  const modeInstructions = `🔒 MANDATORY ASSIGNMENT — DO NOT CHOOSE A DIFFERENT SERVICE:
-The primaryService field in your JSON response MUST be EXACTLY: "${assignedService}"
+  const modeInstructions = `💡 SUGGESTED STARTING POINT (a hint, NOT a requirement): "${assignedService}"
 
-This is non-negotiable. The system already analyzed recent post history and 
-assigned this specific service to ensure variety. Returning any other service 
-will cause the post to be rejected and the day to be skipped.
+You are NOT locked to this. It's one idea from our catalog to spark thinking.
+Your real job: pick the MOST TIMELY, VALUABLE AI topic for software engineers RIGHT NOW.
 
-You may use other services as secondaryService for cross-cutting topics,
-but primaryService MUST equal "${assignedService}".
+Use the live signals above and your knowledge of the current AI ecosystem to choose
+something developers are actively talking about this week. Strongly prefer topics in
+these areas (this is where our audience lives):
+  • AI coding agents & assistants (Cursor, Claude Code, GitHub Copilot, Windsurf, Cody)
+  • Claude, ChatGPT, Gemini — new features, capabilities, real workflows
+  • MCP (Model Context Protocol) and AI-native development
+  • Practical prompt engineering, tips & tricks for real coding tasks
+  • AI developer tools, AI workflows, and how engineers actually ship with AI
+  • RAG, vector search, AI infrastructure, and AWS AI services WHEN tied to a real tool/use case
 
-Generate ONE focused technical post on "${assignedService}" — spicy, specific, opinionated.`;
+Rules for the topic you pick:
+  - It MUST be an AI topic relevant to software engineers (see areas above)
+  - It should feel current — like it's responding to something happening in AI now
+  - It must be PRACTICAL and tool-anchored — name real tools, real features, real workflows
+  - AVOID abstract textbook explainers ("What is X", "Understanding Y concept" with no tool)
+  - Set primaryService to a short label for the topic (a catalog name if it fits, or a
+    concise new label like "CursorAgentMode" or "ClaudeMCP" if the catalog doesn't cover it)
+
+You have full freedom to go beyond the catalog if a more timely AI topic exists.
+The catalog is inspiration, not a boundary.`;
 
   const runtimePulse = `
 Node.js Runtime signals:
@@ -1922,6 +1930,24 @@ Do NOT apply tag rules to the title. The title should look like a newspaper head
       `Scout returned a banned-theme topic (cost/cold-start/optimization): ` +
       `"${titleStr}". These underperform on LinkedIn. Re-scouting with a ` +
       `capability/architecture angle...`
+    );
+  }
+
+  // ── Abstract-concept guard ─────────────────────────────────────────────────
+  // Reject textbook/theory explainers with no real tool anchor. The reader wants
+  // practical, tool-focused content (Cursor, Claude, ChatGPT, MCP, real APIs),
+  // not "what is a vector database" academic pieces. A title that opens with
+  // "Understanding/What is/Intro to <abstract concept>" and names no real tool
+  // gets re-scouted toward a concrete, hands-on angle.
+  const titleLower = (topic.title ?? "").toLowerCase();
+  const abstractOpeners = /^(understanding|what (is|are)|an? (introduction|intro) to|the basics of|a beginner'?s guide to|demystifying|explained:)\b/;
+  const realToolMention = /(cursor|claude|chatgpt|gpt-|copilot|windsurf|cody|\bv0\b|mcp|anthropic|openai|gemini|api|sdk|dynamodb|lambda|node|typescript|github|vs ?code)/i;
+  const looksAbstract = abstractOpeners.test(titleLower) && !realToolMention.test(themeText);
+  if (looksAbstract) {
+    throw new Error(
+      `Scout returned an abstract/textbook topic with no real tool anchor: ` +
+      `"${titleStr}". The reader wants practical, tool-focused content ` +
+      `(Cursor, Claude, ChatGPT, MCP, real APIs). Re-scouting with a hands-on angle...`
     );
   }
 
@@ -2263,24 +2289,29 @@ async function main() {
       continue;
     }
 
-    const returned = (topic.primaryService ?? topic.targetService ?? "").toLowerCase();
-    const expected = assignedService.toLowerCase();
+    // ── Soft hint (not a lock) ────────────────────────────────────────────
+    // The scout may pick any timely AI topic, not just the suggested one.
+    // We only reject if it picked something used very recently (dedup), so the
+    // feed stays varied. Otherwise we accept the scout's choice.
+    const returned = normalizeTopicKey(topic.primaryService ?? topic.targetService ?? "");
+    const recentServices = new Set(
+      history.slice(-7).map(h => normalizeTopicKey(h.service)).filter(Boolean)
+    );
 
-    if (returned !== expected) {
-      console.warn(`⚠️  Scout returned "${topic.primaryService}" instead of "${assignedService}"`);
+    if (returned && recentServices.has(returned)) {
+      console.warn(`⚠️  Scout picked "${topic.primaryService}" — used within the last 7 posts.`);
 
       if (scoutAttempt >= MAX_SCOUT_ATTEMPTS) {
-        console.error("🛑  Scout refused to honor the assigned service after retries.");
-        console.error("   SKIPPING TODAY. Tomorrow will try a different service.");
-        process.exit(0);  // exit 0 = clean skip
+        console.error("🛑  Could not get a fresh topic after retries. Skipping today.");
+        process.exit(0);  // clean skip
       }
 
-      console.warn(`   Retry ${scoutAttempt}/${MAX_SCOUT_ATTEMPTS} — waiting 65s for Groq window reset...`);
+      console.warn(`   Retry ${scoutAttempt}/${MAX_SCOUT_ATTEMPTS} — asking for a fresher topic (65s wait)...`);
       await sleep(65_000);
       continue;
     }
 
-    console.log(`✅  Scout honored assignment: ${assignedService}\n`);
+    console.log(`✅  Scout chose topic: ${topic.primaryService} (suggested was "${assignedService}")\n`);
     break;
   }
 
