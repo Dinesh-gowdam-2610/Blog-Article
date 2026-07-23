@@ -258,5 +258,20 @@
     "hook": "Vector databases are changing the game for AI applications, but what exactly are they? How do they enable similarity search and what are the key concepts to understand when working with embeddings?",
     "angle": "Vector databases are not just a new type of NoSQL database, but a fundamental shift in how we store and query data, leveraging the power of embeddings to enable efficient similarity search",
     "gotchaToReveal": "The importance of proper data normalization and handling of high-dimensional data when working with vector databases"
+  },
+  {
+    "date": "2026-07-23",
+    "title": "TypeScript 5.5 Explained Simply: Mastering Inferred Type Predicates",
+    "service": "TypeScript55",
+    "url": "https://dev.to/dineshgowtham/typescript-55-explained-simply-mastering-inferred-type-predicates-4d7d",
+    "tags": [
+      "typescript",
+      "nodejs",
+      "types",
+      "predicates"
+    ],
+    "hook": "TypeScript 5.5 brings a game-changing feature: inferred type predicates. But what does this mean for your code? In this post, we explore how to harness the power of inferred type predicates to simplify your TypeScript workflows. Say goodbye to cumbersome type definitions and hello to more efficient coding.",
+    "angle": "With TypeScript 5.5, developers can leverage inferred type predicates to streamline their coding process. However, this feature is often misunderstood, leading to underutilization. We argue that inferred type predicates are a crucial tool for any TypeScript developer looking to elevate their skills.",
+    "gotchaToReveal": "The counterintuitive behavior of inferred type predicates when dealing with nested types, and how to work around this limitation."
   }
 ]
