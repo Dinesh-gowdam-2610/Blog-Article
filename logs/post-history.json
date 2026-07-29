@@ -273,5 +273,19 @@
     "hook": "TypeScript 5.5 brings a game-changing feature: inferred type predicates. But what does this mean for your code? In this post, we explore how to harness the power of inferred type predicates to simplify your TypeScript workflows. Say goodbye to cumbersome type definitions and hello to more efficient coding.",
     "angle": "With TypeScript 5.5, developers can leverage inferred type predicates to streamline their coding process. However, this feature is often misunderstood, leading to underutilization. We argue that inferred type predicates are a crucial tool for any TypeScript developer looking to elevate their skills.",
     "gotchaToReveal": "The counterintuitive behavior of inferred type predicates when dealing with nested types, and how to work around this limitation."
+  },
+  {
+    "date": "2026-07-29",
+    "title": "How Claude's Context Window Actually Works: A Deep Dive",
+    "service": "Claude",
+    "url": "https://dev.to/dineshgowtham/how-claudes-context-window-actually-works-a-deep-dive-1530",
+    "tags": [
+      "claude",
+      "aiagents",
+      "awslambda"
+    ],
+    "hook": "Claude's context window is a game-changer for AI development, but how does it really work? We'll dive into the details and explore what this means for your AI projects.",
+    "angle": "The context window is a critical component of Claude's success, but its inner workings are often misunderstood. By understanding how it works, developers can unlock new possibilities for their AI applications.",
+    "gotchaToReveal": "The context window has a hidden limitation that can cause performance issues if not properly configured."
   }
 ]
