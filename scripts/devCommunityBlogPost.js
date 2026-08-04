@@ -37,7 +37,7 @@ try {
   // generateStatCard.js not found — LinkedIn image posting disabled, text-only fallback
 }
 
-const SERVICE_COOLDOWN_POSTS = 14;
+const SERVICE_COOLDOWN_POSTS = 30;
 const COVERAGE_TRACKS = {
   broadTopics: [
     "AI Deep Learning","Technology","Finance","Health","Sports",
@@ -1420,7 +1420,7 @@ function normalizeTopicKey(value = "") {
 // Pick a service that hasn't appeared in the last N posts (default 14).
 // Uses a rolling window instead of all-history so the catalog never gets
 // permanently exhausted. After ~3 weeks a service becomes reusable.
-function pickAssignedService(history, allServiceNames, windowSize = 14) {
+function pickAssignedService(history, allServiceNames, windowSize = 30) {
   // ── AI-favoring category selection (2:1) ─────────────────────────────────
   // Desired rhythm: for every 1 AWS/runtime post, aim for ~2 AI posts.
   // Cycle looks like:  aws → ai → ai → runtime → ai → ai → aws → ai → ai ...
@@ -2403,7 +2403,7 @@ async function main() {
   try {
     // Reload history to get the latest state after the scout ran
     const freshHistory = await readHistory();
-    const DEDUP_WINDOW = 14;                        // only check last 14 posts
+    const DEDUP_WINDOW = 30;                        // only check last 30 posts (twice-daily runs ~ 2 weeks)
     const recentHistory = freshHistory.slice(-DEDUP_WINDOW);
 
     const normalNewTitle = normalizeTopicKey(title).slice(0, 60);
