@@ -2154,9 +2154,7 @@ function appendDisclosure(markdown, topic) {
 >
 > **Published:** ${date} · **Primary focus:** ${service}
 >
-> All code blocks are intended to be correct and runnable, but please verify them
-> against the official [AWS SDK v3 docs](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/)
-> before using in production.
+> All code blocks are intended to be correct and runnable, but please verify them.
 >
 > *Find an error? Drop a comment — corrections are always welcome.*`;
 
