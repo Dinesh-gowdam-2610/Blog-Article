@@ -1,16 +1,16 @@
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  .github/workflows/daily-post.yml                                          ║
-# ║  Publishes one AI-generated blog post every Wednesday at 08:00 AM IST     ║
-# ║  Runs Wednesday only at 08:00 AM IST                                       ║
+# ║  Publishes AI-generated blog posts twice daily Mon-Fri (8 AM + 5 PM IST)  ║
+# ║  Runs Mon-Fri, twice daily · LinkedIn roundup posts on Wednesday only     ║
 # ║  Calls: scripts/devCommunityBlogPost.js                                    ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
 # ║  08:00 AM IST  =  02:30 UTC  (IST is UTC +5:30)                           ║
-# ║  Cron field breakdown:  30 2 * * 3                                         ║
+# ║  Cron: 30 2 * * 1-5  (8AM IST) + 30 11 * * 1-5  (5PM IST)                 ║
 # ║    30   → minute 30                                                        ║
 # ║    2    → hour 02 (UTC)  ← 02:30 UTC + 5h30m = 08:00 AM IST              ║
 # ║    *    → every day of month                                               ║
 # ║    *    → every month                                                      ║
-# ║    3    → Wednesday only                                                   ║
+# ║    1-5  → Monday through Friday                                            ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
 # ║  ACTION VERSIONS (Node.js 24 compatible — updated May 2025):               ║
 # ║    actions/checkout@v4.2.2   → uses Node.js 24 internally                 ║
@@ -42,7 +42,7 @@ name: 📅 Blog Post — Wednesday (8 AM IST)
 
 on:
   schedule:
-    # Target : 08:00 AM IST (Asia/Kolkata) — Wednesday only
+    # Target : 08:00 AM IST AND 05:00 PM IST (Asia/Kolkata), Mon-Fri
     # Formula: IST - 5h30m = UTC  →  08:00 - 5:30 = 02:30 UTC (same day)
     #
     #        ┌─ minute (30)  ← IST is UTC+5:30, so minute must be 30
@@ -51,7 +51,8 @@ on:
     #        │  │  │  ┌─ month (every)
     #        │  │  │  │  ┌─ day of week: 3=Wed only
     #        │  │  │  │  │
-    - cron: "30 2 * * 3"      # 08:00 AM IST · 02:30 UTC · Wednesday only
+    - cron: "30 2 * * 1-5"    # 08:00 AM IST · 02:30 UTC · Mon-Fri morning run
+    - cron: "30 11 * * 1-5"   # 05:00 PM IST · 11:30 UTC · Mon-Fri evening run
 
   # Adds the "Run workflow" button in the GitHub Actions tab for manual testing
   workflow_dispatch:
@@ -165,7 +166,7 @@ jobs:
           git fetch origin main
           git checkout main
 
-          git add logs/post-history.json
+          git add logs/post-history.json logs/linkedin-last-post.txt 2>/dev/null || git add logs/post-history.json
 
           # Only commit if the file actually changed — skip if nothing new
           git diff --staged --quiet || git commit -m "chore: update post-history.json [skip ci]"
@@ -183,7 +184,7 @@ jobs:
             echo "| Field | Value |"
             echo "|-------|-------|"
             echo "| 📅 Date (IST) | $(date '+%Y-%m-%d %H:%M IST') |"
-            echo "| 🕙 Schedule   | Wednesday · 08:00 AM IST (02:30 UTC) |"
+            echo "| 🕙 Schedule   | Mon-Fri · 8AM + 5PM IST |"
             echo "| ✅ Status | ${{ job.status }} |"
             echo "| 🖥️ Runner | ubuntu-latest |"
             echo "| ⚙️ Actions runtime | Node.js 24 (FORCE_JAVASCRIPT_ACTIONS_TO_NODE24) |"
