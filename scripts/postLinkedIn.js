@@ -379,6 +379,27 @@ export async function postToLinkedIn({ title, url, topic }) {
     return { skipped: true, reason: "not_wednesday" };
   }
 
+  // ── Same-day guard — never post twice on the same Wednesday ──────────────
+  // The Dev.to workflow now runs twice a day. Without this guard, both
+  // Wednesday runs (morning + evening) would each try to post to LinkedIn.
+  // We record the last-successful-post date in logs/linkedin-last-post.txt
+  // (auto-committed with the rest of logs/). If that matches today, skip.
+  const fsMod   = await import("fs");
+  const pathMod = await import("path");
+  const fs      = fsMod.default ?? fsMod;
+  const path    = pathMod.default ?? pathMod;
+  const markerPath = path.resolve(process.cwd(), "logs/linkedin-last-post.txt");
+
+  try {
+    if (fs.existsSync(markerPath)) {
+      const lastPostDate = fs.readFileSync(markerPath, "utf8").trim();
+      if (lastPostDate === todayIST) {
+        console.log(`⏭️   LinkedIn: already posted today (${todayIST}) — skipping duplicate run`);
+        return { skipped: true, reason: "already_posted_today" };
+      }
+    }
+  } catch { /* marker unreadable — proceed rather than block */ }
+
   console.log("📅  Wednesday — building weekly roundup...\n");
 
   // ── Get this week's posts ─────────────────────────────────────────────────
@@ -461,5 +482,16 @@ export async function postToLinkedIn({ title, url, topic }) {
   const data = await res.json();
   console.log(`✅  LinkedIn weekly roundup published! (${weekPosts.length} articles)`);
   console.log(`   Post ID: ${data.id ?? "unknown"}`);
+
+  // Write today's date to the marker so the same-day guard blocks a second run
+  try {
+    const logsDir = path.dirname(markerPath);
+    if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
+    fs.writeFileSync(markerPath, todayIST);
+    console.log(`   Marker written: logs/linkedin-last-post.txt = ${todayIST}`);
+  } catch (err) {
+    console.warn("⚠️  Could not write LinkedIn same-day marker (non-fatal):", err.message);
+  }
+
   return { success: true, id: data.id, articleCount: weekPosts.length };
 }
