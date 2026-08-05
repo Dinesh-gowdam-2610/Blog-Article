@@ -302,5 +302,20 @@
     "hook": "Imagine having a personal coding assistant that not only writes code for you but also debugs and optimizes it. This is now a reality with AI agents. But have you ever wondered how they actually work? In this post, we will dive into the plan-act-observe loop and explore how AI agents are changing the game for software development.",
     "angle": "AI agents are revolutionizing the way we develop software, but their underlying mechanics are not well understood. By exploring the plan-act-observe loop, we can unlock the full potential of these agents and take our coding skills to the next level.",
     "gotchaToReveal": "How to handle errors and exceptions in AI agent workflows"
+  },
+  {
+    "date": "2026-08-05",
+    "title": "Claude AI Assistants: How to Leverage Structured Output for Real-World Applications",
+    "service": "ClaudeCode",
+    "url": "https://dev.to/dineshgowtham/claude-ai-assistants-how-to-leverage-structured-output-for-real-world-applications-5h2p",
+    "tags": [
+      "claudeai",
+      "nodejs",
+      "typescript",
+      "aiassistants"
+    ],
+    "hook": "Imagine having an AI assistant that can understand your codebase and provide actionable feedback. With Claude AI assistants, this is now a reality. But what does it take to harness their power? In this post, we'll explore the ins and outs of Claude's structured output and how to use it for real-world applications.",
+    "angle": "Claude AI assistants have the potential to revolutionize the way we write code, but only if we can effectively leverage their structured output. By understanding how to use this output, we can unlock a new level of productivity and efficiency in our development workflows.",
+    "gotchaToReveal": "One common gotcha when using Claude AI assistants is the need to handle malformed JSON output, which can occur when the AI model returns an error."
   }
 ]
