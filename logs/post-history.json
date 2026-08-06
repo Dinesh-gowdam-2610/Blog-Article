@@ -317,5 +317,20 @@
     "hook": "Imagine having an AI assistant that can understand your codebase and provide actionable feedback. With Claude AI assistants, this is now a reality. But what does it take to harness their power? In this post, we'll explore the ins and outs of Claude's structured output and how to use it for real-world applications.",
     "angle": "Claude AI assistants have the potential to revolutionize the way we write code, but only if we can effectively leverage their structured output. By understanding how to use this output, we can unlock a new level of productivity and efficiency in our development workflows.",
     "gotchaToReveal": "One common gotcha when using Claude AI assistants is the need to handle malformed JSON output, which can occur when the AI model returns an error."
+  },
+  {
+    "date": "2026-08-06",
+    "title": "ChatGPT Explained Simply: How AI Coding Assistants Actually Understand Your Code",
+    "service": "ChatGPTForEngineers",
+    "url": "https://dev.to/dineshgowtham/chatgpt-explained-simply-how-ai-coding-assistants-actually-understand-your-code-46l",
+    "tags": [
+      "chatgpt",
+      "nodejs",
+      "typescript",
+      "ai"
+    ],
+    "hook": "AI coding assistants like ChatGPT are revolutionizing the way we write code, but how do they actually work? What magic happens behind the scenes to turn your prompts into working code? In this post, we'll dive into the inner workings of ChatGPT and explore its capabilities and limitations.",
+    "angle": "While many developers are using ChatGPT as a black box, throwing code at it and hoping for the best, a deeper understanding of its inner mechanics can help you unlock its full potential and write better code faster.",
+    "gotchaToReveal": "ChatGPT's tendency to confidently invent API methods that don't exist, and how to mitigate this issue through careful prompt engineering"
   }
 ]
