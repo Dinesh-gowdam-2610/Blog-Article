@@ -2140,7 +2140,40 @@ Return JSON only — no markdown fences:
 // ─────────────────────────────────────────────────────────────────────────────
 function appendDisclosure(markdown, topic) {
   const date    = new Date().toISOString().split("T")[0];
-  const service = topic.primaryService ?? topic.targetService ?? "AWS";
+  const service = topic.primaryService ?? topic.targetService ?? "AI";
+
+  // ── Per-topic official documentation link ─────────────────────────────────
+  // Pick the right docs link based on the article's primary topic so the
+  // transparency notice is honest about what to verify against.
+  const DOCS_MAP = {
+    // AI topics
+    LLMIntegration:      { name: "the provider's docs",           url: "https://platform.openai.com/docs" },
+    ChatGPTForEngineers: { name: "OpenAI's official docs",        url: "https://platform.openai.com/docs" },
+    ClaudeCode:          { name: "Anthropic's Claude docs",       url: "https://docs.anthropic.com" },
+    ClaudeFeatures:      { name: "Anthropic's Claude docs",       url: "https://docs.anthropic.com" },
+    PromptEngineering:   { name: "Anthropic's prompt engineering guide", url: "https://docs.anthropic.com/claude/docs/prompt-engineering" },
+    PromptTipsAndTricks: { name: "Anthropic's prompt engineering guide", url: "https://docs.anthropic.com/claude/docs/prompt-engineering" },
+    AIAgents:            { name: "Anthropic's agents guide",      url: "https://docs.anthropic.com/claude/docs/agents-and-tools" },
+    AIPairProgramming:   { name: "your AI tool's official docs",  url: "https://docs.anthropic.com" },
+    AIDevTools:          { name: "each tool's official docs",     url: "https://docs.anthropic.com" },
+    AIWorkflows:         { name: "each tool's official docs",     url: "https://docs.anthropic.com" },
+    MCP:                 { name: "the Model Context Protocol spec", url: "https://modelcontextprotocol.io" },
+    AICodingAssistants:  { name: "your AI assistant's official docs", url: "https://docs.anthropic.com" },
+    CursorAI:            { name: "Cursor's official docs",        url: "https://docs.cursor.com" },
+    // Runtime / language topics
+    NodeJS22:            { name: "the Node.js docs",              url: "https://nodejs.org/api" },
+    NodeJSPerformance:   { name: "the Node.js docs",              url: "https://nodejs.org/api" },
+    NodeJSTesting:       { name: "the Node.js docs",              url: "https://nodejs.org/api/test.html" },
+    NodeJSFrameworks:    { name: "the Node.js docs",              url: "https://nodejs.org/api" },
+    TypeScript55:        { name: "the TypeScript docs",           url: "https://www.typescriptlang.org/docs" },
+    TypeScriptPatterns:  { name: "the TypeScript docs",           url: "https://www.typescriptlang.org/docs" },
+    TypeScriptBuild:     { name: "the TypeScript docs",           url: "https://www.typescriptlang.org/docs" },
+    JavaScriptPatterns:  { name: "the MDN JavaScript docs",       url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+  };
+  const docs = DOCS_MAP[service] ?? { name: "the official docs for the tools mentioned", url: "" };
+  const docsLine = docs.url
+    ? `against [${docs.name}](${docs.url}) before using in production.`
+    : `against ${docs.name} before using in production.`;
 
   const disclosure = `
 
@@ -2149,12 +2182,11 @@ function appendDisclosure(markdown, topic) {
 > **Transparency notice**
 >
 > This article was written with the help of an AI system — [Groq](https://groq.com) (LLaMA 3.3 70B).
-> The topic was scouted from live AWS and Node.js ecosystem signals, and the content —
-> including all code examples — was written autonomously without human editing.
 >
 > **Published:** ${date} · **Primary focus:** ${service}
 >
-> All code blocks are intended to be correct and runnable, but please verify them.
+> All code blocks are intended to be correct and runnable, but please verify them
+> ${docsLine}
 >
 > *Find an error? Drop a comment — corrections are always welcome.*`;
 
