@@ -347,5 +347,20 @@
     "hook": "Large Language Models can be finicky, but with the right prompts, they can produce astonishing results. However, crafting effective prompts is more art than science. What if you could systematically improve your prompts to get better outputs? ",
     "angle": "By applying practical prompt engineering techniques, developers can significantly enhance the accuracy and relevance of their LLM outputs, making them more reliable and useful in real-world applications.",
     "gotchaToReveal": "How subtle differences in prompt wording can lead to vastly different LLM outputs, and how to systematically test and refine prompts for better results."
+  },
+  {
+    "date": "2026-08-07",
+    "title": "RAG Explained Simply: How Retrieval-Augmented Generation Works Under the Hood",
+    "service": "RAG",
+    "url": "https://dev.to/dineshgowtham/rag-explained-simply-how-retrieval-augmented-generation-works-under-the-hood-1no",
+    "tags": [
+      "rag",
+      "aws",
+      "nodejs",
+      "aiethics"
+    ],
+    "hook": "Retrieval-Augmented Generation (RAG) is revolutionizing how AI models answer questions, but what actually happens when you ask a RAG model a question? We'll dive into the real workflow, step by step, and explore how RAG integrates with AWS services.",
+    "angle": "By harnessing the power of retrieval-augmented generation, developers can build AI models that not only provide more accurate answers but also offer transparency into their decision-making process, a crucial aspect of AI ethics.",
+    "gotchaToReveal": "The common pitfall of not properly fine-tuning the RAG model for specific domains or tasks, leading to suboptimal performance."
   }
 ]
