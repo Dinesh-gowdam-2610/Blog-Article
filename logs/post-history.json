@@ -362,5 +362,20 @@
     "hook": "Retrieval-Augmented Generation (RAG) is revolutionizing how AI models answer questions, but what actually happens when you ask a RAG model a question? We'll dive into the real workflow, step by step, and explore how RAG integrates with AWS services.",
     "angle": "By harnessing the power of retrieval-augmented generation, developers can build AI models that not only provide more accurate answers but also offer transparency into their decision-making process, a crucial aspect of AI ethics.",
     "gotchaToReveal": "The common pitfall of not properly fine-tuning the RAG model for specific domains or tasks, leading to suboptimal performance."
+  },
+  {
+    "date": "2026-08-10",
+    "title": "AIPairProgramming Explained Simply: How AI Assistants Actually Understand Your Code",
+    "service": "AIPairProgramming",
+    "url": "https://dev.to/dineshgowtham/aipairprogramming-explained-simply-how-ai-assistants-actually-understand-your-code-24h2",
+    "tags": [
+      "aipairprogramming",
+      "cursorai",
+      "typescript",
+      "nodejs"
+    ],
+    "hook": "AI pair programming is shifting from autocomplete to full task delegation, but how do these assistants actually work? What are the benefits and gotchas of relying on AI to write your code?",
+    "angle": "AI pair programming assistants like Cursor and Claude Code are changing the way we develop software, but it's crucial to understand their strengths and weaknesses to use them effectively.",
+    "gotchaToReveal": "AI-written code can ignore existing patterns and conventions, leading to code drift and maintenance issues"
   }
 ]
