@@ -2433,20 +2433,44 @@ async function main() {
   try {
     // Reload history to get the latest state after the scout ran
     const freshHistory = await readHistory();
-    const DEDUP_WINDOW = 30;                        // only check last 30 posts (twice-daily runs ~ 2 weeks)
-    const recentHistory = freshHistory.slice(-DEDUP_WINDOW);
 
-    const normalNewTitle = normalizeTopicKey(title).slice(0, 60);
-    const newService = normalizeTopicKey(topic.primaryService ?? topic.targetService ?? "");
+    // Title-similarity check — catches near-duplicates across ALL history.
+    // This is the real duplicate signal. Two articles with genuinely different
+    // titles are different articles, even if they share a service label.
+    const normalNewTitle = normalizeTopicKey(title);
+    const newService     = normalizeTopicKey(topic.primaryService ?? topic.targetService ?? "");
 
-    // Title check — exact-title repetition is always blocked (any time)
+    // A title is "too similar" if it shares its topical prefix (first ~30 normalized
+    // characters) with an existing title. This catches "same article, different subtitle"
+    // duplicates while allowing genuinely different articles on the same topic area.
+    function titlesAreSimilar(a, b) {
+      if (!a || !b) return false;
+      if (a === b) return true;
+      const PREFIX = 30;
+      if (a.length >= PREFIX && b.length >= PREFIX) {
+        if (a.slice(0, PREFIX) === b.slice(0, PREFIX)) return true;
+      }
+      return false;
+    }
     const duplicateByTitle = freshHistory.find(h =>
-      normalizeTopicKey(h.title).slice(0, 40) === normalNewTitle.slice(0, 40)
+      titlesAreSimilar(normalizeTopicKey(h.title), normalNewTitle)
     );
 
-    // Service check — only blocked if used within the last 14 posts
-    // (not "ever used" — that would permanently exhaust the catalog)
-    const duplicateByService = recentHistory.find(h => normalizeTopicKey(h.service) === newService);
+    // Service check — with twice-daily posting and only ~13 AI topics,
+    // a wide window guarantees collisions. Use a small window (7 posts ≈ 3-4 days)
+    // AND only block if the RECENT same-service post also has a similar title.
+    // This lets us cover the same topic area with genuinely different angles.
+    const SERVICE_WINDOW  = 7;
+    const recentSameService = freshHistory
+      .slice(-SERVICE_WINDOW)
+      .filter(h => normalizeTopicKey(h.service) === newService);
+
+    // Only flag as a service duplicate if the recent same-service post also
+    // has a similar title — i.e., we're actually repeating the article, not
+    // just the topic area.
+    const duplicateByService = recentSameService.find(h =>
+      titlesAreSimilar(normalizeTopicKey(h.title), normalNewTitle)
+    );
 
     if (duplicateByTitle || duplicateByService) {
       const dup = duplicateByTitle ?? duplicateByService;
@@ -2454,11 +2478,11 @@ async function main() {
       console.error(`   Generated title   : "${title}"`);
       console.error(`   Generated service : "${topic.primaryService ?? topic.targetService ?? "unknown"}"`);
       console.error(`   Conflicts with    : "${dup.title}" (${dup.date}) [${dup.service}]`);
-      console.error(`   (Reason: ${duplicateByTitle ? "same title in full history" : `service used in last ${DEDUP_WINDOW} posts`})`);
+      console.error(`   (Reason: ${duplicateByTitle ? "similar title in full history" : `same service + similar title in last ${SERVICE_WINDOW} posts`})`);
       process.exit(0); // clean skip (not a workflow failure)
     }
 
-    console.log(`✅  Dedup check passed — title unique, service fresh in last ${DEDUP_WINDOW} posts.\n`);
+    console.log(`✅  Dedup check passed — title is distinct from all prior posts.\n`);
   } catch (err) {
     // History unreadable -> safest behavior is skip to avoid accidental duplicate.
     console.error("🛑  Dedup check failed. Skipping publish for safety:", err.message);
