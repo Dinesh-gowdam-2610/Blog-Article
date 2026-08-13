@@ -407,5 +407,20 @@
     "hook": "As AI becomes ubiquitous in software development, the next challenge is creating efficient workflows that leverage multiple AI tools. But what does a well-designed AI workflow look like? How do you avoid the pitfalls of constant prompting and error compounding? Let's explore the concept of AI workflows and the tools that make them possible.",
     "angle": "The key to unlocking the full potential of AI in software development lies not in the AI models themselves but in how we design and integrate AI workflows. By standardizing these workflows, teams can ensure consistent quality and reduce the burden of manual prompting.",
     "gotchaToReveal": "The hidden cost of not checking intermediate outputs in AI workflows, leading to compounded errors and decreased productivity."
+  },
+  {
+    "date": "2026-08-13",
+    "title": "MCP Explained Simply: How Model Context Protocol Actually Works Under the Hood",
+    "service": "MCP",
+    "url": "https://dev.to/dineshgowtham/mcp-explained-simply-how-model-context-protocol-actually-works-under-the-hood-oja",
+    "tags": [
+      "mcp",
+      "aws",
+      "lambda",
+      "nodejs"
+    ],
+    "hook": "Model Context Protocol is revolutionizing how AI models interact with tools and data, but what is it and how does it work? MCP is not just a new standard, it's a game-changer for AI development. In this deep dive, we'll explore the ins and outs of MCP and how it's transforming the AI landscape.",
+    "angle": "MCP is often shrouded in mystery, but its core concept is surprisingly simple. By understanding how MCP works, developers can unlock new possibilities for AI development and create more efficient, scalable, and secure AI applications.",
+    "gotchaToReveal": "MCP 'tools' vs 'resources' vs 'prompts' confuse beginners, and understanding the differences is crucial for successful MCP implementation"
   }
 ]
