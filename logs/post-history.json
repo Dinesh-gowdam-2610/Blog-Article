@@ -422,5 +422,20 @@
     "hook": "Model Context Protocol is revolutionizing how AI models interact with tools and data, but what is it and how does it work? MCP is not just a new standard, it's a game-changer for AI development. In this deep dive, we'll explore the ins and outs of MCP and how it's transforming the AI landscape.",
     "angle": "MCP is often shrouded in mystery, but its core concept is surprisingly simple. By understanding how MCP works, developers can unlock new possibilities for AI development and create more efficient, scalable, and secure AI applications.",
     "gotchaToReveal": "MCP 'tools' vs 'resources' vs 'prompts' confuse beginners, and understanding the differences is crucial for successful MCP implementation"
+  },
+  {
+    "date": "2026-08-14",
+    "title": "Claude Code Assist: How Structured Output Works for Real-World Applications",
+    "service": "ClaudeCode",
+    "url": "https://dev.to/dineshgowtham/claude-code-assist-how-structured-output-works-for-real-world-applications-gcc",
+    "tags": [
+      "claudecode",
+      "lambda",
+      "typescript",
+      "ai"
+    ],
+    "hook": "Discover how Claude's innovative code assist feature is revolutionizing the way developers work. With its ability to provide structured output, developers can now seamlessly integrate AI-generated code into their projects. But how does it actually work?",
+    "angle": "By leveraging Claude's structured output capabilities, developers can unlock a new level of productivity and efficiency in their coding workflows. This post will delve into the inner workings of Claude Code Assist and explore its practical applications.",
+    "gotchaToReveal": "Claude's context window limitations and how to handle them when generating code"
   }
 ]
