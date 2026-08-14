@@ -437,5 +437,20 @@
     "hook": "Discover how Claude's innovative code assist feature is revolutionizing the way developers work. With its ability to provide structured output, developers can now seamlessly integrate AI-generated code into their projects. But how does it actually work?",
     "angle": "By leveraging Claude's structured output capabilities, developers can unlock a new level of productivity and efficiency in their coding workflows. This post will delve into the inner workings of Claude Code Assist and explore its practical applications.",
     "gotchaToReveal": "Claude's context window limitations and how to handle them when generating code"
+  },
+  {
+    "date": "2026-08-14",
+    "title": "How Claude's Vision Capabilities Actually Work: A Step-by-Step Guide",
+    "service": "Claude",
+    "url": "https://dev.to/dineshgowtham/how-claudes-vision-capabilities-actually-work-a-step-by-step-guide-27k7",
+    "tags": [
+      "claude",
+      "visionai",
+      "nodejs",
+      "typescript"
+    ],
+    "hook": "Claude's vision capabilities are revolutionizing how we interact with AI, but have you wondered how they actually work? From reading screenshots to understanding diagrams, Claude's vision is a game-changer. But what's behind this powerful feature?",
+    "angle": "Claude's vision capabilities are not just a novelty, but a powerful tool that can be leveraged in real-world applications, from automating data extraction to enhancing user experience.",
+    "gotchaToReveal": "Claude's vision capabilities can be sensitive to image quality and formatting, requiring careful preprocessing to achieve accurate results"
   }
 ]
