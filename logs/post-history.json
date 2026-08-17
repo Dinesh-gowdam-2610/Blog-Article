@@ -452,5 +452,20 @@
     "hook": "Claude's vision capabilities are revolutionizing how we interact with AI, but have you wondered how they actually work? From reading screenshots to understanding diagrams, Claude's vision is a game-changer. But what's behind this powerful feature?",
     "angle": "Claude's vision capabilities are not just a novelty, but a powerful tool that can be leveraged in real-world applications, from automating data extraction to enhancing user experience.",
     "gotchaToReveal": "Claude's vision capabilities can be sensitive to image quality and formatting, requiring careful preprocessing to achieve accurate results"
+  },
+  {
+    "date": "2026-08-17",
+    "title": "Cursor AI Explained Simply: How the AI-Native Editor Understands Your Whole Codebase",
+    "service": "CursorAI",
+    "url": "https://dev.to/dineshgowtham/cursor-ai-explained-simply-how-the-ai-native-editor-understands-your-whole-codebase-51nj",
+    "tags": [
+      "cursorai",
+      "nodejs",
+      "typescript",
+      "aiassistants"
+    ],
+    "hook": "Imagine an editor that's not just a plugin, but a full-fledged AI-native workspace. Cursor turns the editor itself into an intelligent coding companion, changing how you develop software. But how does it actually work? What makes it different from traditional editors?",
+    "angle": "By understanding how Cursor's codebase indexing and rules files work, developers can unlock a new level of productivity and efficiency in their coding workflow. However, getting the most out of Cursor requires understanding its limitations and potential pitfalls.",
+    "gotchaToReveal": "The importance of providing clear and specific prompts to avoid vague edits, and the need for careful review when using agent mode for multi-file changes."
   }
 ]
