@@ -1551,10 +1551,12 @@ function buildEcosystemPulse(today, history = []) {
   const primaryName  = primaryTopic.name;
   const primaryType  = primaryTopic.type;
 
-  // Featured = primary + next 5 in the rotation (wraps around)
-  const featured   = Array.from({ length: 6 }, (_, i) => ALL_TOPICS[(primaryIdx + i) % total]);
+  // Featured = primary + next 2 in the rotation (wraps around) — trimmed
+  // from 6 to 3 to keep the Scout input within Groq's 8000 TPM ceiling
+  // when combined with reasoning-model output overhead.
+  const featured   = Array.from({ length: 3 }, (_, i) => ALL_TOPICS[(primaryIdx + i) % total]);
   const background = ALL_TOPICS
-    .filter((_, i) => i < primaryIdx || i >= primaryIdx + 6)
+    .filter((_, i) => i < primaryIdx || i >= primaryIdx + 3)
     .map(t => t.name);
 
   // ── Fix 2: Inject recent title history into pulse ────────────────────────
@@ -1604,12 +1606,10 @@ Your topic MUST be meaningfully different from all of the above.
       ? `AWS  SDK: ${topic.sdk ?? ""}`
       : `${topic.category?.toUpperCase() ?? "RUNTIME"}`;
     pulse += `\n【 ${topic.name} 】  [${typeLabel}]\n`;
-    pulse += `  Hot signals:\n`;
-    topic.signals.forEach(s => { pulse += `    • ${s}\n`; });
-    pulse += `  Real gotchas:\n`;
-    (topic.gotchas ?? []).slice(0, 3).forEach(g => { pulse += `    ⚠ ${g}\n`; });
-    pulse += `  Spicy angle ideas:\n`;
-    (topic.spicyAngles ?? []).forEach(a => { pulse += `    🔥 ${a}\n`; });
+    // Only top 3 signals to keep Scout input under 8000 TPM ceiling.
+    // Gotchas + spicyAngles removed from Scout prompt — they're still passed
+    // to the Writer downstream where token budget is separate.
+    topic.signals.slice(0, 3).forEach(s => { pulse += `  • ${s}\n`; });
   }
 
   pulse += `\nBACKGROUND SERVICES (available for cross-service angles): `;
