@@ -1893,7 +1893,7 @@ Do NOT apply tag rules to the title. The title should look like a newspaper head
 
   const raw = await groq(
     [{ role: "user", content: prompt }],
-    { max_tokens: 700, json: true }   // scout only needs a small JSON blob
+    { max_tokens: 2500, json: true }   // reasoning model — leaves ~500 useful JSON tokens after reasoning overhead
   );
 
   let topic;
@@ -2056,7 +2056,7 @@ ${seoFeedback}` : ""}`;
       { role: "system", content: system },
       { role: "user",   content: user   },
     ],
-    { max_tokens: 3500 }   // 3500 output tokens → ~2,200 words, under 6,000 TPM limit with 2,500 buffer
+    { max_tokens: 5500 }   // reasoning model — ~2200 words after reasoning overhead, ~500 headroom under 6000 TPM
   );
 
   if (!markdown || markdown.length < 200) {
@@ -2125,7 +2125,7 @@ Return JSON only — no markdown fences:
 
   const raw = await groq(
     [{ role: "user", content: prompt }],
-    { max_tokens: 400, json: true }
+    { max_tokens: 1500, json: true }   // reasoning model — small JSON scorecard after reasoning overhead
   );
 
   try {
