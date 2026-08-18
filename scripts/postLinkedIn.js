@@ -166,7 +166,7 @@ const DEFAULT_STYLE = { hookEmoji: "🚀", coreEmoji: "🔄", tags: ["AI","Softw
 const SECTION_EMOJIS = ["🤖","🔄","🛠️","🚀","🛡️","📊","💡","⚙️","🎯","🔍"];
 
 // ── Small standalone Groq call — 400 tokens, JSON-only, timeout-guarded ──────
-async function groqLite(prompt, { model = "llama-3.3-70b-versatile", max_tokens = 500, timeoutMs = 45_000 } = {}) {
+async function groqLite(prompt, { model = process.env.GROQ_MODEL_ID || "openai/gpt-oss-120b", max_tokens = 500, timeoutMs = 45_000 } = {}) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) throw new Error("GROQ_API_KEY not set");
 
