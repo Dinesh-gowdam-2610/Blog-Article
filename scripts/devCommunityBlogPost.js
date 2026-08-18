@@ -14,6 +14,16 @@ const CONFIG = {
   maxRetries:   2,    // how many times to rewrite if SEO fails
 };
 // ───────────────────────────────────────────────────────────────────────────────
+// Groq model — single source of truth. When Groq deprecates the current model,
+// change these two lines only. Both scripts (main + postLinkedIn) read from here
+// via environment fallback so we never leave a stale name in the transparency footer.
+// Groq model list: https://console.groq.com/docs/models
+// ───────────────────────────────────────────────────────────────────────────────
+const MODEL_ID           = "openai/gpt-oss-120b";
+const MODEL_DISPLAY_NAME = "GPT OSS 120B";
+// Also export via env so postLinkedIn.js reads the same value on the same run
+process.env.GROQ_MODEL_ID           = MODEL_ID;
+process.env.GROQ_MODEL_DISPLAY_NAME = MODEL_DISPLAY_NAME;
 
 const GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions";
 const DEVTO_BASE = "https://dev.to/api";
@@ -1621,7 +1631,7 @@ async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function groq(messages, { model = "llama-3.3-70b-versatile", max_tokens = 1024, json = false } = {}) {
+async function groq(messages, { model = MODEL_ID, max_tokens = 1024, json = false } = {}) {
   const MAX_RETRIES = 5;
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -2181,7 +2191,7 @@ function appendDisclosure(markdown, topic) {
 
 > **Transparency notice**
 >
-> This article was written with the help of an AI system — [Groq](https://groq.com) (LLaMA 3.3 70B).
+> This article was written with the help of an AI system — [Groq](https://groq.com) (${MODEL_DISPLAY_NAME}).
 >
 > **Published:** ${date} · **Primary focus:** ${service}
 >
