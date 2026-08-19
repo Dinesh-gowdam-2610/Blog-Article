@@ -482,5 +482,20 @@
     "hook": "Container‑based AI agents get tripped up by spot interruptions, but you can turn that weakness into a strength. In this guide we stitch together Service Connect, smart retry handling, and CDK‑driven blue/green pipelines so your agent stays alive and up‑to‑date. You’ll walk away with a production‑ready pattern you can drop into any Node.js/TypeScript project.",
     "angle": "Most tutorials push AI agents onto Lambda or CloudRun, claiming serverless is the only sensible path—yet containers give you the long‑running control and networking flexibility needed for true autonomous agents.",
     "gotchaToReveal": "Spot interruptions surface inside the container as generic network errors (e.g., ECONNRESET) rather than a distinct ECS error, so you must handle them in‑process and signal task failure to let ECS reschedule the task."
+  },
+  {
+    "date": "2026-08-19",
+    "title": "Bedrock Grok 4.6 Explained Simply: Prompt Caching, Token Efficiency, and Node.js 22 Integration",
+    "service": "Bedrock",
+    "url": "https://dev.to/dineshgowtham/bedrock-grok-46-explained-simply-prompt-caching-token-efficiency-and-nodejs-22-integration-4o26",
+    "tags": [
+      "bedrock",
+      "nodejs",
+      "typescript",
+      "promptengineering"
+    ],
+    "hook": "Bedrock just added Grok 4.6, and it’s not just a bigger model – it brings built‑in prompt caching that can slash latency and token usage. Yet most engineers miss the subtle config tricks that unlock its power. This post shows you exactly how to tap into those features from a Node.js 22 app.",
+    "angle": "Most tutorials treat Bedrock as a black‑box API, ignoring the new caching layer that can change how you design prompts and handle streaming responses.",
+    "gotchaToReveal": "Bedrock’s default maxTokens is 4 096 for Grok 4.6; if you exceed it while streaming, the service silently truncates the output unless you check the response’s ‘truncated’ flag"
   }
 ]
