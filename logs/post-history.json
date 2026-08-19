@@ -467,5 +467,20 @@
     "hook": "Imagine an editor that's not just a plugin, but a full-fledged AI-native workspace. Cursor turns the editor itself into an intelligent coding companion, changing how you develop software. But how does it actually work? What makes it different from traditional editors?",
     "angle": "By understanding how Cursor's codebase indexing and rules files work, developers can unlock a new level of productivity and efficiency in their coding workflow. However, getting the most out of Cursor requires understanding its limitations and potential pitfalls.",
     "gotchaToReveal": "The importance of providing clear and specific prompts to avoid vague edits, and the need for careful review when using agent mode for multi-file changes."
+  },
+  {
+    "date": "2026-08-19",
+    "title": "How to Run a Resilient AI Agent on ECS Fargate Spot — Service Connect, Retry Logic, and Blue/Green Deploys",
+    "service": "ECS",
+    "url": "https://dev.to/dineshgowtham/how-to-run-a-resilient-ai-agent-on-ecs-fargate-spot-service-connect-retry-logic-and-bluegreen-2mab",
+    "tags": [
+      "aiagents",
+      "ecs",
+      "nodejs",
+      "typescript"
+    ],
+    "hook": "Container‑based AI agents get tripped up by spot interruptions, but you can turn that weakness into a strength. In this guide we stitch together Service Connect, smart retry handling, and CDK‑driven blue/green pipelines so your agent stays alive and up‑to‑date. You’ll walk away with a production‑ready pattern you can drop into any Node.js/TypeScript project.",
+    "angle": "Most tutorials push AI agents onto Lambda or CloudRun, claiming serverless is the only sensible path—yet containers give you the long‑running control and networking flexibility needed for true autonomous agents.",
+    "gotchaToReveal": "Spot interruptions surface inside the container as generic network errors (e.g., ECONNRESET) rather than a distinct ECS error, so you must handle them in‑process and signal task failure to let ECS reschedule the task."
   }
 ]
