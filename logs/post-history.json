@@ -497,5 +497,20 @@
     "hook": "Bedrock just added Grok 4.6, and it’s not just a bigger model – it brings built‑in prompt caching that can slash latency and token usage. Yet most engineers miss the subtle config tricks that unlock its power. This post shows you exactly how to tap into those features from a Node.js 22 app.",
     "angle": "Most tutorials treat Bedrock as a black‑box API, ignoring the new caching layer that can change how you design prompts and handle streaming responses.",
     "gotchaToReveal": "Bedrock’s default maxTokens is 4 096 for Grok 4.6; if you exceed it while streaming, the service silently truncates the output unless you check the response’s ‘truncated’ flag"
+  },
+  {
+    "date": "2026-08-20",
+    "title": "How to Deploy a Retrieval‑Augmented Generation API on AWS App Runner — Explained Simply",
+    "service": "AppRunner",
+    "url": "https://dev.to/dineshgowtham/how-to-deploy-a-retrieval-augmented-generation-api-on-aws-app-runner-explained-simply-16lg",
+    "tags": [
+      "aws",
+      "apprunner",
+      "nodejs",
+      "rag"
+    ],
+    "hook": "You can spin up a production‑grade RAG service without wrestling with EC2, Fargate, or complex Terraform. In a few minutes you’ll have a Node.js 22 API that pulls relevant chunks from DynamoDB vector search and calls Claude for answer generation, all running on App Runner’s fully managed platform.",
+    "angle": "Most engineers assume only ECS or Lambda can host AI‑heavy workloads, but App Runner’s VPC connector and native scaling make it a hidden gem for low‑latency RAG APIs.",
+    "gotchaToReveal": "App Runner’s VPC connector requires the security group to allow outbound HTTPS to the DynamoDB VPC endpoint; forgetting this results in “AccessDeniedException” errors that look like credential problems."
   }
 ]
