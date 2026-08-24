@@ -542,5 +542,20 @@
     "hook": "You can serve LLM‑powered answers in milliseconds by caching vector embeddings in Redis—no separate vector DB required. This post shows a real‑world Lambda that writes, retrieves, and scores embeddings using the AWS SDK v3 and TypeScript’s new satisfies operator.",
     "angle": "Most engineers write off ElastiCache as just a key‑value cache, but it can be a performant, low‑latency vector store for Retrieval‑Augmented Generation when used correctly.",
     "gotchaToReveal": "If the cluster is not created with ‘cluster mode enabled’, Redis will throw CROSSSLOT errors when your Lua script accesses multiple keys, silently breaking the RAG pipeline."
+  },
+  {
+    "date": "2026-08-24",
+    "title": "AI Agents with SQS and Lambda: Build a Plan‑Act‑Observe Loop in Node.js",
+    "service": "SQS",
+    "url": "https://dev.to/dineshgowtham/ai-agents-with-sqs-and-lambda-build-a-plan-act-observe-loop-in-nodejs-32n7",
+    "tags": [
+      "aiagents",
+      "sqs",
+      "lambda",
+      "typescript"
+    ],
+    "hook": "You’ve seen flashy EventBridge Pipes demos, but they hide the mechanics of an autonomous AI agent. In just a few lines of TypeScript you can wire SQS and Lambda together to give your LLM a reliable tool‑use loop. Let’s demystify the messaging backbone that makes the agent think, act, and observe.",
+    "angle": "While most engineers default to EventBridge Pipes for LLM tool calls, a plain SQS‑Lambda pair offers transparent control, easier debugging, and true at‑least‑once semantics.",
+    "gotchaToReveal": "If the SQS visibility timeout is shorter than the Lambda processing time, the same task can be delivered twice, causing duplicate external calls – a subtle bug that looks like the agent “hallucinating” actions."
   }
 ]
