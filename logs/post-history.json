@@ -527,5 +527,20 @@
     "hook": "Imagine pulling a source file from S3 and instantly seeing AI‑generated review comments, without a separate CI job. With S3 Object Lambda you can inject Claude (or any LLM) into the read path, turning storage into a live code‑analysis service. This post shows exactly how to make that happen.",
     "angle": "Most teams treat AI code review as a post‑commit step, but by leveraging S3 Object Lambda you can shift the feedback loop to the moment the code is accessed, challenging the conventional CI‑only mindset.",
     "gotchaToReveal": "Object Lambda does not inherit the source bucket’s IAM policies; you must grant s3-object-lambda:InvokeFunction on the Lambda and also add s3:GetObject on the underlying bucket, otherwise reads fail with AccessDenied."
+  },
+  {
+    "date": "2026-08-24",
+    "title": "ElastiCache for RAG: How to Store and Query Embeddings in Redis with Node.js and TypeScript",
+    "service": "ElastiCache",
+    "url": "https://dev.to/dineshgowtham/elasticache-for-rag-how-to-store-and-query-embeddings-in-redis-with-nodejs-and-typescript-4j3d",
+    "tags": [
+      "nodejs",
+      "aws",
+      "typescript",
+      "elasticache"
+    ],
+    "hook": "You can serve LLM‑powered answers in milliseconds by caching vector embeddings in Redis—no separate vector DB required. This post shows a real‑world Lambda that writes, retrieves, and scores embeddings using the AWS SDK v3 and TypeScript’s new satisfies operator.",
+    "angle": "Most engineers write off ElastiCache as just a key‑value cache, but it can be a performant, low‑latency vector store for Retrieval‑Augmented Generation when used correctly.",
+    "gotchaToReveal": "If the cluster is not created with ‘cluster mode enabled’, Redis will throw CROSSSLOT errors when your Lua script accesses multiple keys, silently breaking the RAG pipeline."
   }
 ]
