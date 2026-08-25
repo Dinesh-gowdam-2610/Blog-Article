@@ -557,5 +557,20 @@
     "hook": "You’ve seen flashy EventBridge Pipes demos, but they hide the mechanics of an autonomous AI agent. In just a few lines of TypeScript you can wire SQS and Lambda together to give your LLM a reliable tool‑use loop. Let’s demystify the messaging backbone that makes the agent think, act, and observe.",
     "angle": "While most engineers default to EventBridge Pipes for LLM tool calls, a plain SQS‑Lambda pair offers transparent control, easier debugging, and true at‑least‑once semantics.",
     "gotchaToReveal": "If the SQS visibility timeout is shorter than the Lambda processing time, the same task can be delivered twice, causing duplicate external calls – a subtle bug that looks like the agent “hallucinating” actions."
+  },
+  {
+    "date": "2026-08-25",
+    "title": "EventBridge Pipes for AI Agents: Building a Self‑Contained Plan‑Act‑Observe Loop in Node.js",
+    "service": "EventBridge",
+    "url": "https://dev.to/dineshgowtham/eventbridge-pipes-for-ai-agents-building-a-self-contained-plan-act-observe-loop-in-nodejs-1oi",
+    "tags": [
+      "eventbridge",
+      "lambda",
+      "nodejs",
+      "aiagents"
+    ],
+    "hook": "Imagine an AI agent that can plan, act, and observe without a single Lambda function acting as glue. EventBridge Pipes let you stitch together LLM calls, tool invocations, and feedback loops with declarative wiring. This post shows exactly how to wire that up.",
+    "angle": "Most teams still reach for Lambda glue, but Pipes give you built-in retries, scaling, and observability—making the agent loop simpler and more reliable.",
+    "gotchaToReveal": "Pipes don’t automatically propagate Lambda errors to the source; you must configure a dead-letter queue or a retry policy, otherwise the agent loop silently stops."
   }
 ]
