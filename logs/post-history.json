@@ -572,5 +572,20 @@
     "hook": "Imagine an AI agent that can plan, act, and observe without a single Lambda function acting as glue. EventBridge Pipes let you stitch together LLM calls, tool invocations, and feedback loops with declarative wiring. This post shows exactly how to wire that up.",
     "angle": "Most teams still reach for Lambda glue, but Pipes give you built-in retries, scaling, and observability—making the agent loop simpler and more reliable.",
     "gotchaToReveal": "Pipes don’t automatically propagate Lambda errors to the source; you must configure a dead-letter queue or a retry policy, otherwise the agent loop silently stops."
+  },
+  {
+    "date": "2026-08-25",
+    "title": "Prompt Engineering with Claude: Getting Reliable JSON Output in TypeScript",
+    "service": "PromptEngineering",
+    "url": "https://dev.to/dineshgowtham/prompt-engineering-with-claude-getting-reliable-json-output-in-typescript-5b42",
+    "tags": [
+      "promptengineering",
+      "claude",
+      "nodejs",
+      "typescript"
+    ],
+    "hook": "When LLMs return malformed JSON, your automation breaks. Learn how to coax Claude into producing strict, parse‑ready structures every time. We’ll walk through a real TypeScript example you can drop into production.",
+    "angle": "Most prompt‑engineering guides stop at “ask for JSON”. The hidden truth is that without proper schema enforcement and TypeScript typing, you’ll still get surprises.",
+    "gotchaToReveal": "Claude can still emit extra fields or stray commas even when you request a schema; you must validate with a runtime parser and optionally retry with a stricter prompt."
   }
 ]
