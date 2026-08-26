@@ -587,5 +587,20 @@
     "hook": "When LLMs return malformed JSON, your automation breaks. Learn how to coax Claude into producing strict, parse‑ready structures every time. We’ll walk through a real TypeScript example you can drop into production.",
     "angle": "Most prompt‑engineering guides stop at “ask for JSON”. The hidden truth is that without proper schema enforcement and TypeScript typing, you’ll still get surprises.",
     "gotchaToReveal": "Claude can still emit extra fields or stray commas even when you request a schema; you must validate with a runtime parser and optionally retry with a stricter prompt."
+  },
+  {
+    "date": "2026-08-26",
+    "title": "How to Combine Claude’s Function Calling with SNS FIFO for Reliable, Ordered AI Notifications",
+    "service": "SNS",
+    "url": "https://dev.to/dineshgowtham/how-to-combine-claudes-function-calling-with-sns-fifo-for-reliable-ordered-ai-notifications-5b6n",
+    "tags": [
+      "aws",
+      "sns",
+      "lambda",
+      "nodejs"
+    ],
+    "hook": "LLMs can now call tools, but turning their output into a trustworthy event stream is still a puzzle. In this post we wire Claude’s function‑calling to an SNS FIFO topic, giving you ordered, deduplicated notifications that downstream Lambda functions can consume with zero‑loss guarantees.",
+    "angle": "Most engineers treat SNS as a blunt‑force fan‑out, overlooking its FIFO capabilities that make it perfect for deterministic AI‑driven workflows.",
+    "gotchaToReveal": "SNS FIFO only guarantees ordering within a MessageGroupId; mixing groups can break order, and deduplication IDs must be unique per 5‑minute window or messages will be silently dropped."
   }
 ]
