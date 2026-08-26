@@ -602,5 +602,20 @@
     "hook": "LLMs can now call tools, but turning their output into a trustworthy event stream is still a puzzle. In this post we wire Claude’s function‑calling to an SNS FIFO topic, giving you ordered, deduplicated notifications that downstream Lambda functions can consume with zero‑loss guarantees.",
     "angle": "Most engineers treat SNS as a blunt‑force fan‑out, overlooking its FIFO capabilities that make it perfect for deterministic AI‑driven workflows.",
     "gotchaToReveal": "SNS FIFO only guarantees ordering within a MessageGroupId; mixing groups can break order, and deduplication IDs must be unique per 5‑minute window or messages will be silently dropped."
+  },
+  {
+    "date": "2026-08-26",
+    "title": "Claude Function Calling on Bedrock: Wiring a Stateless Lambda for Real‑Time AI Actions",
+    "service": "Bedrock",
+    "url": "https://dev.to/dineshgowtham/claude-function-calling-on-bedrock-wiring-a-stateless-lambda-for-real-time-ai-actions-39h1",
+    "tags": [
+      "aws",
+      "bedrock",
+      "lambda",
+      "typescript"
+    ],
+    "hook": "Developers love the idea of LLMs that can call your code, but most examples drown in boilerplate or require heavyweight orchestration. In just a few lines you can let Claude on Bedrock trigger a Lambda, update a DynamoDB table, and respond instantly to an API call. This post shows exactly how.",
+    "angle": "While many assume function calling needs a full micro‑service mesh, a single serverless Lambda is enough to turn LLM suggestions into reliable side‑effects.",
+    "gotchaToReveal": "Bedrock’s streaming response wraps the tool call in a \"toolResult\" field only when stream=true, so the same TypeScript type won’t match non‑streaming calls – you must handle both shapes."
   }
 ]
