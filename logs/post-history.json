@@ -632,5 +632,20 @@
     "hook": "When Claude wants to run code, you need a webhook it can call. Most teams slam together a Lambda URL, but that skips critical security and versioning features. Learn how API Gateway + Lambda gives you a production‑grade, type‑safe bridge for Claude’s function calls.",
     "angle": "Most developers assume a plain Lambda URL is enough for Claude’s function calls, ignoring the auth, throttling and observability that API Gateway provides.",
     "gotchaToReveal": "API Gateway’s default non‑proxy integration strips nested objects, causing Claude’s arguments to be silently dropped unless you enable Lambda proxy or a custom mapping template."
+  },
+  {
+    "date": "2026-08-28",
+    "title": "Prompt Caching at the Edge: Using CloudFront Functions and Lambda to Speed Up Claude Calls",
+    "service": "CloudFront",
+    "url": "https://dev.to/dineshgowtham/prompt-caching-at-the-edge-using-cloudfront-functions-and-lambda-to-speed-up-claude-calls-cbl",
+    "tags": [
+      "cloudfront",
+      "lambda",
+      "nodejs",
+      "promptcaching"
+    ],
+    "hook": "LLM APIs like Claude feel snappy—until latency spikes hit your users. By caching prompt‑response pairs right at the edge, you can cut round‑trip time to milliseconds. This post shows you how to make that happen with CloudFront Functions and a Lambda origin.",
+    "angle": "Most engineers treat LLM latency as a given, but with edge‑level caching you can make AI responses practically instant without sacrificing freshness.",
+    "gotchaToReveal": "CloudFront Functions cannot make outbound HTTP calls, so trying to call Claude directly from the function results in a 502 error; you must let Lambda handle the API call and only use the function for KV look‑ups."
   }
 ]
