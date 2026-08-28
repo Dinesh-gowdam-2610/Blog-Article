@@ -647,5 +647,20 @@
     "hook": "LLM APIs like Claude feel snappy—until latency spikes hit your users. By caching prompt‑response pairs right at the edge, you can cut round‑trip time to milliseconds. This post shows you how to make that happen with CloudFront Functions and a Lambda origin.",
     "angle": "Most engineers treat LLM latency as a given, but with edge‑level caching you can make AI responses practically instant without sacrificing freshness.",
     "gotchaToReveal": "CloudFront Functions cannot make outbound HTTP calls, so trying to call Claude directly from the function results in a 502 error; you must let Lambda handle the API call and only use the function for KV look‑ups."
+  },
+  {
+    "date": "2026-08-28",
+    "title": "How to Automate Pull‑Request Code Reviews with ChatGPT’s Function Calling and AWS Lambda (Node.js/TypeScript)",
+    "service": "ChatGPTForEngineers",
+    "url": "https://dev.to/dineshgowtham/how-to-automate-pull-request-code-reviews-with-chatgpts-function-calling-and-aws-lambda-3904",
+    "tags": [
+      "aicodingassistants",
+      "chatgpt",
+      "nodejs",
+      "typescript"
+    ],
+    "hook": "AI code reviewers sound risky, but OpenAI’s function‑calling lets you turn a language model into a deterministic reviewer. In a few lines of TypeScript you can parse a PR diff, ask ChatGPT to generate a structured review, and post it back to GitHub—all inside a secure Lambda function. No custom prompt‑hacking required, just clean schema‑driven calls.",
+    "angle": "Most engineers treat AI reviewers as a black‑box shortcut; this post shows how function calling makes the process transparent, testable, and safe enough for production code‑review pipelines.",
+    "gotchaToReveal": "OpenAI may return the function call in the 'function_call' field as a JSON string instead of an object; you must detect and safely parse it, otherwise your Lambda will crash on unexpected payloads."
   }
 ]
