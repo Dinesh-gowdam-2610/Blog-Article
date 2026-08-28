@@ -662,5 +662,20 @@
     "hook": "AI code reviewers sound risky, but OpenAI’s function‑calling lets you turn a language model into a deterministic reviewer. In a few lines of TypeScript you can parse a PR diff, ask ChatGPT to generate a structured review, and post it back to GitHub—all inside a secure Lambda function. No custom prompt‑hacking required, just clean schema‑driven calls.",
     "angle": "Most engineers treat AI reviewers as a black‑box shortcut; this post shows how function calling makes the process transparent, testable, and safe enough for production code‑review pipelines.",
     "gotchaToReveal": "OpenAI may return the function call in the 'function_call' field as a JSON string instead of an object; you must detect and safely parse it, otherwise your Lambda will crash on unexpected payloads."
+  },
+  {
+    "date": "2026-08-29",
+    "title": "Claude Function Calling with Lambda Function URLs: Building a Secure, Zero‑Config AI Endpoint",
+    "service": "Lambda",
+    "url": "https://dev.to/dineshgowtham/claude-function-calling-with-lambda-function-urls-building-a-secure-zero-config-ai-endpoint-28c7",
+    "tags": [
+      "payments",
+      "ai",
+      "lambda",
+      "nodejs"
+    ],
+    "hook": "When you need a fast LLM endpoint, the first instinct is to spin up API Gateway—but Lambda Function URLs let you skip that extra hop entirely. Pair them with Claude’s function‑calling feature and you get a self‑contained AI service that’s ready in minutes. Yet most engineers still cling to the old, noisy stack.",
+    "angle": "The common belief that API Gateway is required for serverless APIs is outdated; Lambda Function URLs provide a simpler, more secure path for Claude‑powered services.",
+    "gotchaToReveal": "Lambda Function URLs enforce a default 6 KB payload limit; forgetting to raise the MaximumPayloadSize when Claude returns large tool calls causes silent truncation errors."
   }
 ]
