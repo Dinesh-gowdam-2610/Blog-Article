@@ -677,5 +677,20 @@
     "hook": "When you need a fast LLM endpoint, the first instinct is to spin up API Gateway—but Lambda Function URLs let you skip that extra hop entirely. Pair them with Claude’s function‑calling feature and you get a self‑contained AI service that’s ready in minutes. Yet most engineers still cling to the old, noisy stack.",
     "angle": "The common belief that API Gateway is required for serverless APIs is outdated; Lambda Function URLs provide a simpler, more secure path for Claude‑powered services.",
     "gotchaToReveal": "Lambda Function URLs enforce a default 6 KB payload limit; forgetting to raise the MaximumPayloadSize when Claude returns large tool calls causes silent truncation errors."
+  },
+  {
+    "date": "2026-08-31",
+    "title": "CloudWatch EMF Explained Simply: How to Emit Zero‑Overhead Custom Metrics from Your AI Node.js Service",
+    "service": "CloudWatch",
+    "url": "https://dev.to/dineshgowtham/cloudwatch-emf-explained-simply-how-to-emit-zero-overhead-custom-metrics-from-your-ai-nodejs-234g",
+    "tags": [
+      "cloudwatch",
+      "nodejs",
+      "ai",
+      "observability"
+    ],
+    "hook": "Most engineers reach for the CloudWatch Metrics API and end up writing extra SDK calls that add latency and cost. Embedded Metrics Format (EMF) lets you ship rich, query‑able metrics by just writing specially‑formatted JSON logs. Learn how to turn your AI inference code into a self‑monitoring powerhouse with no extra overhead.",
+    "angle": "The hidden power of EMF is that you don’t need a separate metrics pipeline – a single log line can become a full‑featured metric, something most AI teams overlook when they focus on raw logs alone.",
+    "gotchaToReveal": "If the log group isn’t configured with the correct subscription filter or you omit the required @aws namespace fields, CloudWatch silently drops the EMF data, leaving you with empty metrics despite correctly formatted logs."
   }
 ]
