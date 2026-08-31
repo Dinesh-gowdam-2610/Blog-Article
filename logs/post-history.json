@@ -692,5 +692,20 @@
     "hook": "Most engineers reach for the CloudWatch Metrics API and end up writing extra SDK calls that add latency and cost. Embedded Metrics Format (EMF) lets you ship rich, query‑able metrics by just writing specially‑formatted JSON logs. Learn how to turn your AI inference code into a self‑monitoring powerhouse with no extra overhead.",
     "angle": "The hidden power of EMF is that you don’t need a separate metrics pipeline – a single log line can become a full‑featured metric, something most AI teams overlook when they focus on raw logs alone.",
     "gotchaToReveal": "If the log group isn’t configured with the correct subscription filter or you omit the required @aws namespace fields, CloudWatch silently drops the EMF data, leaving you with empty metrics despite correctly formatted logs."
+  },
+  {
+    "date": "2026-08-31",
+    "title": "Tracing AI Agent Workflows with AWS X‑Ray: A Step‑By‑Step Guide for Node.js",
+    "service": "XRay",
+    "url": "https://dev.to/dineshgowtham/tracing-ai-agent-workflows-with-aws-x-ray-a-step-by-step-guide-for-nodejs-3k24",
+    "tags": [
+      "xray",
+      "nodejs",
+      "aiagents",
+      "observability"
+    ],
+    "hook": "When AI agents call external services, the invisible hand that stitches the calls together is often a mystery. X‑Ray lets you visualize every plan‑act‑observe step, turning guesswork into concrete data you can debug and improve.",
+    "angle": "Most engineers treat AI agents as black boxes, but you can get the same observability you have for microservices by instrumenting the agent’s internal calls with X‑Ray.",
+    "gotchaToReveal": "X‑Ray’s default sampling discards 95 % of segments, so without a custom rule you’ll see almost no traces of fast agent loops."
   }
 ]
