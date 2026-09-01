@@ -707,5 +707,20 @@
     "hook": "When AI agents call external services, the invisible hand that stitches the calls together is often a mystery. X‑Ray lets you visualize every plan‑act‑observe step, turning guesswork into concrete data you can debug and improve.",
     "angle": "Most engineers treat AI agents as black boxes, but you can get the same observability you have for microservices by instrumenting the agent’s internal calls with X‑Ray.",
     "gotchaToReveal": "X‑Ray’s default sampling discards 95 % of segments, so without a custom rule you’ll see almost no traces of fast agent loops."
+  },
+  {
+    "date": "2026-09-01",
+    "title": "How to Securely Store and Rotate LLM API Keys with AWS Secrets Manager in Node.js",
+    "service": "SecretsManager",
+    "url": "https://dev.to/dineshgowtham/how-to-securely-store-and-rotate-llm-api-keys-with-aws-secrets-manager-in-nodejs-2akm",
+    "tags": [
+      "aws",
+      "secretsmanager",
+      "nodejs",
+      "llmintegration"
+    ],
+    "hook": "You’ve probably copied your OpenAI or Claude API key into source code and hoped no one ever sees it. In practice, that mistake leads to accidental leaks and painful rotation cycles. This guide shows a fail‑safe way to keep your LLM credentials hidden, auto‑rotate them, and fetch them efficiently at runtime.",
+    "angle": "Most AI‑enabled services treat secret management as an afterthought, but a single leaked key can cripple your product and your reputation.",
+    "gotchaToReveal": "During rotation the secret’s AWSCURRENT label can briefly point to a new version while your code still expects the old format—causing JSON parse errors if you don’t validate the versioned secret before use"
   }
 ]
