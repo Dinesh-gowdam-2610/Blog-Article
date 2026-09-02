@@ -737,5 +737,20 @@
     "hook": "Ever wondered how to turn Claude on Bedrock into a real‑time pair programmer that can edit your code for you? In a few minutes you’ll see a complete, type‑safe example that calls Claude, parses its structured tool output, and stitches the result into a live workflow. No magic black box – just plain Node.js, TypeScript, and AWS services you already trust.",
     "angle": "Most tutorials stop at a single Claude prompt, but real assistants need secure IAM policies and orchestrated multi‑step tool calls – otherwise you end up with brittle one‑off scripts.",
     "gotchaToReveal": "Bedrock’s function‑calling response is wrapped in a string field named 'toolResult'; forgetting to set the 'accept: application/json' header or to parse that field leaves you with plain text instead of usable JSON, breaking the whole assistant flow."
+  },
+  {
+    "date": "2026-09-02",
+    "title": "How IAM Roles Anywhere Lets Your AI Agents Run Securely On‑Prem and In ECS, Explained Simply",
+    "service": "IAM",
+    "url": "https://dev.to/dineshgowtham/how-iam-roles-anywhere-lets-your-ai-agents-run-securely-on-prem-and-in-ecs-explained-simply-20dk",
+    "tags": [
+      "iam",
+      "ecs",
+      "nodejs",
+      "typescript"
+    ],
+    "hook": "AI agents need credentials, but stuffing API keys into containers is a ticking time bomb. IAM Roles Anywhere flips the script, giving you short‑lived, auditable permissions without ever touching a secret file. Learn the exact steps to wire it up for your Node.js/TypeScript AI workloads.",
+    "angle": "Instead of the old “store‑the‑key‑in‑SecretsManager” pattern, treat IAM Roles Anywhere as the zero‑trust bridge for AI agents running outside the cloud.",
+    "gotchaToReveal": "If the certificate chain is not supplied in the correct PEM order, IAM Roles Anywhere will silently reject the request with AccessDeniedException, even though the ARN looks correct."
   }
 ]
