@@ -722,5 +722,20 @@
     "hook": "You’ve probably copied your OpenAI or Claude API key into source code and hoped no one ever sees it. In practice, that mistake leads to accidental leaks and painful rotation cycles. This guide shows a fail‑safe way to keep your LLM credentials hidden, auto‑rotate them, and fetch them efficiently at runtime.",
     "angle": "Most AI‑enabled services treat secret management as an afterthought, but a single leaked key can cripple your product and your reputation.",
     "gotchaToReveal": "During rotation the secret’s AWSCURRENT label can briefly point to a new version while your code still expects the old format—causing JSON parse errors if you don’t validate the versioned secret before use"
+  },
+  {
+    "date": "2026-09-02",
+    "title": "How to Build an AI Coding Assistant with Amazon Bedrock Claude Function Calling in Node.js",
+    "service": "Bedrock",
+    "url": "https://dev.to/dineshgowtham/how-to-build-an-ai-coding-assistant-with-amazon-bedrock-claude-function-calling-in-nodejs-5hlg",
+    "tags": [
+      "aws",
+      "bedrock",
+      "nodejs",
+      "typescript"
+    ],
+    "hook": "Ever wondered how to turn Claude on Bedrock into a real‑time pair programmer that can edit your code for you? In a few minutes you’ll see a complete, type‑safe example that calls Claude, parses its structured tool output, and stitches the result into a live workflow. No magic black box – just plain Node.js, TypeScript, and AWS services you already trust.",
+    "angle": "Most tutorials stop at a single Claude prompt, but real assistants need secure IAM policies and orchestrated multi‑step tool calls – otherwise you end up with brittle one‑off scripts.",
+    "gotchaToReveal": "Bedrock’s function‑calling response is wrapped in a string field named 'toolResult'; forgetting to set the 'accept: application/json' header or to parse that field leaves you with plain text instead of usable JSON, breaking the whole assistant flow."
   }
 ]
