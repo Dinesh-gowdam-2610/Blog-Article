@@ -752,5 +752,20 @@
     "hook": "AI agents need credentials, but stuffing API keys into containers is a ticking time bomb. IAM Roles Anywhere flips the script, giving you short‑lived, auditable permissions without ever touching a secret file. Learn the exact steps to wire it up for your Node.js/TypeScript AI workloads.",
     "angle": "Instead of the old “store‑the‑key‑in‑SecretsManager” pattern, treat IAM Roles Anywhere as the zero‑trust bridge for AI agents running outside the cloud.",
     "gotchaToReveal": "If the certificate chain is not supplied in the correct PEM order, IAM Roles Anywhere will silently reject the request with AccessDeniedException, even though the ARN looks correct."
+  },
+  {
+    "date": "2026-09-03",
+    "title": "How AI Agents Work: Building the Plan‑Act‑Observe Loop with AWS Step Functions",
+    "service": "StepFunctions",
+    "url": "https://dev.to/dineshgowtham/how-ai-agents-work-building-the-plan-act-observe-loop-with-aws-step-functions-1g07",
+    "tags": [
+      "stepfunctions",
+      "apigateway",
+      "nodejs",
+      "aiagents"
+    ],
+    "hook": "AI agents are often portrayed as needing custom servers and endless glue code. In reality, the entire plan‑act‑observe cycle can be modeled as a deterministic state machine that runs fully managed. This post shows you how to wire Claude’s responses, a tool‑call API, and feedback handling together using Step Functions and API Gateway.",
+    "angle": "Most engineers assume AI agent orchestration requires bespoke infrastructure, but a serverless Step Functions workflow gives you retries, observability, and zero‑ops out of the box.",
+    "gotchaToReveal": "Step Functions’ built‑in retry policy will silently retry a failed LLM call, so without a timeout or error‑check state you can end up in an endless loop of failed tool invocations."
   }
 ]
