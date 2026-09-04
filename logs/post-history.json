@@ -767,5 +767,20 @@
     "hook": "AI agents are often portrayed as needing custom servers and endless glue code. In reality, the entire plan‑act‑observe cycle can be modeled as a deterministic state machine that runs fully managed. This post shows you how to wire Claude’s responses, a tool‑call API, and feedback handling together using Step Functions and API Gateway.",
     "angle": "Most engineers assume AI agent orchestration requires bespoke infrastructure, but a serverless Step Functions workflow gives you retries, observability, and zero‑ops out of the box.",
     "gotchaToReveal": "Step Functions’ built‑in retry policy will silently retry a failed LLM call, so without a timeout or error‑check state you can end up in an endless loop of failed tool invocations."
+  },
+  {
+    "date": "2026-09-04",
+    "title": "How to Turn Natural Language Prompts into CDK TypeScript Stacks with Claude – A Step‑By‑Step Guide",
+    "service": "CDK",
+    "url": "https://dev.to/dineshgowtham/how-to-turn-natural-language-prompts-into-cdk-typescript-stacks-with-claude-a-step-by-step-guide-e3l",
+    "tags": [
+      "cdk",
+      "claude",
+      "typescript",
+      "promptengineering"
+    ],
+    "hook": "Ever wished you could describe your cloud resources in plain English and watch CDK spin them up? Claude’s function‑calling can turn a single prompt into fully‑typed TypeScript infrastructure. Let’s see why this feels like having a junior engineer who never sleeps.",
+    "angle": "AI‑generated IaC sounds risky, but with precise prompts and TypeScript’s type‑safety you can prototype faster without compromising reliability.",
+    "gotchaToReveal": "Claude truncates long code snippets when the prompt exceeds its token limit, so you must request the output in chunks or use the streaming API to assemble the full stack."
   }
 ]
