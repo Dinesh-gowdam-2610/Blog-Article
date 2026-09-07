@@ -782,5 +782,20 @@
     "hook": "Ever wished you could describe your cloud resources in plain English and watch CDK spin them up? Claude’s function‑calling can turn a single prompt into fully‑typed TypeScript infrastructure. Let’s see why this feels like having a junior engineer who never sleeps.",
     "angle": "AI‑generated IaC sounds risky, but with precise prompts and TypeScript’s type‑safety you can prototype faster without compromising reliability.",
     "gotchaToReveal": "Claude truncates long code snippets when the prompt exceeds its token limit, so you must request the output in chunks or use the streaming API to assemble the full stack."
+  },
+  {
+    "date": "2026-09-07",
+    "title": "Real-Time AI Agent Event Stream with Kinesis: Build a Low-Latency LLM Chat Pipeline",
+    "service": "Kinesis",
+    "url": "https://dev.to/dineshgowtham/real-time-ai-agent-event-stream-with-kinesis-build-a-low-latency-llm-chat-pipeline-4lci",
+    "tags": [
+      "kinesis",
+      "lambda",
+      "nodejs",
+      "aiagents"
+    ],
+    "hook": "Imagine your AI assistant responding to user messages in under 100 ms, no polling, no missed events. By streaming each utterance through Amazon Kinesis and a tiny Lambda consumer, you get a push‑based, scalable backbone for LLM calls. This pattern flips the classic request‑response model on its head.",
+    "angle": "Event‑driven AI agents are often built with SQS + Lambda, but that adds hidden latency; using Kinesis’s enhanced fan‑out gives deterministic sub‑100 ms delivery, turning the agent loop into a true streaming pipeline.",
+    "gotchaToReveal": "Shard iterator expires after 5 minutes; re‑using an old iterator causes empty reads, so the Lambda must refresh the iterator on every invocation."
   }
 ]
