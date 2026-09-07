@@ -797,5 +797,20 @@
     "hook": "Imagine your AI assistant responding to user messages in under 100 ms, no polling, no missed events. By streaming each utterance through Amazon Kinesis and a tiny Lambda consumer, you get a push‑based, scalable backbone for LLM calls. This pattern flips the classic request‑response model on its head.",
     "angle": "Event‑driven AI agents are often built with SQS + Lambda, but that adds hidden latency; using Kinesis’s enhanced fan‑out gives deterministic sub‑100 ms delivery, turning the agent loop into a true streaming pipeline.",
     "gotchaToReveal": "Shard iterator expires after 5 minutes; re‑using an old iterator causes empty reads, so the Lambda must refresh the iterator on every invocation."
+  },
+  {
+    "date": "2026-09-07",
+    "title": "How to Query Vector Embeddings with Athena for Real‑Time RAG, Explained Simply",
+    "service": "Athena",
+    "url": "https://dev.to/dineshgowtham/how-to-query-vector-embeddings-with-athena-for-real-time-rag-explained-simply-5b09",
+    "tags": [
+      "athena",
+      "s3",
+      "vectorsearch",
+      "rag"
+    ],
+    "hook": "Most engineers think you need a dedicated vector database for similarity search, but Athena’s Iceberg support lets you run nearest‑neighbor queries directly on S3 data. In a few lines of TypeScript you can turn a Parquet file of embeddings into a searchable knowledge base and feed the results to an LLM. The result is a serverless RAG pipeline that costs pennies and scales automatically.",
+    "angle": "Athena is often dismissed as too slow for vector search, yet with the right schema and SQL tricks it becomes a viable, zero‑ops alternative to managed vector stores.",
+    "gotchaToReveal": "Athena doesn’t have a built‑in cosine‑similarity function – you must compute it manually in SQL, and forgetting to pre‑normalize vectors causes the query to scan the entire dataset, blowing up latency and cost."
   }
 ]
