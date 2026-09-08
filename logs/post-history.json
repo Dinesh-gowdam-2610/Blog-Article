@@ -827,5 +827,20 @@
     "hook": "Imagine an AI coding assistant that can think, act, and learn—running entirely on a serverless function. In minutes you’ll have a self‑contained Claude agent that processes user prompts, calls external tools, and streams back answers without managing servers.",
     "angle": "Serverless AI agents aren’t a futuristic concept; they’re a practical pattern you can adopt today, and Lambda’s stateless nature forces you to design the loop correctly.",
     "gotchaToReveal": "Claude may return a partial response with a tool‑call flag; if you treat the Lambda invocation as a one‑off request you’ll lose context. The post shows how to persist the conversation state in EventBridge’s event payload or DynamoDB to keep the loop alive across async steps."
+  },
+  {
+    "date": "2026-09-08",
+    "title": "VPC Lattice Explained Simply: How to Wire Your AI Coding Assistant Securely to Internal Services",
+    "service": "VPC",
+    "url": "https://dev.to/dineshgowtham/vpc-lattice-explained-simply-how-to-wire-your-ai-coding-assistant-securely-to-internal-services-4l38",
+    "tags": [
+      "nodejs",
+      "aws",
+      "vpc",
+      "aiagents"
+    ],
+    "hook": "AI agents are great at calling your own code, but most engineers still expose those endpoints behind public load balancers or messy VPC peering. VPC Lattice lets you treat every microservice as a first‑class, zero‑trust target—no extra NLBs, no open ports. In this guide you’ll see exactly how to connect a Claude‑powered function‑calling Lambda to an internal API using Lattice, all with type‑safe TypeScript.",
+    "angle": "Most teams assume a classic Network Load Balancer is the only way to expose internal APIs to AI agents, but VPC Lattice gives you secure, service‑to‑service networking with far less operational overhead.",
+    "gotchaToReveal": "VPC Lattice only resolves DNS names inside the service network; using the public endpoint or an old VPC endpoint URL triggers a DNS‑resolution error that looks like a generic network timeout, not an IAM issue."
   }
 ]
