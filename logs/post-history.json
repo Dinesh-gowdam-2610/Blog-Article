@@ -812,5 +812,20 @@
     "hook": "Most engineers think you need a dedicated vector database for similarity search, but Athena’s Iceberg support lets you run nearest‑neighbor queries directly on S3 data. In a few lines of TypeScript you can turn a Parquet file of embeddings into a searchable knowledge base and feed the results to an LLM. The result is a serverless RAG pipeline that costs pennies and scales automatically.",
     "angle": "Athena is often dismissed as too slow for vector search, yet with the right schema and SQL tricks it becomes a viable, zero‑ops alternative to managed vector stores.",
     "gotchaToReveal": "Athena doesn’t have a built‑in cosine‑similarity function – you must compute it manually in SQL, and forgetting to pre‑normalize vectors causes the query to scan the entire dataset, blowing up latency and cost."
+  },
+  {
+    "date": "2026-09-08",
+    "title": "Claude AI Agent on Lambda: Build the Plan‑Act‑Observe Loop in Node.js",
+    "service": "Lambda",
+    "url": "https://dev.to/dineshgowtham/claude-ai-agent-on-lambda-build-the-plan-act-observe-loop-in-nodejs-1881",
+    "tags": [
+      "lambda",
+      "aws",
+      "typescript",
+      "aiagents"
+    ],
+    "hook": "Imagine an AI coding assistant that can think, act, and learn—running entirely on a serverless function. In minutes you’ll have a self‑contained Claude agent that processes user prompts, calls external tools, and streams back answers without managing servers.",
+    "angle": "Serverless AI agents aren’t a futuristic concept; they’re a practical pattern you can adopt today, and Lambda’s stateless nature forces you to design the loop correctly.",
+    "gotchaToReveal": "Claude may return a partial response with a tool‑call flag; if you treat the Lambda invocation as a one‑off request you’ll lose context. The post shows how to persist the conversation state in EventBridge’s event payload or DynamoDB to keep the loop alive across async steps."
   }
 ]
