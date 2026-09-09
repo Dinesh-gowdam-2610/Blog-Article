@@ -842,5 +842,20 @@
     "hook": "AI agents are great at calling your own code, but most engineers still expose those endpoints behind public load balancers or messy VPC peering. VPC Lattice lets you treat every microservice as a first‑class, zero‑trust target—no extra NLBs, no open ports. In this guide you’ll see exactly how to connect a Claude‑powered function‑calling Lambda to an internal API using Lattice, all with type‑safe TypeScript.",
     "angle": "Most teams assume a classic Network Load Balancer is the only way to expose internal APIs to AI agents, but VPC Lattice gives you secure, service‑to‑service networking with far less operational overhead.",
     "gotchaToReveal": "VPC Lattice only resolves DNS names inside the service network; using the public endpoint or an old VPC endpoint URL triggers a DNS‑resolution error that looks like a generic network timeout, not an IAM issue."
+  },
+  {
+    "date": "2026-09-09",
+    "title": "How to Build a GPT‑6 Astra Chatbot on Amazon Bedrock Using Node.js 22’s Native TypeScript Stripping, Explained Simply",
+    "service": "Bedrock",
+    "url": "https://dev.to/dineshgowtham/how-to-build-a-gpt-6-astra-chatbot-on-amazon-bedrock-using-nodejs-22s-native-typescript-27li",
+    "tags": [
+      "bedrock",
+      "nodejs",
+      "typescript",
+      "gpt6"
+    ],
+    "hook": "Developers are still wiring massive build pipelines just to call an LLM. With Node 22 you can drop the compile step and talk to GPT‑6 Astra in a single TypeScript file. The result is a lean, fast‑to‑prototype chatbot you can run locally or deploy as a Lambda‑free service.",
+    "angle": "The prevailing belief is that Bedrock requires the heavy AWS SDK and a separate build process – the truth is you can use native fetch and Node 22’s experimental‑strip‑types to call the model directly, shaving hours of setup.",
+    "gotchaToReveal": "Bedrock streams newline‑delimited JSON; if you treat the whole response as one JSON object you’ll hit a parse error – you must split on '\\n' and ignore empty lines before parsing"
   }
 ]
