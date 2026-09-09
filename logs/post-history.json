@@ -857,5 +857,20 @@
     "hook": "Developers are still wiring massive build pipelines just to call an LLM. With Node 22 you can drop the compile step and talk to GPT‑6 Astra in a single TypeScript file. The result is a lean, fast‑to‑prototype chatbot you can run locally or deploy as a Lambda‑free service.",
     "angle": "The prevailing belief is that Bedrock requires the heavy AWS SDK and a separate build process – the truth is you can use native fetch and Node 22’s experimental‑strip‑types to call the model directly, shaving hours of setup.",
     "gotchaToReveal": "Bedrock streams newline‑delimited JSON; if you treat the whole response as one JSON object you’ll hit a parse error – you must split on '\\n' and ignore empty lines before parsing"
+  },
+  {
+    "date": "2026-09-09",
+    "title": "Automated RAG Index Refresh with EventBridge Scheduler: Keep Your Vector Store Fresh in Node.js 22",
+    "service": "Scheduler",
+    "url": "https://dev.to/dineshgowtham/automated-rag-index-refresh-with-eventbridge-scheduler-keep-your-vector-store-fresh-in-nodejs-22-249j",
+    "tags": [
+      "aws",
+      "scheduler",
+      "nodejs",
+      "rag"
+    ],
+    "hook": "Stale embeddings silently sabotage your retrieval‑augmented generation answers, and most teams only notice after a user complaint. By wiring EventBridge Scheduler to a lightweight Node.js 22 service you can refresh your vector store on a strict timetable without manual intervention. This post shows exactly how to set it up and avoid the hidden pitfalls.",
+    "angle": "Most engineers treat RAG pipelines as “set it and forget it”, but neglecting regular embedding updates turns a smart assistant into a guessing game.",
+    "gotchaToReveal": "Scheduler defaults to UTC; forgetting to set scheduleTimezone to your local zone makes the refresh run at unexpected hours, leading to apparent “missed” updates."
   }
 ]
