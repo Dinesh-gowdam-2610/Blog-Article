@@ -872,5 +872,20 @@
     "hook": "Stale embeddings silently sabotage your retrieval‑augmented generation answers, and most teams only notice after a user complaint. By wiring EventBridge Scheduler to a lightweight Node.js 22 service you can refresh your vector store on a strict timetable without manual intervention. This post shows exactly how to set it up and avoid the hidden pitfalls.",
     "angle": "Most engineers treat RAG pipelines as “set it and forget it”, but neglecting regular embedding updates turns a smart assistant into a guessing game.",
     "gotchaToReveal": "Scheduler defaults to UTC; forgetting to set scheduleTimezone to your local zone makes the refresh run at unexpected hours, leading to apparent “missed” updates."
+  },
+  {
+    "date": "2026-09-10",
+    "title": "Building Your First MCP Server in Node.js 22: A Step‑By‑Step Guide",
+    "service": "NodeJS22",
+    "url": "https://dev.to/dineshgowtham/building-your-first-mcp-server-in-nodejs-22-a-step-by-step-guide-2e4c",
+    "tags": [
+      "nodejs",
+      "eventbridge",
+      "mcp",
+      "ai"
+    ],
+    "hook": "You’ve heard the buzz about the Model Context Protocol (MCP) but think it’s only for large research labs. In reality, you can run a compliant MCP server on a single Node.js 22 instance and hook it into AWS without a PhD. This post shows exactly how, using only native TypeScript stripping and EventBridge for async tool calls.",
+    "angle": "MCP isn’t a mysterious, heavyweight spec – it’s a lightweight HTTP contract that any modern runtime can implement, and Node.js 22 makes it trivial.",
+    "gotchaToReveal": "If the x‑mcp‑version header is missing or mismatched, the model silently rejects the request, producing a generic 400 error that’s hard to debug unless you log the raw headers."
   }
 ]
