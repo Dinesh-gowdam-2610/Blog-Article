@@ -902,5 +902,20 @@
     "hook": "Developers often assume vector search requires a heavyweight Elasticsearch cluster, but OpenSearch Serverless turns it into a few‑line setup. Combine that with Node.js 22’s native TypeScript stripping and you can ship a production‑grade RAG service in a single repo. In this guide you’ll see exactly how to make it happen.",
     "angle": "Most teams over‑engineer their vector stores, missing the simplicity and cost predictability of serverless OpenSearch, especially when paired with the new Node.js 22 runtime features.",
     "gotchaToReveal": "OpenSearch Serverless expects vectors as base64‑encoded Float32Array buffers; passing a plain number array results in zero‑score matches and silent failures."
+  },
+  {
+    "date": "2026-09-11",
+    "title": "CodeWhisperer Contextual Suggestions Explained: How the AI Knows Your Codebase and How to Customize It",
+    "service": "CodeWhisperer",
+    "url": "https://dev.to/dineshgowtham/codewhisperer-contextual-suggestions-explained-how-the-ai-knows-your-codebase-and-how-to-customize-15om",
+    "tags": [
+      "codewhisperer",
+      "aws",
+      "typescript",
+      "promptengineering"
+    ],
+    "hook": "Ever wondered why AWS CodeWhisperer can suggest a perfect one‑liner before you finish typing? The secret lies in how it builds a lightweight context window from your repository and caches prompts. This post pulls back the curtain and shows you how to make those suggestions even smarter.",
+    "angle": "Most developers treat CodeWhisperer as a black box, but by understanding its context‑window mechanics you can steer its output and avoid surprising completions.",
+    "gotchaToReveal": "CodeWhisperer ignores files listed in .gitignore when building its context, which can lead to missing imports or stale suggestions if your repo relies on generated code."
   }
 ]
