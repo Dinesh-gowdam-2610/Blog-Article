@@ -887,5 +887,20 @@
     "hook": "You’ve heard the buzz about the Model Context Protocol (MCP) but think it’s only for large research labs. In reality, you can run a compliant MCP server on a single Node.js 22 instance and hook it into AWS without a PhD. This post shows exactly how, using only native TypeScript stripping and EventBridge for async tool calls.",
     "angle": "MCP isn’t a mysterious, heavyweight spec – it’s a lightweight HTTP contract that any modern runtime can implement, and Node.js 22 makes it trivial.",
     "gotchaToReveal": "If the x‑mcp‑version header is missing or mismatched, the model silently rejects the request, producing a generic 400 error that’s hard to debug unless you log the raw headers."
+  },
+  {
+    "date": "2026-09-11",
+    "title": "RAG with OpenSearch Serverless and Node.js 22: Build a Real‑Time AI Knowledge Base, Explained Simply",
+    "service": "OpenSearch",
+    "url": "https://dev.to/dineshgowtham/rag-with-opensearch-serverless-and-nodejs-22-build-a-real-time-ai-knowledge-base-explained-simply-189a",
+    "tags": [
+      "opensearch",
+      "nodejs",
+      "rag",
+      "typescript"
+    ],
+    "hook": "Developers often assume vector search requires a heavyweight Elasticsearch cluster, but OpenSearch Serverless turns it into a few‑line setup. Combine that with Node.js 22’s native TypeScript stripping and you can ship a production‑grade RAG service in a single repo. In this guide you’ll see exactly how to make it happen.",
+    "angle": "Most teams over‑engineer their vector stores, missing the simplicity and cost predictability of serverless OpenSearch, especially when paired with the new Node.js 22 runtime features.",
+    "gotchaToReveal": "OpenSearch Serverless expects vectors as base64‑encoded Float32Array buffers; passing a plain number array results in zero‑score matches and silent failures."
   }
 ]
