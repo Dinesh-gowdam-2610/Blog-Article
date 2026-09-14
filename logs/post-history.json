@@ -917,5 +917,20 @@
     "hook": "Ever wondered why AWS CodeWhisperer can suggest a perfect one‑liner before you finish typing? The secret lies in how it builds a lightweight context window from your repository and caches prompts. This post pulls back the curtain and shows you how to make those suggestions even smarter.",
     "angle": "Most developers treat CodeWhisperer as a black box, but by understanding its context‑window mechanics you can steer its output and avoid surprising completions.",
     "gotchaToReveal": "CodeWhisperer ignores files listed in .gitignore when building its context, which can lead to missing imports or stale suggestions if your repo relies on generated code."
+  },
+  {
+    "date": "2026-09-14",
+    "title": "How TypeScript 5.5’s Inferred Type Predicates Make AI Agents Safer",
+    "service": "TypeScript55",
+    "url": "https://dev.to/dineshgowtham/how-typescript-55s-inferred-type-predicates-make-ai-agents-safer-3beh",
+    "tags": [
+      "typescript",
+      "aiagents",
+      "promptengineering",
+      "mcp"
+    ],
+    "hook": "LLMs love to call tools, but a mismatched signature can send your agent spiraling into nonsense. TypeScript 5.5 gives you a way to catch those mismatches before the model ever runs, turning a fragile plan‑act‑observe loop into a type‑checked contract. In this post we’ll see exactly how.",
+    "angle": "Most engineers treat TypeScript as a compile‑time nicety; with 5.5’s inferred type predicates it becomes a runtime guard for LLM tool calls, eliminating a whole class of hallucinated actions.",
+    "gotchaToReveal": "filter(Boolean) now correctly narrows types, but if you forget to enable isolatedDeclarations in a monorepo the compiler may fall back to stale declaration files, silently breaking your type‑guards."
   }
 ]
