@@ -932,5 +932,20 @@
     "hook": "LLMs love to call tools, but a mismatched signature can send your agent spiraling into nonsense. TypeScript 5.5 gives you a way to catch those mismatches before the model ever runs, turning a fragile plan‑act‑observe loop into a type‑checked contract. In this post we’ll see exactly how.",
     "angle": "Most engineers treat TypeScript as a compile‑time nicety; with 5.5’s inferred type predicates it becomes a runtime guard for LLM tool calls, eliminating a whole class of hallucinated actions.",
     "gotchaToReveal": "filter(Boolean) now correctly narrows types, but if you forget to enable isolatedDeclarations in a monorepo the compiler may fall back to stale declaration files, silently breaking your type‑guards."
+  },
+  {
+    "date": "2026-09-16",
+    "title": "MCP Explained Simply: Build a Real‑Time AI Agent Loop with Lambda and Claude",
+    "service": "MCP",
+    "url": "https://dev.to/dineshgowtham/mcp-explained-simply-build-a-real-time-ai-agent-loop-with-lambda-and-claude-20ac",
+    "tags": [
+      "ai",
+      "mcp",
+      "lambda",
+      "typescript"
+    ],
+    "hook": "Ever wondered how Claude can call your own code without you writing a custom server? The Model Context Protocol (MCP) lets you turn any AWS Lambda into a live tool‑calling endpoint. In this guide we’ll wire it up step‑by‑step so your AI assistant can read/write DynamoDB on demand.",
+    "angle": "While most tutorials treat MCP as a black‑box webhook, the real power comes from treating it as a standard Lambda event – that way you get all the AWS observability and security benefits for free.",
+    "gotchaToReveal": "MCP payloads are base64‑encoded and must be decoded before JSON parsing – forgetting this produces a cryptic ‘Unexpected token u’ error in Lambda."
   }
 ]
