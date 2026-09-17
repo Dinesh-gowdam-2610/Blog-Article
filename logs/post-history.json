@@ -962,5 +962,20 @@
     "hook": "Developers waste minutes watching TypeScript compile before every Lambda deploy, even though the code never runs with types. By swapping ts-node for a combined esbuild + tsc --noEmit pipeline, you keep full type safety and slash build time. The result is a Lambda that talks to Claude with zero‑runtime overhead.",
     "angle": "esbuild isn’t just a bundler; when paired with tsc --noEmit it replaces the traditional compile‑then‑bundle step, giving you type‑checked, stripped‑down code that runs faster and costs less.",
     "gotchaToReveal": "esbuild removes type‑only imports, which can silently break runtime code that relied on them; using the satisfies operator forces the compiler to verify the shape of the request object before it’s stripped."
+  },
+  {
+    "date": "2026-09-17",
+    "title": "Promise.withResolvers() Demystified: Simplify Claude Agent Loops in Node.js",
+    "service": "JavaScriptPatterns",
+    "url": "https://dev.to/dineshgowtham/promisewithresolvers-demystified-simplify-claude-agent-loops-in-nodejs-2akc",
+    "tags": [
+      "javascript",
+      "promises",
+      "claude",
+      "bedrock"
+    ],
+    "hook": "Developers still drown in \"new Promise((resolve,reject)=>…)\" boilerplate when wiring Claude’s function‑calling tool calls. The new Promise.withResolvers() helper lets you expose resolve/reject instantly, cutting noise and bugs. In this post you’ll see how a few extra lines turn a tangled async loop into crystal‑clear code.",
+    "angle": "The promise‑wrapping pattern used for LLM tool calls is an unnecessary source of bugs; Promise.withResolvers() replaces it with a single, safe API.",
+    "gotchaToReveal": "Promise.withResolvers() is only available in Node.js 22+; forgetting to polyfill or to call resolver.resolve() before exiting causes hidden unhandled‑promise rejections."
   }
 ]
