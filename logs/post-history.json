@@ -977,5 +977,20 @@
     "hook": "Developers still drown in \"new Promise((resolve,reject)=>…)\" boilerplate when wiring Claude’s function‑calling tool calls. The new Promise.withResolvers() helper lets you expose resolve/reject instantly, cutting noise and bugs. In this post you’ll see how a few extra lines turn a tangled async loop into crystal‑clear code.",
     "angle": "The promise‑wrapping pattern used for LLM tool calls is an unnecessary source of bugs; Promise.withResolvers() replaces it with a single, safe API.",
     "gotchaToReveal": "Promise.withResolvers() is only available in Node.js 22+; forgetting to polyfill or to call resolver.resolve() before exiting causes hidden unhandled‑promise rejections."
+  },
+  {
+    "date": "2026-09-17",
+    "title": "How Cursor AI Understands Your Whole Codebase — And How to Leverage It in a Serverless Lambda",
+    "service": "CursorAI",
+    "url": "https://dev.to/dineshgowtham/how-cursor-ai-understands-your-whole-codebase-and-how-to-leverage-it-in-a-serverless-lambda-1h2g",
+    "tags": [
+      "cursorai",
+      "lambda",
+      "nodejs",
+      "promptengineering"
+    ],
+    "hook": "Cursor AI can scan an entire repository in seconds and give line‑by‑line suggestions, but most engineers treat it like a simple autocomplete. Learn why that mindset wastes the tool’s power and how to unlock full‑context code generation in production.",
+    "angle": "Most developers think AI code assistants only help with single‑file edits; the truth is they excel when you feed them the entire project graph, and serverless functions are the perfect cheap wrapper to do it at scale.",
+    "gotchaToReveal": "Cursor returns a 429 Too Many Requests with a Retry‑After header even when you stay under the documented token limit; the SDK silently retries unless you disable it, which can mask latency spikes in Lambda."
   }
 ]
