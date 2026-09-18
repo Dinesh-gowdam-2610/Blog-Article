@@ -1007,5 +1007,20 @@
     "hook": "LLM chat apps feel laggy because most engineers default to polling or heavyweight WebSockets. In reality, Server‑Sent Events (SSE) give you true streaming with far less complexity, and API Gateway now supports it natively. This post shows you how to wire Claude on Bedrock through a Lambda that streams tokens directly to the browser.",
     "angle": "Most developers assume you need WebSockets for live LLM output, but SSE + API Gateway provides a simpler, lower‑overhead path that works out‑of‑the‑box.",
     "gotchaToReveal": "API Gateway buffers the response unless you enable the new \"HTTP integration with response streaming\" and set the Lambda’s integration type to \"Lambda proxy\" with \"payload format version 2.0\", otherwise the client sees nothing until the function finishes"
+  },
+  {
+    "date": "2026-09-18",
+    "title": "Streaming Claude Tokens from Bedrock with Node.js 22: SSE Made Simple",
+    "service": "Bedrock",
+    "url": "https://dev.to/dineshgowtham/streaming-claude-tokens-from-bedrock-with-nodejs-22-sse-made-simple-4oid",
+    "tags": [
+      "nodejs",
+      "aws",
+      "bedrock",
+      "llm"
+    ],
+    "hook": "Developers keep asking why LLM responses feel sluggish when they have to wait for the whole answer. With Bedrock’s streaming mode and Node 22’s native fetch, you can push tokens to the browser the moment they’re generated. This guide shows you how to wire a Lambda‑backed SSE endpoint in minutes.",
+    "angle": "Most tutorials treat LLM calls as single‑shot HTTP requests, ignoring the latency gains of true token‑by‑token streaming.",
+    "gotchaToReveal": "If you omit the ‘stream’ flag in the Bedrock request payload, the service returns the entire completion at once, breaking the SSE flow."
   }
 ]
