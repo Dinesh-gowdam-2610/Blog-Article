@@ -992,5 +992,20 @@
     "hook": "Cursor AI can scan an entire repository in seconds and give line‑by‑line suggestions, but most engineers treat it like a simple autocomplete. Learn why that mindset wastes the tool’s power and how to unlock full‑context code generation in production.",
     "angle": "Most developers think AI code assistants only help with single‑file edits; the truth is they excel when you feed them the entire project graph, and serverless functions are the perfect cheap wrapper to do it at scale.",
     "gotchaToReveal": "Cursor returns a 429 Too Many Requests with a Retry‑After header even when you stay under the documented token limit; the SDK silently retries unless you disable it, which can mask latency spikes in Lambda."
+  },
+  {
+    "date": "2026-09-18",
+    "title": "Streaming Claude Tokens with Server‑Sent Events: Build a Real‑Time LLM Chat API on API Gateway and Lambda",
+    "service": "APIGateway",
+    "url": "https://dev.to/dineshgowtham/streaming-claude-tokens-with-server-sent-events-build-a-real-time-llm-chat-api-on-api-gateway-and-nnc",
+    "tags": [
+      "nodejs",
+      "aws",
+      "bedrock",
+      "sse"
+    ],
+    "hook": "LLM chat apps feel laggy because most engineers default to polling or heavyweight WebSockets. In reality, Server‑Sent Events (SSE) give you true streaming with far less complexity, and API Gateway now supports it natively. This post shows you how to wire Claude on Bedrock through a Lambda that streams tokens directly to the browser.",
+    "angle": "Most developers assume you need WebSockets for live LLM output, but SSE + API Gateway provides a simpler, lower‑overhead path that works out‑of‑the‑box.",
+    "gotchaToReveal": "API Gateway buffers the response unless you enable the new \"HTTP integration with response streaming\" and set the Lambda’s integration type to \"Lambda proxy\" with \"payload format version 2.0\", otherwise the client sees nothing until the function finishes"
   }
 ]
