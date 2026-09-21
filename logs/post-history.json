@@ -1022,5 +1022,20 @@
     "hook": "Developers keep asking why LLM responses feel sluggish when they have to wait for the whole answer. With Bedrock’s streaming mode and Node 22’s native fetch, you can push tokens to the browser the moment they’re generated. This guide shows you how to wire a Lambda‑backed SSE endpoint in minutes.",
     "angle": "Most tutorials treat LLM calls as single‑shot HTTP requests, ignoring the latency gains of true token‑by‑token streaming.",
     "gotchaToReveal": "If you omit the ‘stream’ flag in the Bedrock request payload, the service returns the entire completion at once, breaking the SSE flow."
+  },
+  {
+    "date": "2026-09-21",
+    "title": "ChatGPT Function Calls Meet EventBridge Pipes: Automating Real‑Time Code Review Workflows",
+    "service": "EventBridge",
+    "url": "https://dev.to/dineshgowtham/chatgpt-function-calls-meet-eventbridge-pipes-automating-real-time-code-review-workflows-1dda",
+    "tags": [
+      "chatgpt",
+      "eventbridge",
+      "lambda",
+      "aicodingassistants"
+    ],
+    "hook": "ChatGPT can do more than spit out text—it can call your code. By coupling its function‑calling feature with AWS EventBridge Pipes you turn a chat response into a fully‑managed, serverless pipeline that runs instantly. This post shows exactly how to wire the two together so every PR gets an AI‑driven review without leaving your repo.",
+    "angle": "Most engineers treat ChatGPT as a static assistant, but its function‑calling API lets it become an active participant in your CI/CD loop, and EventBridge Pipes is the missing glue that makes the hand‑off seamless and reliable.",
+    "gotchaToReveal": "If you omit the required \"arguments\" field or send it as a raw object, EventBridge discards the event silently—always stringify the function‑call arguments before publishing."
   }
 ]
