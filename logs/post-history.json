@@ -1037,5 +1037,20 @@
     "hook": "ChatGPT can do more than spit out text—it can call your code. By coupling its function‑calling feature with AWS EventBridge Pipes you turn a chat response into a fully‑managed, serverless pipeline that runs instantly. This post shows exactly how to wire the two together so every PR gets an AI‑driven review without leaving your repo.",
     "angle": "Most engineers treat ChatGPT as a static assistant, but its function‑calling API lets it become an active participant in your CI/CD loop, and EventBridge Pipes is the missing glue that makes the hand‑off seamless and reliable.",
     "gotchaToReveal": "If you omit the required \"arguments\" field or send it as a raw object, EventBridge discards the event silently—always stringify the function‑call arguments before publishing."
+  },
+  {
+    "date": "2026-09-21",
+    "title": "How to Use ChatGPT’s Code Interpreter with S3 to Run and Test Code Snippets, Explained Simply",
+    "service": "S3",
+    "url": "https://dev.to/dineshgowtham/how-to-use-chatgpts-code-interpreter-with-s3-to-run-and-test-code-snippets-explained-simply-35pl",
+    "tags": [
+      "chatgpt",
+      "s3",
+      "nodejs",
+      "aiagents"
+    ],
+    "hook": "Engineers love copy‑pasting snippets into ChatGPT, but that manual step breaks automation. Imagine a pipeline where every snippet lives in S3, gets pulled by a Lambda, runs in ChatGPT’s sandbox, and the results are written back automatically. This post shows you how to make that happen today.",
+    "angle": "Most tutorials stop at “copy‑paste into ChatGPT”, ignoring that the code interpreter can be called programmatically to become a lightweight CI step.",
+    "gotchaToReveal": "The code interpreter runs in an isolated sandbox that blocks network calls and external libraries, so any import statements will fail unless they are part of the built‑in stdlib."
   }
 ]
