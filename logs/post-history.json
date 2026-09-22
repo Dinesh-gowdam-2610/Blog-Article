@@ -1067,5 +1067,20 @@
     "hook": "AI agents are great at automating multi-step workflows, but when they start writing to a database you'll quickly hit race-conditions and silent data loss. In this article we show how to wire Claude's tool-calling into a Lambda that updates DynamoDB with proper idempotency and observability.",
     "angle": "Most developers assume an LLM-driven agent can just call a CRUD API, yet without DynamoDB's conditional writes and retry-safe patterns the system becomes flaky.",
     "gotchaToReveal": "Relying on DynamoDB's ReturnValues='ALL_OLD' during retries can mask conflicts; you must check for ConditionalCheckFailedException and handle it explicitly."
+  },
+  {
+    "date": "2026-09-22",
+    "title": "Prompt Caching with Claude in Node.js: How to Cut Latency and Save Tokens, Explained Simply",
+    "service": "NodeJSPerformance",
+    "url": "https://dev.to/dineshgowtham/prompt-caching-with-claude-in-nodejs-how-to-cut-latency-and-save-tokens-explained-simply-2cde",
+    "tags": [
+      "nodejs",
+      "typescript",
+      "promptcaching",
+      "claude"
+    ],
+    "hook": "LLM calls feel slow because every request re‑generates the same answer. By treating a full prompt‑plus‑variables as a cacheable unit you can reuse Claude’s output for identical tasks. This post shows a production‑ready pattern that lives inside a Lambda function and uses Node.js’s diagnostics_channel for zero‑cost observability.",
+    "angle": "Developers assume LLM responses are always unique, but when the prompt is deterministic you can safely cache them – turning a “slow AI call” into a cheap memory lookup.",
+    "gotchaToReveal": "If you forget to include the model’s temperature or max_tokens in the cache key, Claude will return cached results that don’t respect the new settings, leading to subtle quality regressions."
   }
 ]
