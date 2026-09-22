@@ -1052,5 +1052,20 @@
     "hook": "Engineers love copy‑pasting snippets into ChatGPT, but that manual step breaks automation. Imagine a pipeline where every snippet lives in S3, gets pulled by a Lambda, runs in ChatGPT’s sandbox, and the results are written back automatically. This post shows you how to make that happen today.",
     "angle": "Most tutorials stop at “copy‑paste into ChatGPT”, ignoring that the code interpreter can be called programmatically to become a lightweight CI step.",
     "gotchaToReveal": "The code interpreter runs in an isolated sandbox that blocks network calls and external libraries, so any import statements will fail unless they are part of the built‑in stdlib."
+  },
+  {
+    "date": "2026-09-22",
+    "title": "How Claude's AI Agent Can Safely Update DynamoDB: A Step-By-Step Guide",
+    "service": "DynamoDB",
+    "url": "https://dev.to/dineshgowtham/how-claudes-ai-agent-can-safely-update-dynamodb-a-step-by-step-guide-19pm",
+    "tags": [
+      "aiagents",
+      "dynamodb",
+      "nodejs",
+      "mcp"
+    ],
+    "hook": "AI agents are great at automating multi-step workflows, but when they start writing to a database you'll quickly hit race-conditions and silent data loss. In this article we show how to wire Claude's tool-calling into a Lambda that updates DynamoDB with proper idempotency and observability.",
+    "angle": "Most developers assume an LLM-driven agent can just call a CRUD API, yet without DynamoDB's conditional writes and retry-safe patterns the system becomes flaky.",
+    "gotchaToReveal": "Relying on DynamoDB's ReturnValues='ALL_OLD' during retries can mask conflicts; you must check for ConditionalCheckFailedException and handle it explicitly."
   }
 ]
