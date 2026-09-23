@@ -1082,5 +1082,20 @@
     "hook": "LLM calls feel slow because every request re‑generates the same answer. By treating a full prompt‑plus‑variables as a cacheable unit you can reuse Claude’s output for identical tasks. This post shows a production‑ready pattern that lives inside a Lambda function and uses Node.js’s diagnostics_channel for zero‑cost observability.",
     "angle": "Developers assume LLM responses are always unique, but when the prompt is deterministic you can safely cache them – turning a “slow AI call” into a cheap memory lookup.",
     "gotchaToReveal": "If you forget to include the model’s temperature or max_tokens in the cache key, Claude will return cached results that don’t respect the new settings, leading to subtle quality regressions."
+  },
+  {
+    "date": "2026-09-23",
+    "title": "Prompt Testing Pipelines with SQS: How to Version, Run, and Verify LLM Prompts Like Unit Tests",
+    "service": "SQS",
+    "url": "https://dev.to/dineshgowtham/prompt-testing-pipelines-with-sqs-how-to-version-run-and-verify-llm-prompts-like-unit-tests-40op",
+    "tags": [
+      "prompttesting",
+      "sqs",
+      "nodejs",
+      "typescript"
+    ],
+    "hook": "Developers treat prompts like magic strings, but that secrecy breeds hidden bugs. By wiring prompts into an SQS‑backed queue and running them through automated tests, you get repeatable, debuggable AI behavior. This post shows you how to turn prompt tweaking into a CI‑friendly workflow.",
+    "angle": "Most teams think prompt engineering is an art, not a code discipline—this article proves that treating prompts as testable artifacts eliminates guesswork and catches regressions early.",
+    "gotchaToReveal": "If the SQS visibility timeout is shorter than the LLM call, the same prompt can be processed twice, causing flaky test outcomes unless you extend the timeout or use a deduplication token"
   }
 ]
