@@ -1,11 +1,11 @@
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  .github/workflows/daily-post.yml                                          ║
-# ║  Publishes AI-generated blog posts twice daily Mon-Fri (8 AM + 5 PM IST)  ║
-# ║  Runs Mon-Fri, twice daily · LinkedIn roundup posts on Wednesday only     ║
+# ║  Publishes one AI-generated blog post per weekday at 08:00 AM IST         ║
+# ║  Runs Mon-Fri once daily · LinkedIn roundup posts on Wednesday only       ║
 # ║  Calls: scripts/devCommunityBlogPost.js                                    ║
 # ╠══════════════════════════════════════════════════════════════════════════════╣
 # ║  08:00 AM IST  =  02:30 UTC  (IST is UTC +5:30)                           ║
-# ║  Cron: 30 2 * * 1-5  (8AM IST) + 30 11 * * 1-5  (5PM IST)                 ║
+# ║  Cron: 30 2 * * 1-5  (8 AM IST, Mon-Fri only)                             ║
 # ║    30   → minute 30                                                        ║
 # ║    2    → hour 02 (UTC)  ← 02:30 UTC + 5h30m = 08:00 AM IST              ║
 # ║    *    → every day of month                                               ║
@@ -51,8 +51,7 @@ on:
     #        │  │  │  ┌─ month (every)
     #        │  │  │  │  ┌─ day of week: 3=Wed only
     #        │  │  │  │  │
-    - cron: "30 2 * * 1-5"    # 08:00 AM IST · 02:30 UTC · Mon-Fri morning run
-    - cron: "30 11 * * 1-5"   # 05:00 PM IST · 11:30 UTC · Mon-Fri evening run
+    - cron: "30 2 * * 1-5"    # 08:00 AM IST · 02:30 UTC · Mon-Fri (once daily)
 
   # Adds the "Run workflow" button in the GitHub Actions tab for manual testing
   workflow_dispatch:
@@ -184,7 +183,7 @@ jobs:
             echo "| Field | Value |"
             echo "|-------|-------|"
             echo "| 📅 Date (IST) | $(date '+%Y-%m-%d %H:%M IST') |"
-            echo "| 🕙 Schedule   | Mon-Fri · 8AM + 5PM IST |"
+            echo "| 🕙 Schedule   | Mon-Fri · 08:00 AM IST |"
             echo "| ✅ Status | ${{ job.status }} |"
             echo "| 🖥️ Runner | ubuntu-latest |"
             echo "| ⚙️ Actions runtime | Node.js 24 (FORCE_JAVASCRIPT_ACTIONS_TO_NODE24) |"
