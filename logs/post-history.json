@@ -1112,5 +1112,20 @@
     "hook": "Most developers think AI coding assistants are just fancy autocomplete, but Cursor’s Agent Mode runs a full plan‑act‑observe loop that can call tools, edit files, and verify results. In a few minutes you’ll see exactly how the loop is orchestrated and how to hook it into a tiny Node.js 22 CLI without a build step.",
     "angle": "The hidden truth is that AI agents are not magic – they are deterministic workflows that you can control, version, and test just like any other piece of software.",
     "gotchaToReveal": "Cursor’s agent endpoint rejects requests that don’t include a valid X‑Cursor‑Client‑Id header; forgetting it causes a 403 error that looks like an authentication failure."
+  },
+  {
+    "date": "2026-09-25",
+    "title": "AI Pair Programming with Lambda: Build a Claude‑Powered Coding Assistant and Enable Prompt Caching",
+    "service": "Lambda",
+    "url": "https://dev.to/dineshgowtham/ai-pair-programming-with-lambda-build-a-claude-powered-coding-assistant-and-enable-prompt-caching-3l53",
+    "tags": [
+      "lambda",
+      "aipairprogramming",
+      "promptcaching",
+      "typescript"
+    ],
+    "hook": "Developers are tired of line‑by‑line autocomplete and want an AI that can take a whole function and return production‑ready code. By leveraging AWS Lambda and Claude’s API you can offload that work to the cloud and get instant, cached responses. This guide shows exactly how.",
+    "angle": "Most tutorials stop at ‘autocomplete’; the real power comes from treating the LLM as a remote pair programmer with stateful prompt caching.",
+    "gotchaToReveal": "Lambda’s warm containers keep the /tmp cache between invocations, but a cold start wipes it, so the first request after a scale‑out incurs a full prompt rebuild."
   }
 ]
