@@ -1127,5 +1127,20 @@
     "hook": "Developers are tired of line‑by‑line autocomplete and want an AI that can take a whole function and return production‑ready code. By leveraging AWS Lambda and Claude’s API you can offload that work to the cloud and get instant, cached responses. This guide shows exactly how.",
     "angle": "Most tutorials stop at ‘autocomplete’; the real power comes from treating the LLM as a remote pair programmer with stateful prompt caching.",
     "gotchaToReveal": "Lambda’s warm containers keep the /tmp cache between invocations, but a cold start wipes it, so the first request after a scale‑out incurs a full prompt rebuild."
+  },
+  {
+    "date": "2026-09-28",
+    "title": "Deploying an MCP Server with CDK: A Step‑By‑Step Guide to Hosting Claude‑Powered Tools on ECS Fargate",
+    "service": "CDK",
+    "url": "https://dev.to/dineshgowtham/deploying-an-mcp-server-with-cdk-a-step-by-step-guide-to-hosting-claude-powered-tools-on-ecs-4jb8",
+    "tags": [
+      "cdk",
+      "ecs",
+      "mcp",
+      "claude"
+    ],
+    "hook": "Imagine you could expose any Claude tool as a standard HTTP endpoint and let teams call it just like a microservice. Most tutorials stop at a local Express server – scaling that pattern securely is the real missing piece. This post shows how to turn a simple MCP prototype into a production‑grade, IaC‑driven service on AWS.",
+    "angle": "Most engineers treat MCP as a sandbox experiment; the truth is that with CDK you can provision a repeatable, secure, and autoscaling deployment that integrates directly with Claude via Bedrock.",
+    "gotchaToReveal": "If you forget to attach the \"bedrock:*\" policy to the ECS task role, the service will throw AccessDeniedException at the first Claude call – a silent failure that only shows up in CloudWatch logs."
   }
 ]
