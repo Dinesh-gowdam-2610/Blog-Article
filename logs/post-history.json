@@ -1142,5 +1142,20 @@
     "hook": "Imagine you could expose any Claude tool as a standard HTTP endpoint and let teams call it just like a microservice. Most tutorials stop at a local Express server – scaling that pattern securely is the real missing piece. This post shows how to turn a simple MCP prototype into a production‑grade, IaC‑driven service on AWS.",
     "angle": "Most engineers treat MCP as a sandbox experiment; the truth is that with CDK you can provision a repeatable, secure, and autoscaling deployment that integrates directly with Claude via Bedrock.",
     "gotchaToReveal": "If you forget to attach the \"bedrock:*\" policy to the ECS task role, the service will throw AccessDeniedException at the first Claude call – a silent failure that only shows up in CloudWatch logs."
+  },
+  {
+    "date": "2026-09-30",
+    "title": "Claude Tool Use Explained: How to Let the Model Call Your API from Node.js",
+    "service": "Bedrock",
+    "url": "https://dev.to/dineshgowtham/claude-tool-use-explained-how-to-let-the-model-call-your-api-from-nodejs-4dl1",
+    "tags": [
+      "bedrock",
+      "claude",
+      "nodejs",
+      "typescript"
+    ],
+    "hook": "Imagine Claude not just answering questions but actually reaching out to your own services—creating a seamless AI‑powered workflow. In just a few lines of TypeScript you can expose a Bedrock model, define a tool, and watch the model invoke it in real time.",
+    "angle": "While many think LLMs are limited to static responses, Claude’s built‑in tool use lets it act like a programmable assistant, but developers often miss the subtle request format required to make it work.",
+    "gotchaToReveal": "Claude only returns a tool_use block when the model decides to call a tool; if you omit ‘tool_choice’: 'auto' or misuse the ‘name’ field, the model will respond with plain text instead of invoking your function."
   }
 ]
