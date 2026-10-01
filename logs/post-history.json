@@ -1157,5 +1157,20 @@
     "hook": "Imagine Claude not just answering questions but actually reaching out to your own services—creating a seamless AI‑powered workflow. In just a few lines of TypeScript you can expose a Bedrock model, define a tool, and watch the model invoke it in real time.",
     "angle": "While many think LLMs are limited to static responses, Claude’s built‑in tool use lets it act like a programmable assistant, but developers often miss the subtle request format required to make it work.",
     "gotchaToReveal": "Claude only returns a tool_use block when the model decides to call a tool; if you omit ‘tool_choice’: 'auto' or misuse the ‘name’ field, the model will respond with plain text instead of invoking your function."
+  },
+  {
+    "date": "2026-10-01",
+    "title": "EventBridge Pipes for AI Coding Assistants: Automate Multi‑File Code Generation on PR Open, Explained Simply",
+    "service": "EventBridge",
+    "url": "https://dev.to/dineshgowtham/eventbridge-pipes-for-ai-coding-assistants-automate-multi-file-code-generation-on-pr-open-3pog",
+    "tags": [
+      "eventbridge",
+      "ecs",
+      "nodejs",
+      "aicodingassistants"
+    ],
+    "hook": "Pull‑request reviewers spend minutes copying snippets into ChatGPT, then manually applying the suggestions. What if the whole edit could happen automatically, right after the PR is created? By wiring EventBridge Pipes to an ECS task you can turn an AI coding assistant into a CI‑native, auditable workflow.",
+    "angle": "Most teams treat AI assistants as UI add‑ons, but the real power comes when you embed them in your event‑driven architecture – turning ad‑hoc prompts into repeatable, version‑controlled code changes.",
+    "gotchaToReveal": "EventBridge Pipes don’t automatically retry on ECS task failures; you must configure a dead‑letter queue and make your S3 prompt cache version‑aware or you’ll get stale suggestions on rapid PR updates."
   }
 ]
