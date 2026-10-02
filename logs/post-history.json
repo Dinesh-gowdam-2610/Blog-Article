@@ -1172,5 +1172,20 @@
     "hook": "Pull‑request reviewers spend minutes copying snippets into ChatGPT, then manually applying the suggestions. What if the whole edit could happen automatically, right after the PR is created? By wiring EventBridge Pipes to an ECS task you can turn an AI coding assistant into a CI‑native, auditable workflow.",
     "angle": "Most teams treat AI assistants as UI add‑ons, but the real power comes when you embed them in your event‑driven architecture – turning ad‑hoc prompts into repeatable, version‑controlled code changes.",
     "gotchaToReveal": "EventBridge Pipes don’t automatically retry on ECS task failures; you must configure a dead‑letter queue and make your S3 prompt cache version‑aware or you’ll get stale suggestions on rapid PR updates."
+  },
+  {
+    "date": "2026-10-02",
+    "title": "How AWS Well‑Architected Agent Uses Generative AI to Review Your Infra‑as‑Code, Explained Simply",
+    "service": "WellArchitectedAgent",
+    "url": "https://dev.to/dineshgowtham/how-aws-well-architected-agent-uses-generative-ai-to-review-your-infra-as-code-explained-simply-1132",
+    "tags": [
+      "aws",
+      "wellarchitected",
+      "ai",
+      "typescript"
+    ],
+    "hook": "The new Well‑Architected Agent turns a months‑long manual review into a quick AI‑driven conversation. In just a few API calls you can get actionable recommendations for your CDK or Terraform stacks, and even see security gaps highlighted by GuardDuty’s findings. This post shows exactly how to wire it up in a Node.js 22 project.",
+    "angle": "AI‑powered architecture reviews sound magical, but they can give a false sense of security if you don’t understand the model’s limits and the IAM prerequisites. We’ll expose those hidden details while showing you the real value.",
+    "gotchaToReveal": "The Agent is only available in us‑east‑1 and requires the wellarchitected:EnableAgentPreview flag in your account; forgetting either results in a 403 error that looks like a regular permission issue."
   }
 ]
