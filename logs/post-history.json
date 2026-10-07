@@ -1202,5 +1202,20 @@
     "hook": "Developers often copy images from S3 to a server just to resize them before sending them to a LLM’s vision model. What if the transformation could happen inside S3, eliminating the extra hop? This post shows how to let Claude’s Vision API see resized images without any custom compute.",
     "angle": "Most teams treat S3 as a passive bucket, but Object Lambda turns it into a live data‑shaping layer that AI services can consume directly.",
     "gotchaToReveal": "Object Lambda only supports GET/HEAD; you can’t write back transformed data, and the access point must have s3:ListBucket and s3:GetObject permissions for both the original bucket and the access point, otherwise you’ll see AccessDenied at runtime."
+  },
+  {
+    "date": "2026-10-07",
+    "title": "How to Build a RAG Pipeline with DynamoDB’s Native Vector Search, Explained Simply",
+    "service": "DynamoDB",
+    "url": "https://dev.to/dineshgowtham/how-to-build-a-rag-pipeline-with-dynamodbs-native-vector-search-explained-simply-196k",
+    "tags": [
+      "dynamodb",
+      "rag",
+      "vectorsearch",
+      "nodejs"
+    ],
+    "hook": "Most engineers reach for a dedicated vector database the moment they need similarity search, adding latency and operational overhead. DynamoDB just announced native vector indexes, letting you store embeddings alongside your business data. In this post you’ll see how to turn that new feature into a fully‑functional Retrieval‑Augmented Generation (RAG) flow with Claude, using only DynamoDB and plain Node.js.",
+    "angle": "The prevailing belief that RAG always requires a separate vector store is a holdover from before DynamoDB’s vector support; using DynamoDB cuts the stack in half and simplifies consistency.",
+    "gotchaToReveal": "DynamoDB only supports cosine similarity on binary‑encoded float vectors; forgetting to base64‑encode the Float32Array before writing or to set the attribute type to Binary in the GSI leads to ValidationException errors that look like “Attribute type mismatch”."
   }
 ]
