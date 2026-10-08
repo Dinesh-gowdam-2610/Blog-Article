@@ -1217,5 +1217,20 @@
     "hook": "Most engineers reach for a dedicated vector database the moment they need similarity search, adding latency and operational overhead. DynamoDB just announced native vector indexes, letting you store embeddings alongside your business data. In this post you’ll see how to turn that new feature into a fully‑functional Retrieval‑Augmented Generation (RAG) flow with Claude, using only DynamoDB and plain Node.js.",
     "angle": "The prevailing belief that RAG always requires a separate vector store is a holdover from before DynamoDB’s vector support; using DynamoDB cuts the stack in half and simplifies consistency.",
     "gotchaToReveal": "DynamoDB only supports cosine similarity on binary‑encoded float vectors; forgetting to base64‑encode the Float32Array before writing or to set the attribute type to Binary in the GSI leads to ValidationException errors that look like “Attribute type mismatch”."
+  },
+  {
+    "date": "2026-10-08",
+    "title": "Claude‑Generated Aurora Serverless v2 Scaling Policies: A Step‑By‑Step Guide with the RDS SDK",
+    "service": "RDS",
+    "url": "https://dev.to/dineshgowtham/claude-generated-aurora-serverless-v2-scaling-policies-a-step-by-step-guide-with-the-rds-sdk-3k73",
+    "tags": [
+      "rds",
+      "nodejs",
+      "typescript",
+      "promptengineering"
+    ],
+    "hook": "LLMs are no longer just for writing code snippets—they can design cloud infrastructure too. Imagine describing your traffic pattern in plain English and getting a ready‑to‑apply Aurora Serverless scaling policy. This post shows exactly how that works.",
+    "angle": "While most teams hire a DBA to tune Aurora Serverless, a well‑prompted Claude can produce safe, production‑ready scaling configs in seconds.",
+    "gotchaToReveal": "Claude can suggest ACU limits that exceed your account’s quota or invert min/max values, causing RDS to throw InvalidParameterCombinationException—always validate the numbers before calling modifyDBCluster."
   }
 ]
