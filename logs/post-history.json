@@ -1232,5 +1232,20 @@
     "hook": "LLMs are no longer just for writing code snippets—they can design cloud infrastructure too. Imagine describing your traffic pattern in plain English and getting a ready‑to‑apply Aurora Serverless scaling policy. This post shows exactly how that works.",
     "angle": "While most teams hire a DBA to tune Aurora Serverless, a well‑prompted Claude can produce safe, production‑ready scaling configs in seconds.",
     "gotchaToReveal": "Claude can suggest ACU limits that exceed your account’s quota or invert min/max values, causing RDS to throw InvalidParameterCombinationException—always validate the numbers before calling modifyDBCluster."
+  },
+  {
+    "date": "2026-10-09",
+    "title": "Prompt Caching with ElastiCache: Speed Up Claude Calls in Node.js 22, Explained Simply",
+    "service": "ElastiCache",
+    "url": "https://dev.to/dineshgowtham/prompt-caching-with-elasticache-speed-up-claude-calls-in-nodejs-22-explained-simply-ig",
+    "tags": [
+      "elasticache",
+      "nodejs",
+      "typescript",
+      "promptcaching"
+    ],
+    "hook": "LLMs are fast, but every repeated request still costs time and tokens. What if you could memoize Claude’s answers in a Redis cache and serve them instantly? This post shows how to turn ElastiCache Serverless into a zero‑latency prompt cache for your Node.js 22 app.",
+    "angle": "Caching LLM responses feels like a free performance win, yet stale or mismatched cache keys can silently corrupt your app’s answers – we’ll expose the hidden gotchas and how to avoid them.",
+    "gotchaToReveal": "Using a naive cache key (e.g., the raw prompt string) can cause cache misses for semantically identical queries and, worse, cache hits for prompts that differ only in whitespace – leading to stale or wrong answers."
   }
 ]
