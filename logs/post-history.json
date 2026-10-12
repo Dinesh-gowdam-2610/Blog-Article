@@ -1247,5 +1247,20 @@
     "hook": "LLMs are fast, but every repeated request still costs time and tokens. What if you could memoize Claude’s answers in a Redis cache and serve them instantly? This post shows how to turn ElastiCache Serverless into a zero‑latency prompt cache for your Node.js 22 app.",
     "angle": "Caching LLM responses feels like a free performance win, yet stale or mismatched cache keys can silently corrupt your app’s answers – we’ll expose the hidden gotchas and how to avoid them.",
     "gotchaToReveal": "Using a naive cache key (e.g., the raw prompt string) can cause cache misses for semantically identical queries and, worse, cache hits for prompts that differ only in whitespace – leading to stale or wrong answers."
+  },
+  {
+    "date": "2026-10-12",
+    "title": "API Gateway HTTP API + Lambda Function URLs: Building a Prompt‑Caching LLM Proxy, Explained Simply",
+    "service": "APIGateway",
+    "url": "https://dev.to/dineshgowtham/api-gateway-http-api-lambda-function-urls-building-a-prompt-caching-llm-proxy-explained-simply-1m5",
+    "tags": [
+      "apigateway",
+      "llmintegration",
+      "nodejs",
+      "promptcaching"
+    ],
+    "hook": "LLM‑powered features like code completion are often wrapped in heavyweight Lambda functions that add latency and cost. By letting API Gateway’s HTTP API route directly to a lightweight Function URL and adding a tiny in‑process cache, you get sub‑100 ms responses for repeated prompts. This post shows exactly how to wire it together with Node.js 22’s native fetch and diagnostics_channel.",
+    "angle": "The common belief that every LLM call needs a dedicated Lambda is wrong—smart use of API Gateway and a minimal cache can outperform the traditional glue layer.",
+    "gotchaToReveal": "API Gateway HTTP APIs drop the request body for Lambda Function URLs when the payload exceeds 6 KB unless you enable binary support—otherwise the LLM never sees the full prompt."
   }
 ]
