@@ -1262,5 +1262,20 @@
     "hook": "LLM‑powered features like code completion are often wrapped in heavyweight Lambda functions that add latency and cost. By letting API Gateway’s HTTP API route directly to a lightweight Function URL and adding a tiny in‑process cache, you get sub‑100 ms responses for repeated prompts. This post shows exactly how to wire it together with Node.js 22’s native fetch and diagnostics_channel.",
     "angle": "The common belief that every LLM call needs a dedicated Lambda is wrong—smart use of API Gateway and a minimal cache can outperform the traditional glue layer.",
     "gotchaToReveal": "API Gateway HTTP APIs drop the request body for Lambda Function URLs when the payload exceeds 6 KB unless you enable binary support—otherwise the LLM never sees the full prompt."
+  },
+  {
+    "date": "2026-10-13",
+    "title": "Edge AI with CloudFront: How to Serve Claude Responses at the Edge Using Lambda Web Functions, Explained Simply",
+    "service": "CloudFront",
+    "url": "https://dev.to/dineshgowtham/edge-ai-with-cloudfront-how-to-serve-claude-responses-at-the-edge-using-lambda-web-functions-ggn",
+    "tags": [
+      "cloudfront",
+      "bedrock",
+      "nodejs",
+      "ai"
+    ],
+    "hook": "Imagine your users getting instant AI‑generated code suggestions without ever hitting your origin servers. By moving LLM calls to the edge you cut latency and offload traffic, while still keeping the power of Claude behind Bedrock.",
+    "angle": "Most engineers think AI must run in a central backend, but the new Lambda Web Functions origin lets you push LLM inference to the edge – unlocking sub‑second response times for interactive tools.",
+    "gotchaToReveal": "Lambda Web Functions cannot use the AWS SDK’s default credential chain; you must manually sign the fetch request with SigV4 or use the @aws-sdk/signature-v4 package, otherwise Bedrock calls fail with 403."
   }
 ]
