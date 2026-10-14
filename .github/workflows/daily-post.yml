@@ -165,7 +165,7 @@ jobs:
           git fetch origin main
           git checkout main
 
-          git add logs/post-history.json logs/linkedin-last-post.txt 2>/dev/null || git add logs/post-history.json
+          git add logs/post-history.json logs/linkedin-last-post.txt logs/linkedin-pattern-history.json 2>/dev/null || git add logs/post-history.json
 
           # Only commit if the file actually changed — skip if nothing new
           git diff --staged --quiet || git commit -m "chore: update post-history.json [skip ci]"
