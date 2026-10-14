@@ -1277,5 +1277,20 @@
     "hook": "Imagine your users getting instant AI‑generated code suggestions without ever hitting your origin servers. By moving LLM calls to the edge you cut latency and offload traffic, while still keeping the power of Claude behind Bedrock.",
     "angle": "Most engineers think AI must run in a central backend, but the new Lambda Web Functions origin lets you push LLM inference to the edge – unlocking sub‑second response times for interactive tools.",
     "gotchaToReveal": "Lambda Web Functions cannot use the AWS SDK’s default credential chain; you must manually sign the fetch request with SigV4 or use the @aws-sdk/signature-v4 package, otherwise Bedrock calls fail with 403."
+  },
+  {
+    "date": "2026-10-14",
+    "title": "Bedrock Guardrails Explained Simply: How to Enforce Safe LLM Outputs in Node.js",
+    "service": "Bedrock",
+    "url": "https://dev.to/dineshgowtham/bedrock-guardrails-explained-simply-how-to-enforce-safe-llm-outputs-in-nodejs-50bk",
+    "tags": [
+      "bedrock",
+      "guardrails",
+      "nodejs",
+      "promptengineering"
+    ],
+    "hook": "You’ve seen LLMs generate brilliant code, but a single toxic snippet can break trust. Guardrails promise to stop that, but they’re a black box for most engineers. This post shows exactly how Bedrock’s Guardrails work and how to wire them into your Node.js app without mystery.",
+    "angle": "Most developers treat Guardrails as an on/off switch, overlooking policy nuances that cause silent rejections and broken user experiences.",
+    "gotchaToReveal": "When a Guardrail blocks a response, Bedrock returns a 400 error — the SDK throws a GuardrailViolationException, not a normal HTTP error, so you must catch the specific exception type or your Lambda will crash."
   }
 ]
