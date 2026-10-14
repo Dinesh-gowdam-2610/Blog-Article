@@ -281,35 +281,94 @@ function fallbackContent(post) {
   };
 }
 
-// ── Compose the final LinkedIn post text using the template ─────────────────
-function buildScreenshotStylePost(post, content) {
-  const style   = SERVICE_STYLE[post.service] ?? DEFAULT_STYLE;
+// ─────────────────────────────────────────────────────────────────────────────
+// 6 ROTATING LINKEDIN POST PATTERNS
+// Every pattern renders a high-quality screenshot-style post using the same
+// article-specific content (framingQuestion, mechanism, sections, keyTakeaway).
+// A persistent rotation guarantees no two consecutive weeks use the same pattern,
+// and each pattern waits at least 4 weeks before reappearing.
+// ─────────────────────────────────────────────────────────────────────────────
 
-  // Extract a clean subject from the title (strip after colon/em-dash and trim suffixes)
-  const rawSubject = post.title.split(/[:—-]/)[0].trim();
-  const subject    = rawSubject
+const PATTERN_HISTORY_FILE = "logs/linkedin-pattern-history.json";
+const PATTERN_COOLDOWN     = 4;   // a pattern can't reappear within this many weeks
+
+// ── Load the last N pattern IDs used ────────────────────────────────────────
+async function loadRecentPatternIds() {
+  try {
+    const fsMod   = await import("fs");
+    const pathMod = await import("path");
+    const fs      = fsMod.default ?? fsMod;
+    const path    = pathMod.default ?? pathMod;
+    const fp      = path.resolve(process.cwd(), PATTERN_HISTORY_FILE);
+    if (!fs.existsSync(fp)) return [];
+    const data = JSON.parse(fs.readFileSync(fp, "utf8"));
+    return Array.isArray(data) ? data.slice(-PATTERN_COOLDOWN) : [];
+  } catch {
+    return [];
+  }
+}
+
+// ── Append the chosen pattern ID so next week knows what to skip ────────────
+async function savePatternId(patternId) {
+  try {
+    const fsMod   = await import("fs");
+    const pathMod = await import("path");
+    const fs      = fsMod.default ?? fsMod;
+    const path    = pathMod.default ?? pathMod;
+    const fp      = path.resolve(process.cwd(), PATTERN_HISTORY_FILE);
+    const dir     = path.dirname(fp);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+    let history = [];
+    if (fs.existsSync(fp)) {
+      try { history = JSON.parse(fs.readFileSync(fp, "utf8")) || []; } catch {}
+    }
+    history.push({ id: patternId, date: new Date().toISOString().split("T")[0] });
+    history = history.slice(-20); // keep rolling 20 for debug
+    fs.writeFileSync(fp, JSON.stringify(history, null, 2));
+    console.log(`📝  Pattern "${patternId}" recorded for cooldown tracking.`);
+  } catch (err) {
+    console.warn("⚠️  Could not write pattern history (non-fatal):", err.message);
+  }
+}
+
+// ── Helpers reused across patterns ──────────────────────────────────────────
+function _styleFor(post) {
+  return SERVICE_STYLE[post.service] ?? DEFAULT_STYLE;
+}
+function _subjectOf(post) {
+  const raw = post.title.split(/[:—-]/)[0].trim();
+  return raw
     .replace(/\b(Explained|A Guide|The Guide|Introduction|Intro|Deep Dive|Overview|Simplified|Made Simple)\b/gi, "")
     .replace(/\s+/g, " ")
-    .trim() || rawSubject;
-
-  // Hook line — from the article's own hook
-  const hookRaw  = (post.hook || post.title).split(/[.!?]/)[0].trim();
-  const hookLine = hookRaw.length > 20 && hookRaw.length < 200 ? hookRaw : post.title;
-
-  // Insight — from the article's angle
-  const insightRaw = (post.angle || "").split(/[.!?]/)[0].trim();
-  const insight    = insightRaw.length > 10 ? insightRaw : `it comes down to a simple but powerful pattern`;
-
-  // Sections with rotating thematic emoji
-  const sectionLines = content.sections.map((s, i) => `${SECTION_EMOJIS[i % SECTION_EMOJIS.length]} ${s}`);
-
-  // Focused topic tags — from SERVICE_STYLE, no generic filler
+    .trim() || raw;
+}
+function _hookLineOf(post) {
+  const h = (post.hook || post.title).split(/[.!?]/)[0].trim();
+  return h.length > 20 && h.length < 200 ? h : post.title;
+}
+function _insightOf(post) {
+  const i = (post.angle || "").split(/[.!?]/)[0].trim();
+  return i.length > 10 ? i : `it comes down to a simple but powerful pattern`;
+}
+function _sectionLinesFor(content) {
+  return content.sections.map((s, i) => `${SECTION_EMOJIS[i % SECTION_EMOJIS.length]} ${s}`);
+}
+function _tagsFor(post) {
+  const style       = _styleFor(post);
   const topicTags   = style.tags.map(t => `#${t}`).join(" ");
   const closingTags = "#SoftwareEngineering #AI #GenerativeAI";
-  const allTags     = `${topicTags} ${closingTags}`;
+  return `${topicTags} ${closingTags}`;
+}
 
+// ─────────────────────────────────────────────────────────────────────────────
+// PATTERN A — "trending-question" (the original screenshot-style)
+// ─────────────────────────────────────────────────────────────────────────────
+function patternA_trending_question(post, content) {
+  const style   = _styleFor(post);
+  const subject = _subjectOf(post);
   const lines = [
-    `${style.hookEmoji} ${hookLine}`,
+    `${style.hookEmoji} ${_hookLineOf(post)}`,
     ``,
     `Over the past few months, ${subject} has become one of the biggest trends in software engineering.`,
     ``,
@@ -317,52 +376,226 @@ function buildScreenshotStylePost(post, content) {
     ``,
     content.framingQuestion,
     ``,
-    `While exploring this topic, I realized — ${insight}.`,
+    `While exploring this topic, I realized — ${_insightOf(post)}.`,
     ``,
   ];
-
-  // Mechanism block only if the model returned one
   if (content.mechanism) {
-    lines.push(`${style.coreEmoji} ${content.mechanism}`);
-    lines.push(``);
-    lines.push(`Every effective ${subject} follows this pattern:`);
-    lines.push(``);
+    lines.push(`${style.coreEmoji} ${content.mechanism}`, ``, `Every effective ${subject} follows this pattern:`, ``);
   }
-
-  lines.push(`📖 In my latest article, I cover:`);
-  lines.push(``);
-  lines.push(...sectionLines);
-  lines.push(``);
-  lines.push(`💡 Key Takeaway`);
-  lines.push(``);
-  lines.push(content.keyTakeaway);
-  lines.push(``);
-  lines.push(`Understanding these patterns is becoming an essential skill for developers building the next generation of intelligent applications.`);
-  lines.push(``);
-  lines.push(`💬 I'm curious — have you started experimenting with ${subject} in your projects? What use cases have you found most valuable?`);
-  lines.push(``);
-  lines.push(`Read the full breakdown: ${post.url}`);
-  lines.push(``);
-  lines.push(allTags);
-
+  lines.push(
+    `📖 In my latest article, I cover:`, ``,
+    ..._sectionLinesFor(content), ``,
+    `💡 Key Takeaway`, ``,
+    content.keyTakeaway, ``,
+    `Understanding these patterns is becoming an essential skill for developers building the next generation of intelligent applications.`, ``,
+    `💬 I'm curious — have you started experimenting with ${subject} in your projects? What use cases have you found most valuable?`, ``,
+    `Read the full breakdown: ${post.url}`, ``,
+    _tagsFor(post),
+  );
   return lines.join("\n");
 }
 
-// ── Main builder — called by postToLinkedIn ─────────────────────────────────
-// Kept as an async wrapper so the Groq call can happen. Posts uses the LATEST
-// article as the featured post (screenshot-style is single-post focused).
-async function buildWeeklyPost(posts /*, tags */) {
-  // Featured post = the most recent one (latest Wednesday's article)
-  const lead = posts[posts.length - 1] ?? posts[0];
+// ─────────────────────────────────────────────────────────────────────────────
+// PATTERN B — "myth vs reality" (opens with a common misconception)
+// ─────────────────────────────────────────────────────────────────────────────
+function patternB_myth_vs_reality(post, content) {
+  const style   = _styleFor(post);
+  const subject = _subjectOf(post);
+  const lines = [
+    `${style.hookEmoji} There's a common belief about ${subject} that I need to push back on.`,
+    ``,
+    `${_hookLineOf(post)}.`,
+    ``,
+    `Here's the question most people get wrong 👇`,
+    ``,
+    content.framingQuestion,
+    ``,
+    `The truth? ${_insightOf(post)}.`,
+    ``,
+  ];
+  if (content.mechanism) {
+    lines.push(`${style.coreEmoji} The real pattern is: ${content.mechanism}`, ``);
+  }
+  lines.push(
+    `This week on dev.to, I unpacked:`, ``,
+    ..._sectionLinesFor(content), ``,
+    `💡 The bottom line`, ``,
+    content.keyTakeaway, ``,
+    `Getting this right separates engineers who ship AI features from those who struggle with them.`, ``,
+    `❓ Have you run into this misconception on your team? How did you handle it?`, ``,
+    `Full article: ${post.url}`, ``,
+    _tagsFor(post),
+  );
+  return lines.join("\n");
+}
 
-  console.log(`📐  Building screenshot-style post for: "${lead.title.slice(0, 60)}..."`);
+// ─────────────────────────────────────────────────────────────────────────────
+// PATTERN C — "lessons learned" (first-person engineering journal)
+// ─────────────────────────────────────────────────────────────────────────────
+function patternC_lessons_learned(post, content) {
+  const style   = _styleFor(post);
+  const subject = _subjectOf(post);
+  const lines = [
+    `${style.hookEmoji} Working with ${subject} this past week taught me something I didn't expect.`,
+    ``,
+    `${_hookLineOf(post)}.`,
+    ``,
+    `The question I kept hitting:`,
+    ``,
+    content.framingQuestion,
+    ``,
+    `What finally clicked: ${_insightOf(post)}.`,
+    ``,
+  ];
+  if (content.mechanism) {
+    lines.push(`${style.coreEmoji} The mental model that helped: ${content.mechanism}`, ``);
+  }
+  lines.push(
+    `📓 I wrote up everything I learned — here's what's inside:`, ``,
+    ..._sectionLinesFor(content), ``,
+    `💡 Biggest lesson`, ``,
+    content.keyTakeaway, ``,
+    `Sharing in case it saves someone else a few hours.`, ``,
+    `💬 What was your first "aha" moment with ${subject}?`, ``,
+    `Read it here: ${post.url}`, ``,
+    _tagsFor(post),
+  );
+  return lines.join("\n");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PATTERN D — "quick breakdown" (punchy, scannable, lead with the answer)
+// ─────────────────────────────────────────────────────────────────────────────
+function patternD_quick_breakdown(post, content) {
+  const style   = _styleFor(post);
+  const subject = _subjectOf(post);
+  const lines = [
+    `${style.hookEmoji} ${content.framingQuestion}`,
+    ``,
+    `Short answer: ${_insightOf(post)}.`,
+    ``,
+    `The longer version is worth your time, because ${_hookLineOf(post).toLowerCase()}.`,
+    ``,
+  ];
+  if (content.mechanism) {
+    lines.push(`${style.coreEmoji} The core idea in 3 steps: ${content.mechanism}`, ``);
+  }
+  lines.push(
+    `🔎 Here's the full breakdown — article covers:`, ``,
+    ..._sectionLinesFor(content), ``,
+    `💡 One line to remember`, ``,
+    content.keyTakeaway, ``,
+    `If you're building anything with ${subject}, this is worth 5 minutes of your time.`, ``,
+    `💭 What's your take — agree, or do you see it differently?`, ``,
+    `👉 ${post.url}`, ``,
+    _tagsFor(post),
+  );
+  return lines.join("\n");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PATTERN E — "beginner-friendly guide" (teaching-forward, inclusive tone)
+// ─────────────────────────────────────────────────────────────────────────────
+function patternE_beginner_guide(post, content) {
+  const style   = _styleFor(post);
+  const subject = _subjectOf(post);
+  const lines = [
+    `${style.hookEmoji} If you've been curious about ${subject} but didn't know where to start — this one's for you.`,
+    ``,
+    `${_hookLineOf(post)}.`,
+    ``,
+    `A question I get from engineers at every level:`,
+    ``,
+    content.framingQuestion,
+    ``,
+    `Here's how I'd explain it: ${_insightOf(post)}.`,
+    ``,
+  ];
+  if (content.mechanism) {
+    lines.push(`${style.coreEmoji} At its core, it works like this: ${content.mechanism}`, ``);
+  }
+  lines.push(
+    `📚 I wrote a step-by-step guide covering:`, ``,
+    ..._sectionLinesFor(content), ``,
+    `💡 The one thing to take away`, ``,
+    content.keyTakeaway, ``,
+    `No jargon, no fluff — just the mental model and the code.`, ``,
+    `💬 What topic do you wish someone would explain clearly like this?`, ``,
+    `🔗 ${post.url}`, ``,
+    _tagsFor(post),
+  );
+  return lines.join("\n");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PATTERN F — "stop doing / start doing" (actionable contrast)
+// ─────────────────────────────────────────────────────────────────────────────
+function patternF_stop_start(post, content) {
+  const style   = _styleFor(post);
+  const subject = _subjectOf(post);
+  const lines = [
+    `${style.hookEmoji} If you're building with ${subject}, stop and read this.`,
+    ``,
+    `${_hookLineOf(post)}.`,
+    ``,
+    `Here's the question worth sitting with:`,
+    ``,
+    content.framingQuestion,
+    ``,
+    `My take after digging into this: ${_insightOf(post)}.`,
+    ``,
+  ];
+  if (content.mechanism) {
+    lines.push(`${style.coreEmoji} The approach I'd follow: ${content.mechanism}`, ``);
+  }
+  lines.push(
+    `📝 I put together a practical write-up covering:`, ``,
+    ..._sectionLinesFor(content), ``,
+    `💡 What to remember`, ``,
+    content.keyTakeaway, ``,
+    `Small shifts in approach here save hours of debugging later.`, ``,
+    `💬 What's one habit you've changed since working with ${subject}?`, ``,
+    `Full article → ${post.url}`, ``,
+    _tagsFor(post),
+  );
+  return lines.join("\n");
+}
+
+// ── Pattern registry ────────────────────────────────────────────────────────
+const PATTERN_REGISTRY = [
+  { id: "trending-question", name: "Trending question",   fn: patternA_trending_question },
+  { id: "myth-vs-reality",   name: "Myth vs reality",     fn: patternB_myth_vs_reality   },
+  { id: "lessons-learned",   name: "Lessons learned",     fn: patternC_lessons_learned   },
+  { id: "quick-breakdown",   name: "Quick breakdown",     fn: patternD_quick_breakdown   },
+  { id: "beginner-guide",    name: "Beginner-friendly",   fn: patternE_beginner_guide    },
+  { id: "stop-start",        name: "Stop & start",        fn: patternF_stop_start        },
+];
+
+// ── Pick a pattern that hasn't been used in the cooldown window ─────────────
+async function pickPattern() {
+  const recent = await loadRecentPatternIds();
+  const recentIds = new Set(recent.map(r => (typeof r === "string" ? r : r.id)));
+
+  const eligible = PATTERN_REGISTRY.filter(p => !recentIds.has(p.id));
+  const pool     = eligible.length > 0 ? eligible : PATTERN_REGISTRY; // safety fallback
+  const chosen   = pool[Math.floor(Math.random() * pool.length)];
+
+  console.log(`🎨  Pattern selected: "${chosen.name}" (id: ${chosen.id})`);
+  console.log(`    Recent patterns (cooldown ${PATTERN_COOLDOWN}): ${[...recentIds].join(", ") || "none"}`);
+  return chosen;
+}
+
+// ── Main builder — called by postToLinkedIn ─────────────────────────────────
+async function buildWeeklyPost(posts /*, tags */) {
+  const lead = posts[posts.length - 1] ?? posts[0];
+  console.log(`📐  Building LinkedIn post for: "${lead.title.slice(0, 60)}..."`);
 
   // Sleep 65s to guarantee a clean Groq rate-limit window (SEO call ran earlier)
   console.log("⏸️   Waiting 65s for Groq TPM window before LinkedIn content-gen call...");
   await new Promise(r => setTimeout(r, 65_000));
   console.log("✅  Window reset. Requesting article-specific content.");
 
-  // Try Groq for article-specific content; fall back if it fails
+  // Groq fills the dynamic slots; falls back to formulaic if the call fails
   let content = await generatePostContent(lead);
   if (!content) {
     console.log("   Using formulaic fallback content.");
@@ -371,9 +604,15 @@ async function buildWeeklyPost(posts /*, tags */) {
     console.log("   ✅ Article-specific content generated by Groq.");
   }
 
-  return buildScreenshotStylePost(lead, content);
-}
+  // Rotate patterns — guarantees no repeat for PATTERN_COOLDOWN weeks
+  const pattern = await pickPattern();
+  const postText = pattern.fn(lead, content);
 
+  // Record this pattern so next week's picker skips it
+  await savePatternId(pattern.id);
+
+  return postText;
+}
 // ── Main export ───────────────────────────────────────────────────────────────
 export async function postToLinkedIn({ title, url, topic }) {
   const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
