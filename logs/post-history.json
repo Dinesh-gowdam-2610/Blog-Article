@@ -1292,5 +1292,20 @@
     "hook": "You’ve seen LLMs generate brilliant code, but a single toxic snippet can break trust. Guardrails promise to stop that, but they’re a black box for most engineers. This post shows exactly how Bedrock’s Guardrails work and how to wire them into your Node.js app without mystery.",
     "angle": "Most developers treat Guardrails as an on/off switch, overlooking policy nuances that cause silent rejections and broken user experiences.",
     "gotchaToReveal": "When a Guardrail blocks a response, Bedrock returns a 400 error — the SDK throws a GuardrailViolationException, not a normal HTTP error, so you must catch the specific exception type or your Lambda will crash."
+  },
+  {
+    "date": "2026-10-15",
+    "title": "AI Agent Observability Made Simple: Using CloudWatch EMF and X-Ray to Trace Claude Tool Calls",
+    "service": "CloudWatch",
+    "url": "https://dev.to/dineshgowtham/ai-agent-observability-made-simple-using-cloudwatch-emf-and-x-ray-to-trace-claude-tool-calls-4p1e",
+    "tags": [
+      "cloudwatch",
+      "xray",
+      "aiagents",
+      "nodejs"
+    ],
+    "hook": "AI agents can feel like black boxes—when a Claude-driven tool call fails you’re left guessing why. By pairing CloudWatch’s Embedded Metrics Format with X-Ray tracing you get real-time, zero-overhead visibility into every plan-act-observe loop. This post shows exactly how to instrument your Node.js Lambda agent and read the signals.",
+    "angle": "Most engineers treat AI agents as untouchable, but you can apply the same observability practices you use for microservices to demystify them.",
+    "gotchaToReveal": "If you don’t call CloudWatchClient.flush() or wait for the async EMF logger to finish, the Lambda may exit before metrics are sent, leaving a blind spot in your trace."
   }
 ]
