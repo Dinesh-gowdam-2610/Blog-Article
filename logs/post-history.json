@@ -1307,5 +1307,20 @@
     "hook": "AI agents can feel like black boxes—when a Claude-driven tool call fails you’re left guessing why. By pairing CloudWatch’s Embedded Metrics Format with X-Ray tracing you get real-time, zero-overhead visibility into every plan-act-observe loop. This post shows exactly how to instrument your Node.js Lambda agent and read the signals.",
     "angle": "Most engineers treat AI agents as untouchable, but you can apply the same observability practices you use for microservices to demystify them.",
     "gotchaToReveal": "If you don’t call CloudWatchClient.flush() or wait for the async EMF logger to finish, the Lambda may exit before metrics are sent, leaving a blind spot in your trace."
+  },
+  {
+    "date": "2026-10-16",
+    "title": "How to Rotate Claude API Keys with Secrets Manager and Lambda Without Getting Locked Out",
+    "service": "SecretsManager",
+    "url": "https://dev.to/dineshgowtham/how-to-rotate-claude-api-keys-with-secrets-manager-and-lambda-without-getting-locked-out-2gmp",
+    "tags": [
+      "secretsmanager",
+      "lambda",
+      "nodejs",
+      "claude"
+    ],
+    "hook": "Developers rush to rotate API keys for security, only to discover their AI‑powered apps suddenly start throwing 401 errors. The hidden culprit? A stale token cached in your Node.js Lambda. This guide shows exactly how to rotate Claude secrets safely, so your code keeps talking to the model without a hiccup.",
+    "angle": "Most teams treat secret rotation as a simple copy‑paste task, ignoring the runtime caching layer that can silently break LLM calls after a rotation.",
+    "gotchaToReveal": "If the service Lambda doesn’t listen for the rotation event, it continues using the old cached token, causing intermittent 401 Unauthorized errors until the function is recycled."
   }
 ]
