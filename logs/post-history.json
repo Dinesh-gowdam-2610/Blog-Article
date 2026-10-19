@@ -1322,5 +1322,20 @@
     "hook": "Developers rush to rotate API keys for security, only to discover their AI‑powered apps suddenly start throwing 401 errors. The hidden culprit? A stale token cached in your Node.js Lambda. This guide shows exactly how to rotate Claude secrets safely, so your code keeps talking to the model without a hiccup.",
     "angle": "Most teams treat secret rotation as a simple copy‑paste task, ignoring the runtime caching layer that can silently break LLM calls after a rotation.",
     "gotchaToReveal": "If the service Lambda doesn’t listen for the rotation event, it continues using the old cached token, causing intermittent 401 Unauthorized errors until the function is recycled."
+  },
+  {
+    "date": "2026-10-19",
+    "title": "How IAM Identity Center Powers Secure Access for Claude AI Agents in Node.js, Explained Simply",
+    "service": "IAM",
+    "url": "https://dev.to/dineshgowtham/how-iam-identity-center-powers-secure-access-for-claude-ai-agents-in-nodejs-explained-simply-4mgm",
+    "tags": [
+      "iam",
+      "nodejs",
+      "typescript",
+      "aiagents"
+    ],
+    "hook": "Human users and AI agents both need the right permissions, but mixing SSO with programmatic access is tricky. In just a few minutes you’ll see how to let a Claude‑powered Lambda speak to Bedrock without ever hard‑coding static keys. The pattern works for any LLM‑backed tool you build today.",
+    "angle": "Most teams treat IAM Identity Center as a pure SSO solution, overlooking its ability to grant short‑lived machine credentials for AI workloads – a hidden security win that many miss.",
+    "gotchaToReveal": "IAM Identity Center SAML tokens expire after 1 hour and the SDK does not auto‑refresh them – you must catch ExpiredTokenException and re‑run the AssumeRole flow, otherwise your Claude calls will fail silently"
   }
 ]
