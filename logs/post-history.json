@@ -1,18 +1,6 @@
 [
   {
     "date": "2026-05-14",
-    "title": "BunOnLambda Is 3x Faster But Breaks 20% Of NodeJsApis",
-    "service": "Lambda",
-    "url": "https://dev.to/dineshgowtham/bunonlambda-is-3x-faster-but-breaks-20-of-nodejsapis-52d0",
-    "tags": [
-      "lambda",
-      "bun",
-      "nodejs",
-      "serverless"
-    ]
-  },
-  {
-    "date": "2026-05-14",
     "title": "BunOnLambda Broke Our NodeJsApis But Saved Us 40% On Lambda Costs",
     "service": "Lambda",
     "url": "https://dev.to/dineshgowtham/bunonlambda-broke-our-nodejsapis-but-saved-us-40-on-lambda-costs-26h6",
@@ -1337,5 +1325,20 @@
     "hook": "Human users and AI agents both need the right permissions, but mixing SSO with programmatic access is tricky. In just a few minutes you’ll see how to let a Claude‑powered Lambda speak to Bedrock without ever hard‑coding static keys. The pattern works for any LLM‑backed tool you build today.",
     "angle": "Most teams treat IAM Identity Center as a pure SSO solution, overlooking its ability to grant short‑lived machine credentials for AI workloads – a hidden security win that many miss.",
     "gotchaToReveal": "IAM Identity Center SAML tokens expire after 1 hour and the SDK does not auto‑refresh them – you must catch ExpiredTokenException and re‑run the AssumeRole flow, otherwise your Claude calls will fail silently"
+  },
+  {
+    "date": "2026-10-20",
+    "title": "CDK Pipelines for AI Agents: Deploying a Claude‑Powered Coding Assistant with Zero Manual Steps",
+    "service": "CDK",
+    "url": "https://dev.to/dineshgowtham/cdk-pipelines-for-ai-agents-deploying-a-claude-powered-coding-assistant-with-zero-manual-steps-4bk2",
+    "tags": [
+      "cdk",
+      "codebuild",
+      "aiagents",
+      "typescript"
+    ],
+    "hook": "Deploying AI coding assistants usually means juggling Docker builds, secret management, and ad‑hoc scripts. With CDK Pipelines you can treat the entire Claude‑based agent as infrastructure code and let AWS handle the build, test, and deploy phases automatically. This post walks you through a fully automated, reproducible workflow that any team can adopt.",
+    "angle": "Most teams still use manual CI steps to ship AI agents, missing out on the safety and repeatability that IaC provides.",
+    "gotchaToReveal": "CodeBuild does not automatically forward secret environment variables into the Docker build context; you must explicitly pass them via the buildspec ‘export’ command or use the ‘secretsManager’ field, otherwise Claude calls fail at build time."
   }
 ]
