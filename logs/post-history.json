@@ -1,18 +1,6 @@
 [
   {
     "date": "2026-05-14",
-    "title": "BunOnLambda Broke Our NodeJsApis But Saved Us 40% On Lambda Costs",
-    "service": "Lambda",
-    "url": "https://dev.to/dineshgowtham/bunonlambda-broke-our-nodejsapis-but-saved-us-40-on-lambda-costs-26h6",
-    "tags": [
-      "lambda",
-      "bun",
-      "nodejs",
-      "serverless"
-    ]
-  },
-  {
-    "date": "2026-05-14",
     "title": "BunOnLambda Is 3x Faster But Breaks Our NetSocket Code",
     "service": "S3",
     "url": "https://dev.to/dineshgowtham/bunonlambda-is-3x-faster-but-breaks-our-netsocket-code-13a5",
@@ -1340,5 +1328,20 @@
     "hook": "Deploying AI coding assistants usually means juggling Docker builds, secret management, and ad‑hoc scripts. With CDK Pipelines you can treat the entire Claude‑based agent as infrastructure code and let AWS handle the build, test, and deploy phases automatically. This post walks you through a fully automated, reproducible workflow that any team can adopt.",
     "angle": "Most teams still use manual CI steps to ship AI agents, missing out on the safety and repeatability that IaC provides.",
     "gotchaToReveal": "CodeBuild does not automatically forward secret environment variables into the Docker build context; you must explicitly pass them via the buildspec ‘export’ command or use the ‘secretsManager’ field, otherwise Claude calls fail at build time."
+  },
+  {
+    "date": "2026-10-21",
+    "title": "How to Run Claude‑Powered AI Code Review in CodeBuild: A Step‑By‑Step Guide",
+    "service": "CodeBuild",
+    "url": "https://dev.to/dineshgowtham/how-to-run-claude-powered-ai-code-review-in-codebuild-a-step-by-step-guide-3h8a",
+    "tags": [
+      "codebuild",
+      "nodejs",
+      "claude",
+      "aicoding"
+    ],
+    "hook": "CI pipelines catch syntax errors, but they still let subtle logic bugs slip through. Pair Claude with CodeBuild and let an AI read every pull request, suggest fixes, and even commit them automatically. The result? Code reviews that never sleep.",
+    "angle": "Most engineers assume AI assistants only belong in the IDE, yet the real leverage point is the CI layer where AI can enforce quality without any manual intervention.",
+    "gotchaToReveal": "CodeBuild truncates environment variables longer than 4 KB, so a raw Claude API key placed directly in the buildspec gets cut off – you must reference the key via Secrets Manager and the ${secretsmanager:...} syntax instead."
   }
 ]
