@@ -1,16 +1,5 @@
 [
   {
-    "date": "2026-05-14",
-    "title": "BunOnLambda Is 3x Faster But Breaks Our NetSocket Code",
-    "service": "S3",
-    "url": "https://dev.to/dineshgowtham/bunonlambda-is-3x-faster-but-breaks-our-netsocket-code-13a5",
-    "tags": [
-      "aws",
-      "bun",
-      "lambda"
-    ]
-  },
-  {
     "date": "2026-06-02",
     "title": "VPC Lattice Is a Game-Changer for Service-to-Service Networking — But Beware the NAT Gateway Penalty",
     "service": "VPC",
@@ -1343,5 +1332,20 @@
     "hook": "CI pipelines catch syntax errors, but they still let subtle logic bugs slip through. Pair Claude with CodeBuild and let an AI read every pull request, suggest fixes, and even commit them automatically. The result? Code reviews that never sleep.",
     "angle": "Most engineers assume AI assistants only belong in the IDE, yet the real leverage point is the CI layer where AI can enforce quality without any manual intervention.",
     "gotchaToReveal": "CodeBuild truncates environment variables longer than 4 KB, so a raw Claude API key placed directly in the buildspec gets cut off – you must reference the key via Secrets Manager and the ${secretsmanager:...} syntax instead."
+  },
+  {
+    "date": "2026-10-22",
+    "title": "Step Functions + Claude Tool Calls: Orchestrate AI Agents Without Lambda, Explained Simply",
+    "service": "StepFunctions",
+    "url": "https://dev.to/dineshgowtham/step-functions-claude-tool-calls-orchestrate-ai-agents-without-lambda-explained-simply-58pn",
+    "tags": [
+      "stepfunctions",
+      "bedrock",
+      "nodejs",
+      "aiagents"
+    ],
+    "hook": "Most developers reach for a Lambda function every time they need an LLM response, adding unnecessary complexity and latency. Step Functions can call Claude directly via the Bedrock SDK integration, turning a multi‑step AI workflow into a single, visual state machine. In this guide you’ll see how to build, run, and debug that workflow from Node.js 22.",
+    "angle": "The common belief that Lambda is the only way to integrate LLMs is wrong—Step Functions provides a native, server‑less orchestration layer that simplifies AI agent pipelines.",
+    "gotchaToReveal": "Service‑integration task responses are limited to 256 KB; large Claude outputs must be streamed to S3 or truncated, a detail many miss when first building AI workflows with Step Functions."
   }
 ]
