@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-06-03",
-    "title": "The Hidden Cost of npm Package Bloat: How We Saved $10,000/month by Optimizing Our Lambda Dependencies",
-    "service": "PackageEcosystem",
-    "url": "https://dev.to/dineshgowtham/the-hidden-cost-of-npm-package-bloat-how-we-saved-10000month-by-optimizing-our-lambda-1a2",
-    "tags": [
-      "nodejs",
-      "aws",
-      "lambda",
-      "costoptimization"
-    ],
-    "hook": "As our serverless architecture grew, so did our npm package list. But when our monthly AWS bill skyrocketed, we realized that our dependencies were costing us big time. Here's the story of how we cut our costs by 70% with a simple package optimization technique.",
-    "angle": "The unchecked growth of npm packages in serverless projects can lead to staggering costs, but a few simple tweaks can make all the difference. We're sharing our hard-won lessons to help you avoid the same financial pitfalls.",
-    "gotchaToReveal": "The unexpected cost of npm package dependencies on serverless architectures, particularly when using Lambda functions."
-  },
-  {
     "date": "2026-06-05",
     "title": "TypeScript satisfies + AWS SDK v3: The Pattern That Changed How I Write Commands",
     "service": "TypeScriptPatterns",
@@ -1347,5 +1332,20 @@
     "hook": "Real‑time LLM interactions feel like they belong on websockets, but a Kinesis Data Stream gives you durable, auto‑scaling fan‑out with millisecond latency. In this guide you’ll see how to pipe Claude’s token stream through Kinesis and a Node.js 22 Lambda, turning a flaky WebSocket demo into an enterprise‑grade pipeline.",
     "angle": "Most engineers assume websockets are the only way to get live LLM output, yet Kinesis provides a more reliable, server‑less backbone for high‑throughput token streams.",
     "gotchaToReveal": "Enhanced fan‑out only activates when the consumer is registered by ARN; forgetting this leaves you with the default 200 ms latency and higher shard read costs."
+  },
+  {
+    "date": "2026-10-27",
+    "title": "Secure AI Tool Calls in Node.js 22: Using Permission Flags to Sandbox Claude Agents",
+    "service": "NodeJS22",
+    "url": "https://dev.to/dineshgowtham/secure-ai-tool-calls-in-nodejs-22-using-permission-flags-to-sandbox-claude-agents-2p67",
+    "tags": [
+      "nodejs",
+      "lambda",
+      "security",
+      "aiagents"
+    ],
+    "hook": "AI agents can execute arbitrary code when they call tools – a hidden security nightmare. Node.js 22 finally gives you native permission flags to lock down filesystem and network access without containers. Learn how to harness these flags in a Lambda function to keep Claude’s tool calls safe.",
+    "angle": "You don’t need heavyweight sandbox containers; the built‑in Node.js permission model lets you isolate AI tool execution with a single flag.",
+    "gotchaToReveal": "Permission flags only apply to child processes or worker threads – launching the Lambda handler itself without the flags results in the tool call silently failing, and the default Lambda runtime ignores unknown flags unless you enable the ‘nodejs‑runtime‑flags’ setting."
   }
 ]
