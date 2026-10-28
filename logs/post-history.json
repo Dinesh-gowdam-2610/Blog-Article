@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-06-05",
-    "title": "TypeScript satisfies + AWS SDK v3: The Pattern That Changed How I Write Commands",
-    "service": "TypeScriptPatterns",
-    "url": "https://dev.to/dineshgowtham/typescript-satisfies-aws-sdk-v3-the-pattern-that-changed-how-i-write-commands-3joo",
-    "tags": [
-      "typescript",
-      "awssdkv3",
-      "nodejs",
-      "lambda"
-    ],
-    "hook": "Last week, we migrated 12 of our Lambda handlers to TypeScript 5.5 and discovered the satisfies operator, which has changed how we write commands with AWS SDK v3. But what surprised us was how it affected our testing and validation pipelines.",
-    "angle": "The satisfies operator in TypeScript 5.5 has revolutionized how we write commands with AWS SDK v3, but its implications on testing and validation have been overlooked. We argue that this operator is a game-changer for AWS SDK v3 command patterns, but its adoption requires a paradigm shift in how we approach validation and testing.",
-    "gotchaToReveal": "The satisfies operator does not narrow the type at runtime, which can lead to unexpected behavior if not properly handled"
-  },
-  {
     "date": "2026-06-06",
     "title": "ElastiCache Is Not a Silver Bullet: How We Fixed Node.js 22 Performance Issues with Undici and AsyncLocalStorage",
     "service": "ElastiCache",
@@ -1347,5 +1332,20 @@
     "hook": "AI agents can execute arbitrary code when they call tools – a hidden security nightmare. Node.js 22 finally gives you native permission flags to lock down filesystem and network access without containers. Learn how to harness these flags in a Lambda function to keep Claude’s tool calls safe.",
     "angle": "You don’t need heavyweight sandbox containers; the built‑in Node.js permission model lets you isolate AI tool execution with a single flag.",
     "gotchaToReveal": "Permission flags only apply to child processes or worker threads – launching the Lambda handler itself without the flags results in the tool call silently failing, and the default Lambda runtime ignores unknown flags unless you enable the ‘nodejs‑runtime‑flags’ setting."
+  },
+  {
+    "date": "2026-10-28",
+    "title": "How Swapping to Undici Cuts Claude API Latency in Node.js Lambda, Explained Simply",
+    "service": "Undici",
+    "url": "https://dev.to/dineshgowtham/how-swapping-to-undici-cuts-claude-api-latency-in-nodejs-lambda-explained-simply-df7",
+    "tags": [
+      "nodejs",
+      "undici",
+      "lambda",
+      "claude"
+    ],
+    "hook": "Most Node.js Lambda functions still reach for Axios or Got when calling Claude, but the extra layers add milliseconds you can’t afford in real‑time AI agents. By dropping to Undici, the low‑level HTTP client built into Node, you can shave latency and keep your AI‑driven workflows snappy.",
+    "angle": "The hidden cost of heavyweight HTTP libraries is a performance trap for AI agents; a lightweight client unlocks speed without code rewrites.",
+    "gotchaToReveal": "Undici’s default connection pool persists across invocations, which can exhaust sockets in high‑concurrency Lambdas unless you explicitly close the client or set maxConcurrency."
   }
 ]
