@@ -1,21 +1,6 @@
 [
   {
     "date": "2026-06-06",
-    "title": "ElastiCache Is Not a Silver Bullet: How We Fixed Node.js 22 Performance Issues with Undici and AsyncLocalStorage",
-    "service": "ElastiCache",
-    "url": "https://dev.to/dineshgowtham/elasticache-is-not-a-silver-bullet-how-we-fixed-nodejs-22-performance-issues-with-undici-and-gol",
-    "tags": [
-      "nodejs",
-      "elasticache",
-      "performance",
-      "undici"
-    ],
-    "hook": "We thought ElastiCache was the answer to our Node.js 22 performance woes, but it only masked the symptoms. After months of frustration, we discovered the real issue – and the fix – lay with our choice of HTTP client and request context propagation.",
-    "angle": "Contrary to popular belief, ElastiCache is not the solution to all Node.js performance issues, and sometimes, the answer lies in optimizing your code with the right tools and techniques.",
-    "gotchaToReveal": "Undici's fetch throws on non-2xx status codes, unlike browser fetch, and AsyncLocalStorage context can be lost across setImmediate() boundaries in some Node.js versions"
-  },
-  {
-    "date": "2026-06-06",
     "title": "CloudWatch Logs Are Eating Your Margin: The $800/month Fix No One Tells You",
     "service": "CloudWatch",
     "url": "https://dev.to/dineshgowtham/cloudwatch-logs-are-eating-your-margin-the-800month-fix-no-one-tells-you-57ld-temp-slug-6499969",
@@ -1347,5 +1332,20 @@
     "hook": "Most Node.js Lambda functions still reach for Axios or Got when calling Claude, but the extra layers add milliseconds you can’t afford in real‑time AI agents. By dropping to Undici, the low‑level HTTP client built into Node, you can shave latency and keep your AI‑driven workflows snappy.",
     "angle": "The hidden cost of heavyweight HTTP libraries is a performance trap for AI agents; a lightweight client unlocks speed without code rewrites.",
     "gotchaToReveal": "Undici’s default connection pool persists across invocations, which can exhaust sockets in high‑concurrency Lambdas unless you explicitly close the client or set maxConcurrency."
+  },
+  {
+    "date": "2026-10-29",
+    "title": "Testing Claude Prompt Outputs with Node.js Built‑in test Runner: A Simple, Real‑World Guide",
+    "service": "NodeJSTesting",
+    "url": "https://dev.to/dineshgowtham/testing-claude-prompt-outputs-with-nodejs-built-in-test-runner-a-simple-real-world-guide-156",
+    "tags": [
+      "nodejs",
+      "aws",
+      "bedrock",
+      "testing"
+    ],
+    "hook": "The new node:test runner finally gives you a native way to unit‑test LLM prompts without pulling in heavy frameworks. See how a few lines of code can verify Claude’s JSON responses and keep your AI‑driven features reliable.",
+    "angle": "Most engineers still reach for Jest or ad‑hoc scripts for AI prompt testing, but the built‑in runner offers tighter integration and zero‑dependency testing.",
+    "gotchaToReveal": "node:test treats unhandled promise rejections as test failures, so forgetting to return the async promise makes the test pass falsely; also Claude’s streaming response can produce nondeterministic snapshots unless streaming is disabled or normalized."
   }
 ]
