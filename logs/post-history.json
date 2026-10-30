@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-06-06",
-    "title": "CloudWatch Logs Are Eating Your Margin: The $800/month Fix No One Tells You",
-    "service": "CloudWatch",
-    "url": "https://dev.to/dineshgowtham/cloudwatch-logs-are-eating-your-margin-the-800month-fix-no-one-tells-you-57ld-temp-slug-6499969",
-    "tags": [
-      "cloudwatch",
-      "costoptimization",
-      "aws",
-      "lambda"
-    ],
-    "hook": "Developers rely on CloudWatch for logging and monitoring, but an overlooked setting is quietly bleeding away $800 each month. Our team stumbled upon this expensive trap the hard way and now we're sharing the simple fix.",
-    "angle": "CloudWatch logs are a silent budget killer for many companies due to overlooked settings. Our discovery can save teams hundreds of dollars every month with a few lines of code.",
-    "gotchaToReveal": "Default CloudWatch Logs retention period is set to 'Never expire', leading to significant and avoidable costs over time"
-  },
-  {
     "date": "2026-06-10",
     "title": "Athena Query Performance Tanks After Migrating to Node.js 22: The Surprising Role of TypeScript Type Predicates",
     "service": "Athena",
@@ -1347,5 +1332,20 @@
     "hook": "The new node:test runner finally gives you a native way to unit‑test LLM prompts without pulling in heavy frameworks. See how a few lines of code can verify Claude’s JSON responses and keep your AI‑driven features reliable.",
     "angle": "Most engineers still reach for Jest or ad‑hoc scripts for AI prompt testing, but the built‑in runner offers tighter integration and zero‑dependency testing.",
     "gotchaToReveal": "node:test treats unhandled promise rejections as test failures, so forgetting to return the async promise makes the test pass falsely; also Claude’s streaming response can produce nondeterministic snapshots unless streaming is disabled or normalized."
+  },
+  {
+    "date": "2026-10-30",
+    "title": "How TypeScript 5.5 Inferred Type Predicates Make Claude Tool Calls Safer, Explained Simply",
+    "service": "TypeScript55",
+    "url": "https://dev.to/dineshgowtham/how-typescript-55-inferred-type-predicates-make-claude-tool-calls-safer-explained-simply-e63",
+    "tags": [
+      "typescript",
+      "claude",
+      "promptengineering",
+      "aws"
+    ],
+    "hook": "Claude can call your own APIs and return JSON, but developers often waste time writing runtime guards. TypeScript 5.5 introduces inferred type predicates that turn those guards into compile‑time guarantees. In this guide you’ll see how a single line of code can eliminate a whole class of bugs when parsing Claude’s tool responses.",
+    "angle": "Most tutorials stop at “parse JSON”, ignoring that TypeScript can verify the shape before you even run the code.",
+    "gotchaToReveal": "filter(Boolean) only narrows the array after TS 5.5; before that the compiler still sees possible undefined values, causing extra runtime checks."
   }
 ]
