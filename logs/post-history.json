@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-06-10",
-    "title": "Athena Query Performance Tanks After Migrating to Node.js 22: The Surprising Role of TypeScript Type Predicates",
-    "service": "Athena",
-    "url": "https://dev.to/dineshgowtham/athena-query-performance-tanks-after-migrating-to-nodejs-22-the-surprising-role-of-typescript-1h53",
-    "tags": [
-      "athena",
-      "nodejs",
-      "typescript",
-      "performance"
-    ],
-    "hook": "We thought Node.js 22 would be a slam dunk for our data pipeline, but Athena query performance plummeted. It took us weeks to discover the root cause. TypeScript type predicates, intended to simplify our code, were secretly killing our database performance. Here's how we finally fixed it.",
-    "angle": "The migration to Node.js 22 and the adoption of TypeScript 5.5's type predicates came with an unexpected performance price. Our story serves as a cautionary tale about the importance of thoroughly testing database interactions after significant technology changes.",
-    "gotchaToReveal": "TypeScript type predicates can lead to inefficient database query plans if not properly optimized, causing significant performance drops in Athena queries."
-  },
-  {
     "date": "2026-06-12",
     "title": "We Replaced 20% of Our Lambda Functions with CDK Constructs — And Saved $12,000 on AWS Bills",
     "service": "CDK",
@@ -1347,5 +1332,20 @@
     "hook": "Claude can call your own APIs and return JSON, but developers often waste time writing runtime guards. TypeScript 5.5 introduces inferred type predicates that turn those guards into compile‑time guarantees. In this guide you’ll see how a single line of code can eliminate a whole class of bugs when parsing Claude’s tool responses.",
     "angle": "Most tutorials stop at “parse JSON”, ignoring that TypeScript can verify the shape before you even run the code.",
     "gotchaToReveal": "filter(Boolean) only narrows the array after TS 5.5; before that the compiler still sees possible undefined values, causing extra runtime checks."
+  },
+  {
+    "date": "2026-11-03",
+    "title": "pnpm Workspaces in Lambda: How to Shrink Deploy Packages and Supercharge Claude‑Powered AI Agents, Explained Simply",
+    "service": "PackageEcosystem",
+    "url": "https://dev.to/dineshgowtham/pnpm-workspaces-in-lambda-how-to-shrink-deploy-packages-and-supercharge-claude-powered-ai-agents-3g2b",
+    "tags": [
+      "lambda",
+      "pnpm",
+      "claude",
+      "nodejs"
+    ],
+    "hook": "Deploying Claude‑driven coding assistants on Lambda can feel like squeezing a massive monolith into a tiny zip file. pnpm workspaces prune duplicate files and share a single lockfile, slashing bundle size and cold‑start latency. This post shows how a single package‑manager switch turns a sluggish AI agent into a snappy serverless service.",
+    "angle": "Most teams treat pnpm as a developer‑only convenience, but in serverless its deduplication and strict node_modules layout directly boost LLM response speed and reliability.",
+    "gotchaToReveal": "pnpm hoists node_modules into a .pnpm directory; if you zip the workspace without the .pnpm folder, native modules fail to load in Lambda. The fix is to run 'pnpm install --prod' inside the deployment bundle or use a custom esbuild plugin that copies the .pnpm files."
   }
 ]
