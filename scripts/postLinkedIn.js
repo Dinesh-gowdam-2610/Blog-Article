@@ -356,9 +356,20 @@ function _sectionLinesFor(content) {
 }
 function _tagsFor(post) {
   const style       = _styleFor(post);
-  const topicTags   = style.tags.map(t => `#${t}`).join(" ");
-  const closingTags = "#SoftwareEngineering #AI #GenerativeAI";
-  return `${topicTags} ${closingTags}`;
+  const topicTags   = style.tags.map(t => `#${t}`);
+  const closingTags = ["#SoftwareEngineering", "#AI", "#GenerativeAI"];
+  // Deduplicate — case-insensitive — preserving first-seen order so topic tags
+  // (which are more specific) appear first and closing tags only fill in what's
+  // missing. Prevents the `#AI #SoftwareEngineering #GenerativeAI` duplication
+  // that appeared when a SERVICE_STYLE entry already included one of the closers.
+  const seen = new Set();
+  const merged = [...topicTags, ...closingTags].filter(tag => {
+    const key = tag.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  return merged.join(" ");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
