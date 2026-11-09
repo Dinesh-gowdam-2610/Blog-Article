@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-06-17",
-    "title": "Kinesis Data Firehose Is Not a Silver Bullet: How Undocumented Partition Key Limits Broke Our Real-Time Analytics Pipeline",
-    "service": "Kinesis",
-    "url": "https://dev.to/dineshgowtham/kinesis-data-firehose-is-not-a-silver-bullet-how-undocumented-partition-key-limits-broke-our-5f77",
-    "tags": [
-      "kinesis",
-      "aws",
-      "lambda",
-      "nodejs"
-    ],
-    "hook": "Our real-time data pipeline was failing due to mysterious throughput limits. The culprit? A little-known Kinesis Data Firehose limitation that has nothing to do with shards or provisioned throughput. In this post, we expose the undocumented partition key limit that nobody talks about.",
-    "angle": "Kinesis Data Firehose's lack of transparent documentation around partition key limits is causing real-time data pipelines to fail catastrophically. We argue that the current implementation is fundamentally flawed and requires a redesign to prevent similar failures in the future.",
-    "gotchaToReveal": "Kinesis Data Firehose has a fixed limit of 1000 active partition keys, which can cause throughput limits and record failures if not properly handled"
-  },
-  {
     "date": "2026-06-19",
     "title": "IAM Access Analyzer Lied to Us: The $1,000/Month Overprovisioning Mistake",
     "service": "IAM",
@@ -1347,5 +1332,20 @@
     "hook": "Ever wondered how Claude can keep context across dozens of calls without re‑sending the whole prompt each time? The Model Context Protocol (MCP) makes that possible, and you can host it in a serverless Lambda in minutes. Let’s demystify the wire‑format and see a real implementation.",
     "angle": "Most tutorials treat Claude as a stateless request/response API, ignoring the powerful, low‑latency stateful flow MCP provides.",
     "gotchaToReveal": "If you send MCP messages in separate HTTP calls instead of a single array, Claude will treat each as a new session, causing context loss and unexpected token usage."
+  },
+  {
+    "date": "2026-11-09",
+    "title": "How to Deploy a Claude‑Powered AI Agent with AWS App Runner, Explained Simply",
+    "service": "AppRunner",
+    "url": "https://dev.to/dineshgowtham/how-to-deploy-a-claude-powered-ai-agent-with-aws-app-runner-explained-simply-12h",
+    "tags": [
+      "aws",
+      "apprunner",
+      "claude",
+      "aiagents"
+    ],
+    "hook": "Running an AI agent usually means wrestling with EC2, Fargate, or complex Kubernetes setups. AWS App Runner lets you skip that boilerplate and get a secure, auto‑scaled container live in minutes. This guide shows exactly how to turn a Node.js Claude agent into a production service without managing servers.",
+    "angle": "Most engineers assume you need heavyweight container orchestration for AI agents, but App Runner provides a lighter, faster path that still gives you observability and scaling.",
+    "gotchaToReveal": "App Runner’s default health‑check expects a 200 on ‘/’; if your service only listens on ‘/agent’, deployment will stay pending—adding a simple ‘/health’ endpoint fixes it."
   }
 ]
