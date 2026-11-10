@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-06-19",
-    "title": "IAM Access Analyzer Lied to Us: The $1,000/Month Overprovisioning Mistake",
-    "service": "IAM",
-    "url": "https://dev.to/dineshgowtham/iam-access-analyzer-lied-to-us-the-1000month-overprovisioning-mistake-1omf",
-    "tags": [
-      "iam",
-      "lambda",
-      "security",
-      "costoptimization"
-    ],
-    "hook": "A month ago, we thought we'd solved our access control issues with IAM Access Analyzer. But a closer look revealed a staggering overprovisioning problem that's been quietly draining our budget. Here's the shocking truth and how we fixed it.",
-    "angle": "The supposed simplicity of IAM Access Analyzer can lead to dangerous overprovisioning if not properly understood, and fixing this requires a deep dive into least privilege access and resource tagging.",
-    "gotchaToReveal": "IAM Access Analyzer does not automatically suggest least privilege policies for all resources, leading to potential overprovisioning if not manually configured."
-  },
-  {
     "date": "2026-06-24",
     "title": "Step Functions Broke Our Lambda Cold Starts — But Fixed Our EventBridge Delays",
     "service": "StepFunctions",
@@ -1347,5 +1332,20 @@
     "hook": "Running an AI agent usually means wrestling with EC2, Fargate, or complex Kubernetes setups. AWS App Runner lets you skip that boilerplate and get a secure, auto‑scaled container live in minutes. This guide shows exactly how to turn a Node.js Claude agent into a production service without managing servers.",
     "angle": "Most engineers assume you need heavyweight container orchestration for AI agents, but App Runner provides a lighter, faster path that still gives you observability and scaling.",
     "gotchaToReveal": "App Runner’s default health‑check expects a 200 on ‘/’; if your service only listens on ‘/agent’, deployment will stay pending—adding a simple ‘/health’ endpoint fixes it."
+  },
+  {
+    "date": "2026-11-10",
+    "title": "Supercharging AI Pair Programming with Bedrock AgentCore Web Search (Explained Simply)",
+    "service": "Bedrock",
+    "url": "https://dev.to/dineshgowtham/supercharging-ai-pair-programming-with-bedrock-agentcore-web-search-explained-simply-cd6",
+    "tags": [
+      "bedrock",
+      "lambda",
+      "aipairprogramming",
+      "promptengineering"
+    ],
+    "hook": "When your AI coding assistant can’t find the latest library API, it stalls. Bedrock’s new AgentCore Web Search API lets Claude pull fresh docs on the fly, turning autocomplete into real‑time research. Here’s how to wire it into a Lambda‑hosted pair programmer.",
+    "angle": "Most engineers treat LLMs as static code generators, but coupling them with live web search transforms them into true research assistants that can fetch up‑to‑date information before emitting code.",
+    "gotchaToReveal": "The web‑search tool returns raw HTML pages; if you feed the whole page back to Claude without extracting the relevant section, the model can hallucinate or produce overly verbose code. You must strip to the exact API docs before the second prompt."
   }
 ]
