@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-06-24",
-    "title": "Step Functions Broke Our Lambda Cold Starts — But Fixed Our EventBridge Delays",
-    "service": "StepFunctions",
-    "url": "https://dev.to/dineshgowtham/step-functions-broke-our-lambda-cold-starts-but-fixed-our-eventbridge-delays-4i7b",
-    "tags": [
-      "stepfunctions",
-      "eventbridge",
-      "lambda",
-      "aws"
-    ],
-    "hook": "We migrated 15 Lambdas to Step Functions to solve cold starts, but what we gained in warmness, we lost in EventBridge message delays. Here's the hidden pattern that changed everything.",
-    "angle": "Step Functions can introduce unexpected delays when integrated with EventBridge, which can be mitigated by rethinking your state machine design",
-    "gotchaToReveal": "The default retry mechanism in Step Functions can silently drop EventBridge messages if not properly configured, leading to data loss and processing delays"
-  },
-  {
     "date": "2026-06-26",
     "title": "We Deleted 300 Lines of Code After Discovering Node.js 22's Hidden Perf Feature",
     "service": "NodeJSPerformance",
@@ -1347,5 +1332,20 @@
     "hook": "When your AI coding assistant can’t find the latest library API, it stalls. Bedrock’s new AgentCore Web Search API lets Claude pull fresh docs on the fly, turning autocomplete into real‑time research. Here’s how to wire it into a Lambda‑hosted pair programmer.",
     "angle": "Most engineers treat LLMs as static code generators, but coupling them with live web search transforms them into true research assistants that can fetch up‑to‑date information before emitting code.",
     "gotchaToReveal": "The web‑search tool returns raw HTML pages; if you feed the whole page back to Claude without extracting the relevant section, the model can hallucinate or produce overly verbose code. You must strip to the exact API docs before the second prompt."
+  },
+  {
+    "date": "2026-11-11",
+    "title": "How to Wire GitHub Copilot's New Code Suggestion API into EventBridge Pipes for Real-Time PR Assistance, Explained Simply",
+    "service": "eventbridge",
+    "url": "https://dev.to/dineshgowtham/how-to-wire-github-copilots-new-code-suggestion-api-into-eventbridge-pipes-for-real-time-pr-co4",
+    "tags": [
+      "eventbridge",
+      "lambda",
+      "copilot",
+      "aidevtools"
+    ],
+    "hook": "When a pull request opens, waiting for a human review can stall momentum. Imagine an AI instantly proposing a first draft of the changes. By connecting GitHub Copilot's fresh suggestion endpoint to EventBridge Pipes, you can automate that magic. This post shows you how to turn a webhook into a live coding assistant.",
+    "angle": "AI dev-tools aren't just desktop plugins; they can be stitched into cloud event pipelines to amplify developer velocity.",
+    "gotchaToReveal": "Copilot's suggestion endpoint requires the 'x-copilot-client-id' header and a 30-second request timeout; omitting the header returns a 401 error that’s easy to miss."
   }
 ]
