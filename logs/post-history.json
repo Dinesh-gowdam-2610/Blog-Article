@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-06-26",
-    "title": "We Deleted 300 Lines of Code After Discovering Node.js 22's Hidden Perf Feature",
-    "service": "NodeJSPerformance",
-    "url": "https://dev.to/dineshgowtham/we-deleted-300-lines-of-code-after-discovering-nodejs-22s-hidden-perf-feature-4177",
-    "tags": [
-      "nodejs",
-      "cloudwatch",
-      "lambda",
-      "performance"
-    ],
-    "hook": "Node.js 22's built-in diagnostics channel is being criminally underused. This week, our team stumbled upon an obscure option that replaced 300 lines of manual logging code, slashed our Lambda execution time by 25%, and saved us $1500 on CloudWatch Logs every month.",
-    "angle": "The built-in Node.js diagnostics channel is a game-changer for performance optimization, and its potential applications in production environments are still largely untapped. By integrating this feature with AWS Lambda and CloudWatch, developers can simplify their logging and monitoring workflows while reducing costs.",
-    "gotchaToReveal": "The default log retention policy in CloudWatch can silently accumulate massive bills if not properly configured, especially when using the diagnostics channel for high-volume logging."
-  },
-  {
     "date": "2026-07-01",
     "title": "Bedrock Direct Integration with Step Functions: The 40% Cost Savings We Never Expected",
     "service": "Bedrock",
@@ -1347,5 +1332,20 @@
     "hook": "When a pull request opens, waiting for a human review can stall momentum. Imagine an AI instantly proposing a first draft of the changes. By connecting GitHub Copilot's fresh suggestion endpoint to EventBridge Pipes, you can automate that magic. This post shows you how to turn a webhook into a live coding assistant.",
     "angle": "AI dev-tools aren't just desktop plugins; they can be stitched into cloud event pipelines to amplify developer velocity.",
     "gotchaToReveal": "Copilot's suggestion endpoint requires the 'x-copilot-client-id' header and a 30-second request timeout; omitting the header returns a 401 error that’s easy to miss."
+  },
+  {
+    "date": "2026-11-13",
+    "title": "How to Build an AI-Powered Document Summarizer with Claude, S3, and Lambda, Explained Simply",
+    "service": "Lambda",
+    "url": "https://dev.to/dineshgowtham/how-to-build-an-ai-powered-document-summarizer-with-claude-s3-and-lambda-explained-simply-4kc3",
+    "tags": [
+      "lambda",
+      "s3",
+      "claude",
+      "aicoding"
+    ],
+    "hook": "When a PDF lands in an S3 bucket, a tiny piece of code can turn it into a concise summary without provisioning any servers. You’ll see how Claude’s language model, Bedrock’s API, and Lambda’s event-driven model combine into a production-ready workflow.",
+    "angle": "Most engineers assume AI pipelines need heavyweight orchestration, but a pure serverless stack can deliver reliable, low-latency summarization for any document.",
+    "gotchaToReveal": "Lambda’s payload size limit (6 MB) forces you to chunk very large documents; forgetting to split the text leads to truncated summaries and API errors."
   }
 ]
