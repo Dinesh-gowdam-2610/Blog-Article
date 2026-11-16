@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-07-01",
-    "title": "Bedrock Direct Integration with Step Functions: The 40% Cost Savings We Never Expected",
-    "service": "Bedrock",
-    "url": "https://dev.to/dineshgowtham/bedrock-direct-integration-with-step-functions-the-40-cost-savings-we-never-expected-3lbf",
-    "tags": [
-      "bedrock",
-      "stepfunctions",
-      "costsavings",
-      "serverless"
-    ],
-    "hook": "We thought we'd save a few dollars by cutting out the Lambda middleman from our Step Functions workflow. What we found was a 40% reduction in costs and a significant boost in performance. Here's the secret to integrating Bedrock directly with Step Functions.",
-    "angle": "By leveraging Bedrock's direct integration with Step Functions, teams can eliminate the need for Lambda functions, reducing costs and improving workflow efficiency. However, this approach requires careful consideration of the trade-offs and potential pitfalls.",
-    "gotchaToReveal": "The potential for increased complexity and decreased visibility when using Bedrock with Step Functions, and how to mitigate these risks through careful workflow design and monitoring"
-  },
-  {
     "date": "2026-07-08",
     "title": "We Replaced 70% of Our Lambda Functions with LLMIntegration — and Saved $6,000 on AWS Bills",
     "service": "LLMIntegration",
@@ -1347,5 +1332,20 @@
     "hook": "When a PDF lands in an S3 bucket, a tiny piece of code can turn it into a concise summary without provisioning any servers. You’ll see how Claude’s language model, Bedrock’s API, and Lambda’s event-driven model combine into a production-ready workflow.",
     "angle": "Most engineers assume AI pipelines need heavyweight orchestration, but a pure serverless stack can deliver reliable, low-latency summarization for any document.",
     "gotchaToReveal": "Lambda’s payload size limit (6 MB) forces you to chunk very large documents; forgetting to split the text leads to truncated summaries and API errors."
+  },
+  {
+    "date": "2026-11-16",
+    "title": "How to Stream Multi-File AI Coding Assistant Suggestions with Amazon Kinesis, Explained Simply",
+    "service": "Kinesis",
+    "url": "https://dev.to/dineshgowtham/how-to-stream-multi-file-ai-coding-assistant-suggestions-with-amazon-kinesis-explained-simply-3pea",
+    "tags": [
+      "kinesis",
+      "aicodingassistants",
+      "nodejs",
+      "ecs"
+    ],
+    "hook": "AI coding assistants are moving beyond single‑file autocomplete to multi‑file, agentic edits. To keep your IDE responsive, you need a way to handle a flood of edit suggestions in real time. Streaming those events through Amazon Kinesis lets you decouple generation from consumption and scale safely.",
+    "angle": "Most engineers treat AI suggestions as fire‑and‑forget API calls, but that approach collapses under multi‑file workloads. By treating each suggestion as a streamable event, you turn the assistant into a robust, observable pipeline.",
+    "gotchaToReveal": "Kinesis guarantees order only within a single shard, so without careful partition key design you can receive out‑of‑order file edits for the same PR."
   }
 ]
