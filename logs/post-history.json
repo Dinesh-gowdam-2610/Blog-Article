@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-07-15",
-    "title": "AIEvaluation Reveals Shocking Truth: 80% of LLM Integrations Are Overpaying by $1,500/month",
-    "service": "AIEvaluation",
-    "url": "https://dev.to/dineshgowtham/aievaluation-reveals-shocking-truth-80-of-llm-integrations-are-overpaying-by-1500month-3flg",
-    "tags": [
-      "aievaluation",
-      "llmintegration",
-      "costoptimization",
-      "ai"
-    ],
-    "hook": "As LLM adoption skyrockets, our AIEvaluation audit exposes a costly mistake crippling most integrations. The culprit? Incorrect prompt caching configuration, which silently overcharges teams by 90%. We'll dissect the overlooked settings causing this financial bleeding and demonstrate how to rectify it with a simple, step-by-step LLM prompt optimization guide.",
-    "angle": "The LLM integration landscape is fraught with costly inefficiencies stemming from suboptimal prompt caching strategies. By challenging conventional wisdom on LLM cost optimization, we reveal a practical approach to slashing over 70% of unnecessary expenses through targeted AIEvaluation and tailored prompt engineering.",
-    "gotchaToReveal": "Incorrectly assuming that default prompt caching settings are cost-effective, leading to substantial overpayment for LLM services."
-  },
-  {
     "date": "2026-07-22",
     "title": "Understanding Vector Databases: A Beginner's Guide to Embeddings and Similarity Search",
     "service": "VectorDatabases",
@@ -1347,5 +1332,20 @@
     "hook": "Cursor turns your editor into an AI‑native workspace, but the heavy LLM calls can still slow you down. By offloading the Claude‑powered tool server to ECS Fargate you keep the IDE snappy while gaining unlimited scalability. This post shows exactly how to wire the two together.",
     "angle": "Most engineers assume AI coding assistants must run locally or on Lambda, yet a managed container service can give you better isolation and predictable performance without code‑level compromises.",
     "gotchaToReveal": "Cursor only retries tool calls on HTTP 5xx and aborts after 30 seconds, so returning a 200 with an error field looks like success – you must use proper status codes and keep the response under the timeout, otherwise Cursor silently discards the result."
+  },
+  {
+    "date": "2026-11-18",
+    "title": "How to Build an Async AI Code Assistant with SQS, Claude, and Node.js 22, Explained Simply",
+    "service": "SQS",
+    "url": "https://dev.to/dineshgowtham/how-to-build-an-async-ai-code-assistant-with-sqs-claude-and-nodejs-22-explained-simply-4jam",
+    "tags": [
+      "sqs",
+      "claude",
+      "nodejs",
+      "aiassistant"
+    ],
+    "hook": "AI assistants don’t have to block your users while waiting for a response. By decoupling the request with SQS you get a resilient, scalable pipeline that can handle bursts of code‑suggestion traffic. This guide shows you how to stitch together SQS, Claude via Bedrock, and Node.js 22 to power an always‑on AI pair‑programmer.",
+    "angle": "Most developers assume AI‑driven code helpers must be synchronous, but an async queue‑based architecture eliminates latency spikes and keeps your app responsive.",
+    "gotchaToReveal": "If the Claude call exceeds the SQS visibility timeout the message becomes visible again, causing duplicate processing unless you extend the timeout or use ChangeMessageVisibility"
   }
 ]
