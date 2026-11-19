@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-07-22",
-    "title": "Understanding Vector Databases: A Beginner's Guide to Embeddings and Similarity Search",
-    "service": "VectorDatabases",
-    "url": "https://dev.to/dineshgowtham/understanding-vector-databases-a-beginners-guide-to-embeddings-and-similarity-search-30i8",
-    "tags": [
-      "vectordatabases",
-      "embeddings",
-      "similaritysearch",
-      "aws"
-    ],
-    "hook": "Vector databases are changing the game for AI applications, but what exactly are they? How do they enable similarity search and what are the key concepts to understand when working with embeddings?",
-    "angle": "Vector databases are not just a new type of NoSQL database, but a fundamental shift in how we store and query data, leveraging the power of embeddings to enable efficient similarity search",
-    "gotchaToReveal": "The importance of proper data normalization and handling of high-dimensional data when working with vector databases"
-  },
-  {
     "date": "2026-07-23",
     "title": "TypeScript 5.5 Explained Simply: Mastering Inferred Type Predicates",
     "service": "TypeScript55",
@@ -1347,5 +1332,20 @@
     "hook": "AI assistants don’t have to block your users while waiting for a response. By decoupling the request with SQS you get a resilient, scalable pipeline that can handle bursts of code‑suggestion traffic. This guide shows you how to stitch together SQS, Claude via Bedrock, and Node.js 22 to power an always‑on AI pair‑programmer.",
     "angle": "Most developers assume AI‑driven code helpers must be synchronous, but an async queue‑based architecture eliminates latency spikes and keeps your app responsive.",
     "gotchaToReveal": "If the Claude call exceeds the SQS visibility timeout the message becomes visible again, causing duplicate processing unless you extend the timeout or use ChangeMessageVisibility"
+  },
+  {
+    "date": "2026-11-19",
+    "title": "MCP Unlocked: Building a Claude‑Ready AI Agent Server with CDK and Node.js",
+    "service": "CDK",
+    "url": "https://dev.to/dineshgowtham/mcp-unlocked-building-a-claude-ready-ai-agent-server-with-cdk-and-nodejs-3114",
+    "tags": [
+      "cdk",
+      "mcp",
+      "nodejs",
+      "aiagents"
+    ],
+    "hook": "AI agents keep tripping over context limits because they don’t speak the Model Context Protocol (MCP). By the end of this guide you’ll have a real, deployable server that talks MCP‑fluently to Claude, so your assistant can call tools without a single manual hack.",
+    "angle": "Most engineers treat MCP as a theoretical spec, but it’s a practical bridge that lets Claude orchestrate tools reliably – you just need the right deployment scaffolding.",
+    "gotchaToReveal": "CDK’s DockerImageAsset caches builds by Dockerfile checksum; if you only change a source file the image may not rebuild unless you update the Dockerfile or add a dummy ARG, leading to stale code in production."
   }
 ]
