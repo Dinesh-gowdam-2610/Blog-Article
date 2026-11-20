@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-07-23",
-    "title": "TypeScript 5.5 Explained Simply: Mastering Inferred Type Predicates",
-    "service": "TypeScript55",
-    "url": "https://dev.to/dineshgowtham/typescript-55-explained-simply-mastering-inferred-type-predicates-4d7d",
-    "tags": [
-      "typescript",
-      "nodejs",
-      "types",
-      "predicates"
-    ],
-    "hook": "TypeScript 5.5 brings a game-changing feature: inferred type predicates. But what does this mean for your code? In this post, we explore how to harness the power of inferred type predicates to simplify your TypeScript workflows. Say goodbye to cumbersome type definitions and hello to more efficient coding.",
-    "angle": "With TypeScript 5.5, developers can leverage inferred type predicates to streamline their coding process. However, this feature is often misunderstood, leading to underutilization. We argue that inferred type predicates are a crucial tool for any TypeScript developer looking to elevate their skills.",
-    "gotchaToReveal": "The counterintuitive behavior of inferred type predicates when dealing with nested types, and how to work around this limitation."
-  },
-  {
     "date": "2026-07-29",
     "title": "How Claude's Context Window Actually Works: A Deep Dive",
     "service": "Claude",
@@ -1347,5 +1332,20 @@
     "hook": "AI agents keep tripping over context limits because they don’t speak the Model Context Protocol (MCP). By the end of this guide you’ll have a real, deployable server that talks MCP‑fluently to Claude, so your assistant can call tools without a single manual hack.",
     "angle": "Most engineers treat MCP as a theoretical spec, but it’s a practical bridge that lets Claude orchestrate tools reliably – you just need the right deployment scaffolding.",
     "gotchaToReveal": "CDK’s DockerImageAsset caches builds by Dockerfile checksum; if you only change a source file the image may not rebuild unless you update the Dockerfile or add a dummy ARG, leading to stale code in production."
+  },
+  {
+    "date": "2026-11-20",
+    "title": "How to Build a Secure AI Code‑Review Service on App Runner with VPC‑Connected DynamoDB Vector Search, Explained Simply",
+    "service": "AppRunner",
+    "url": "https://dev.to/dineshgowtham/how-to-build-a-secure-ai-code-review-service-on-app-runner-with-vpc-connected-dynamodb-vector-5232",
+    "tags": [
+      "apprunner",
+      "dynamodb",
+      "nodejs",
+      "aicoding"
+    ],
+    "hook": "App Runner just got VPC connectors, opening the door to private, low‑latency AI services. Imagine a code‑review bot that looks up similar snippets in a private vector store and asks Claude for suggestions—all without exposing data to the internet. This post shows you how to make it happen.",
+    "angle": "Secure AI workloads don’t need a heavyweight ECS cluster; App Runner’s VPC integration lets you run a full‑stack Node.js AI service with just a few clicks, but the setup has hidden pitfalls that most tutorials skip.",
+    "gotchaToReveal": "App Runner’s VPC connector requires an explicit service role and security‑group rules; forgetting to attach the DynamoDB VPC endpoint policy will cause “AccessDenied” errors that look like bad credentials, not network issues."
   }
 ]
