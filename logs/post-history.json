@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-08-05",
-    "title": "Claude AI Assistants: How to Leverage Structured Output for Real-World Applications",
-    "service": "ClaudeCode",
-    "url": "https://dev.to/dineshgowtham/claude-ai-assistants-how-to-leverage-structured-output-for-real-world-applications-5h2p",
-    "tags": [
-      "claudeai",
-      "nodejs",
-      "typescript",
-      "aiassistants"
-    ],
-    "hook": "Imagine having an AI assistant that can understand your codebase and provide actionable feedback. With Claude AI assistants, this is now a reality. But what does it take to harness their power? In this post, we'll explore the ins and outs of Claude's structured output and how to use it for real-world applications.",
-    "angle": "Claude AI assistants have the potential to revolutionize the way we write code, but only if we can effectively leverage their structured output. By understanding how to use this output, we can unlock a new level of productivity and efficiency in our development workflows.",
-    "gotchaToReveal": "One common gotcha when using Claude AI assistants is the need to handle malformed JSON output, which can occur when the AI model returns an error."
-  },
-  {
     "date": "2026-08-06",
     "title": "ChatGPT Explained Simply: How AI Coding Assistants Actually Understand Your Code",
     "service": "ChatGPTForEngineers",
@@ -1348,5 +1333,20 @@
     "hook": "LLM calls to Claude can feel sluggish when every user query triggers a fresh Bedrock request. By inserting a serverless Redis cache right between your EC2 app and Claude, you can turn repeated questions into instant answers. This post shows you exactly how to do it without a single Lambda function.",
     "angle": "While most engineers reach for traditional Redis clusters, the new per‑request pricing of ElastiCache Serverless forces a rethink of cost‑vs‑latency trade‑offs for AI workloads.",
     "gotchaToReveal": "ElastiCache Serverless charges per request; a tight TTL can double your bill if you unintentionally cache high‑traffic keys without expiration control"
+  },
+  {
+    "date": "2026-11-25",
+    "title": "How to Use SNS FIFO Topics for Ordered, Real‑Time Claude Code Suggestions, Explained Simply",
+    "service": "SNS",
+    "url": "https://dev.to/dineshgowtham/how-to-use-sns-fifo-topics-for-ordered-real-time-claude-code-suggestions-explained-simply-20jo",
+    "tags": [
+      "sns",
+      "lambda",
+      "nodejs",
+      "claude"
+    ],
+    "hook": "Claude just gave you a fresh piece of code—how do you get that suggestion to the right developers instantly without losing order? By publishing it to an SNS FIFO topic you can fan‑out reliably to Slack, a review Lambda, and a logging queue. This post shows you the exact steps, so you can trust the flow the first time.",
+    "angle": "Most engineers treat SNS as a simple fire‑and‑forget notifier, but its FIFO capabilities unlock deterministic, ordered pipelines for AI‑driven coding workflows.",
+    "gotchaToReveal": "FIFO topics silently drop messages if MessageDeduplicationId repeats within a 5‑minute window—so you must generate a truly unique ID per suggestion, otherwise duplicate code tips disappear without warning."
   }
 ]
