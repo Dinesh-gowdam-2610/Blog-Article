@@ -1,21 +1,6 @@
 [
   {
     "date": "2026-08-06",
-    "title": "ChatGPT Explained Simply: How AI Coding Assistants Actually Understand Your Code",
-    "service": "ChatGPTForEngineers",
-    "url": "https://dev.to/dineshgowtham/chatgpt-explained-simply-how-ai-coding-assistants-actually-understand-your-code-46l",
-    "tags": [
-      "chatgpt",
-      "nodejs",
-      "typescript",
-      "ai"
-    ],
-    "hook": "AI coding assistants like ChatGPT are revolutionizing the way we write code, but how do they actually work? What magic happens behind the scenes to turn your prompts into working code? In this post, we'll dive into the inner workings of ChatGPT and explore its capabilities and limitations.",
-    "angle": "While many developers are using ChatGPT as a black box, throwing code at it and hoping for the best, a deeper understanding of its inner mechanics can help you unlock its full potential and write better code faster.",
-    "gotchaToReveal": "ChatGPT's tendency to confidently invent API methods that don't exist, and how to mitigate this issue through careful prompt engineering"
-  },
-  {
-    "date": "2026-08-06",
     "title": "Prompt Engineering Explained Simply: 5 Techniques to Improve Your LLM Outputs",
     "service": "PromptEngineering",
     "url": "https://dev.to/dineshgowtham/prompt-engineering-explained-simply-5-techniques-to-improve-your-llm-outputs-39gg",
@@ -1348,5 +1333,20 @@
     "hook": "Claude just gave you a fresh piece of code—how do you get that suggestion to the right developers instantly without losing order? By publishing it to an SNS FIFO topic you can fan‑out reliably to Slack, a review Lambda, and a logging queue. This post shows you the exact steps, so you can trust the flow the first time.",
     "angle": "Most engineers treat SNS as a simple fire‑and‑forget notifier, but its FIFO capabilities unlock deterministic, ordered pipelines for AI‑driven coding workflows.",
     "gotchaToReveal": "FIFO topics silently drop messages if MessageDeduplicationId repeats within a 5‑minute window—so you must generate a truly unique ID per suggestion, otherwise duplicate code tips disappear without warning."
+  },
+  {
+    "date": "2026-11-26",
+    "title": "How EventBridge Pipes Can Replace Lambda for Real‑Time Claude AI Agent Orchestration, Explained Simply",
+    "service": "eventbridge",
+    "url": "https://dev.to/dineshgowtham/how-eventbridge-pipes-can-replace-lambda-for-real-time-claude-ai-agent-orchestration-explained-odg",
+    "tags": [
+      "eventbridge",
+      "lambda",
+      "claude",
+      "aiagents"
+    ],
+    "hook": "Imagine an AI coding assistant that can trigger downstream tools without writing a single Lambda function. EventBridge Pipes lets you connect Claude’s output directly to the services that need to act, cutting latency and boiler‑plate. In minutes you’ll have a fully‑observable, retry‑aware pipeline that feels like magic.",
+    "angle": "Most engineers still reach for Lambda as the go‑to glue for AI agent workflows, but EventBridge Pipes provides a leaner, more observable alternative that eliminates hidden cold‑start costs.",
+    "gotchaToReveal": "Pipes don’t retry on Lambda invocation errors unless you configure a dead‑letter queue or set the retry policy, so a missing DLQ can silently drop agent actions."
   }
 ]
