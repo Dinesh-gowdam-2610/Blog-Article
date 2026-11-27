@@ -1,20 +1,5 @@
 [
   {
-    "date": "2026-08-06",
-    "title": "Prompt Engineering Explained Simply: 5 Techniques to Improve Your LLM Outputs",
-    "service": "PromptEngineering",
-    "url": "https://dev.to/dineshgowtham/prompt-engineering-explained-simply-5-techniques-to-improve-your-llm-outputs-39gg",
-    "tags": [
-      "llm",
-      "promptengineering",
-      "nodejs",
-      "aws"
-    ],
-    "hook": "Large Language Models can be finicky, but with the right prompts, they can produce astonishing results. However, crafting effective prompts is more art than science. What if you could systematically improve your prompts to get better outputs? ",
-    "angle": "By applying practical prompt engineering techniques, developers can significantly enhance the accuracy and relevance of their LLM outputs, making them more reliable and useful in real-world applications.",
-    "gotchaToReveal": "How subtle differences in prompt wording can lead to vastly different LLM outputs, and how to systematically test and refine prompts for better results."
-  },
-  {
     "date": "2026-08-07",
     "title": "RAG Explained Simply: How Retrieval-Augmented Generation Works Under the Hood",
     "service": "RAG",
@@ -1348,5 +1333,20 @@
     "hook": "Imagine an AI coding assistant that can trigger downstream tools without writing a single Lambda function. EventBridge Pipes lets you connect Claude’s output directly to the services that need to act, cutting latency and boiler‑plate. In minutes you’ll have a fully‑observable, retry‑aware pipeline that feels like magic.",
     "angle": "Most engineers still reach for Lambda as the go‑to glue for AI agent workflows, but EventBridge Pipes provides a leaner, more observable alternative that eliminates hidden cold‑start costs.",
     "gotchaToReveal": "Pipes don’t retry on Lambda invocation errors unless you configure a dead‑letter queue or set the retry policy, so a missing DLQ can silently drop agent actions."
+  },
+  {
+    "date": "2026-11-27",
+    "title": "How to Build a Claude‑Powered Code Suggestion Bot with DynamoDB Persistence, Explained Simply",
+    "service": "dynamodb",
+    "url": "https://dev.to/dineshgowtham/how-to-build-a-claude-powered-code-suggestion-bot-with-dynamodb-persistence-explained-simply-11db",
+    "tags": [
+      "dynamodb",
+      "ai",
+      "nodejs",
+      "claude"
+    ],
+    "hook": "Developers often lose the context of a conversation with an LLM as soon as a request finishes, forcing them to re‑send the whole history each time. By persisting prompt logs in DynamoDB you can give Claude a running memory without blowing up latency. This post shows exactly how to wire a GitHub webhook, Lambda, and DynamoDB together so your AI code assistant remembers what it suggested before.",
+    "angle": "Most teams treat DynamoDB as a simple key‑value cache, overlooking its durability and streaming features that let you build stateful LLM workflows with zero extra infrastructure.",
+    "gotchaToReveal": "DynamoDB’s default eventual consistency means a write may not be visible to the very next read; using a strongly consistent read or a read‑after‑write pattern is essential to avoid missing the freshly generated suggestion."
   }
 ]
